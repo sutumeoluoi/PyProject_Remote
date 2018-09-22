@@ -3,6 +3,11 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+#===============================================================================
+# ###### Good STD Module 
+#  import dataclasses ,collections ,itertools ,functools ,pickle ,os ,asyncio ,email ,json ,pdb ,csv, Argparse, Request
+# #####
+#===============================================================================
 
 #import sys
 # import pyodbc
@@ -337,6 +342,42 @@ Created on Aug 2, 2018
 #     )
 #===============================================================================
 
-num = 567
-num_weight = sum(map(int, list(str(num))))
-print(num_weight)
+#===============================================================================
+# num = 567
+# num_weight = sum(map(int, list(str(num))))
+# print(num_weight)
+#===============================================================================
+
+#===============================================================================
+# List = [("lion", "ani"), ('frog', 'not mammal'), ('cat', 'tiger')]
+# List2 = ["Lion is an animal", "Lion is a fish", 'Frog is not mammal', 'Cat eats Mouse', 'Tiger is a big Cat']
+# ###On List2[i] not satify condition, list comp return [], it translate to False
+# ###Use 0 instead of x such as[0 for s1, s2 in List if s1 in x.lower() and s2 in x.lower()] works the same
+# # print(list(filter(lambda x: [x for s1, s2 in List if s1 in x.lower() and s2 in x.lower()], List2)))
+# ###Generator will return all since it returns generator obj, it always translate to True
+# # print(list(filter(lambda x: (x for s1, s2 in List if s1 in x.lower() and s2 in x.lower()), List2)))
+# output = list(filter(lambda x: any(s1 in x.lower() and s2 in x.lower() for s1, s2 in List), List2))
+# print(output)
+#===============================================================================
+
+#===============================================================================
+# s = '35.555,444'
+# trans = str.maketrans('.,', ',.')
+# print(s.translate(trans))
+#===============================================================================
+
+class Methods:
+    def __init__(self):
+        self.name = 'My Test Class'
+        
+    def imeth(self, x): # Normal instance method: passed a self
+        print([self, x])
+        
+    def smeth(x): # Static: no instance passed
+        print([x])
+        
+    def cmeth(cls, x): # Class: gets class, not instance
+        print([cls, x])
+        
+#     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
+#     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
