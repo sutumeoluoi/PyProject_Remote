@@ -3,6 +3,143 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+'''
+Created on Sep 19, 2018
+
+@author: Sutu_MeoLuoi
+'''
+
+#===============================================================================
+# ******CLOSURE******
+# **A closure is a function remembers the values from its enclosing lexical scope even when the program flow is no longer in that scope
+# **A function object remembers values in enclosing scopes regardless of whether those scopes are still present in memory
+# **A functions that refer to variables from the scope in which they were defined
+# **A function with an extended scope that encompasses nonglobal variables referenced in the body of the function 
+# but not defined there. It does not matter whether the function is anonymous or not; what matters is that it can access nonglobal
+# variables that are defined outside of its body. closures only matter when you have nested functions.
+#===============================================================================
+
+#===============================================================================
+# a = [1, 2, 7, 9, 6]
+# b = [3, 4]
+# a.append(14) #add 14 to the same list
+# a.extend(b)  #add b list to the same a list
+# a = a + b    #create a new list joining old a and b
+# a += b       #add b list to the same list. So, augmented assignment(iadd) is same ass extend()
+#===============================================================================
+
+#===============================================================================
+# class Spam:
+#     numInstances = 0
+#     
+#     def __init__(self):
+#         Spam.numInstances = Spam.numInstances + 1
+#         self.counter = 99
+#     
+#     def printNumInstances():
+#         print("Number of instances created: %s" % Spam.numInstances)
+#     
+#     def printUnbound(self):
+#         print('unbound {}', self.counter)
+#         
+# class Selfless:
+#     def __init__(self, data):
+#         self.data = data
+#         
+#     def selfless(arg1, arg2): # A simple function in 3.X
+#         return arg1 + arg2
+#     
+#     def normal(self, arg1, arg2): # Instance expected when called
+#         return self.data + arg1 + arg2
+#===============================================================================
+
+#===============================================================================
+# ###### lambda TRAP!!!
+# ## Expecting output: [2, 3, 4, 5, 6 ,7]; BUT print-out: [7, 7, 7, 7, 7, 7].
+# ## I.e, expecting lambda closure to hold each x after each iteration, assume x going out of scope after each iteration
+# ## Reason: each iteration creates an <function <listcomp>.<lambda> at 0x000000000222EBF8> object binding var 'x' to it. 
+# ##         For loop never create new scope. 'x' belongs to enclosing scope of lambda(the scope where for loop belongs to),
+# ##         so there is no closure in lambda. Closure only happens when var of local scope got encased into function object after that scope goes out
+# ##         The function lambda objects got created with ref of 'x' of outer scope, so when outer scope call lambda obj, latest values of 'x'
+# ##         got passed to lambda obj creates [7, 7, 7, 7, 7, 7].
+# ## Note: for loop leak 'x' after loop finish while list comprehension doesn't. Thus, change x value after loop will change return of lambda.
+# ##        However, changing x value after list comprehension, NOT change return value of lambda
+# ##        Python 3, list comprehension creates own scope
+# ## Ref: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126
+# ##        http://math.andrej.com/2009/04/09/pythons-lambda-is-broken/
+# ##        https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
+# ##        https://stackoverflow.com/questions/13905741/accessing-class-variables-from-a-list-comprehension-in-the-class-definition
+# lds = []
+# for x in range(6):
+#     lds.append(lambda: x + 2)
+# x = 10
+# print([ld() for ld in lds])
+#===============================================================================
+
+### assign x = 0 after list comprehension NOT change return value of lambda. Lambda got closure on x with the lastes value = 5 and 
+### calculate to return 7 on every lambda object
+### 
+# lds = [lambda: x + 2 for x in range(6)]
+# x = 10
+# print([ld() for ld in lds])
+# print(lds[0]())
+# print(lds)
+
+#===============================================================================
+# ## list comprehension leak 'x' into outside scope in python 2. However, Python 3 fixed it.
+# ## Thus, python 2 will print '6' and python 3 will error "name 'x' is not defined"
+# ## Ref: https://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-thi
+# lds = [lambda: x + 2 for x in range(6)]
+# print(x)
+#===============================================================================
+
+
+#===============================================================================
+# counter = 0  
+# def count_misskey():
+#     global count
+#     counter += 1
+#     any_key = 0
+#     def count_any():
+#         nonlocal any_key
+#         any_key += 1
+# #In main so def needs global to it to call. 
+# #In def and nested def calls it, nested def need nonlocal NOT global to call it
+#===============================================================================
+    
+#===============================================================================
+# ATTENTION!!!: A = ((X and Y) or Z). Always try to evaluate to True and return the latest item when it stop
+# Semantic: evaluate left to right 
+#     1. On X true, evaluate Y; on Y true stop evaluation since next is 'or'. So return Y.  
+#     2. On X false, not going to Y, jump to evaluation Z. Either Z True or False, always return Z bcauz Z is the last item
+#     3. On X true, evaluate Y; on Y false, evaluate Z and return Z since Z is the last item. (CAN'T use replace an if else)
+# Note: 1 and 2 can use to replace ternary Y if X else Z. 3 can't use since it return Z on X true and Y false.
+#     I.e, only use it to replace Y if X else Z when you are sure Y always TRUE!!!!
+#===============================================================================
+
+#===============================================================================
+# d = {}
+# for num in range(5):
+#     t = str(num)
+#     d.setdefault(t, [])
+# d['0'].append('zero')
+# print(d) 
+# #setdefault(...) is function, so its argument will be evaluated even before it got called. So, default [] always
+# #got created even on found key. On found key, [] will be discarded. On not found key, [] will be assigned to value
+# #of the new key. Thus, it is wasteful if searching on big list and on key already exist.
+# #In that case, use defaultdict(...) instead. Defaultdic(...) is the class accept callable(function, object) factory,
+# #so, it doesn't have issue of wastefull creating and discarding [] on existed key
+#===============================================================================
+ 
+#===============================================================================
+# Is there a way to introspect a function so that it shows me information on the arguments it takes (like number of args, type if possible, name of arguments if named) 
+# and the return value? dir() doesn't seem to do what I want. 
+# >>
+# import inspect 
+# print(inspect.getargspec(the_function)) 
+# but help() is much better
+#===============================================================================
+
 #===============================================================================
 # ###### Good STD Module 
 #  import dataclasses ,collections ,itertools ,functools ,pickle ,os ,asyncio ,email ,json ,pdb ,csv, Argparse, Request
@@ -366,18 +503,45 @@ Created on Aug 2, 2018
 # print(s.translate(trans))
 #===============================================================================
 
-class Methods:
-    def __init__(self):
-        self.name = 'My Test Class'
-        
-    def imeth(self, x): # Normal instance method: passed a self
-        print([self, x])
-        
-    def smeth(x): # Static: no instance passed
-        print([x])
-        
-    def cmeth(cls, x): # Class: gets class, not instance
-        print([cls, x])
-        
-#     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
-#     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
+#===============================================================================
+# class Methods:
+#     def __init__(self):
+#         self.name = 'My Test Class'
+#         
+#     def imeth(self, x): # Normal instance method: passed a self
+#         print([self, x])
+#         
+#     def smeth(x): # Static: no instance passed
+#         print([x])
+#         
+#     def cmeth(cls, x): # Class: gets class, not instance
+#         print([cls, x])
+#         
+# #     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
+# #     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
+#===============================================================================
+
+#===============================================================================
+# #implement defaultdict to add missing key and count total missing key.
+# #Note: this is NOT closure because counter is global and it is never going out of scope
+# #    To implement closure. implement all these codes in function and change 'global counter' to 'nonlocal counter'
+# from collections import defaultdict
+# counter = 0 #this in main so def specify global to it to call. 
+#             #If this is in def and nested def calls it, nested def need specify nonlocal NOT global to call it 
+# def count_misskey():
+#     global counter
+#     counter += 1
+#     return 0
+#  
+# current = {'green': 12, 'blue': 3}
+# increments = [
+#             ('red', 5),
+#             ('blue', 17),
+#             ('orange', 9),
+#             ] 
+# result = defaultdict(count_misskey, current)
+# print('Before:', dict(result), counter)
+# for key, amount in increments:
+#     result[key] += amount
+# print("After: ", dict(result), counter)
+#===============================================================================
