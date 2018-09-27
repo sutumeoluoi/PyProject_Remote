@@ -3,6 +3,53 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+
+#===============================================================================
+# counter = 0  
+# def count_misskey():
+#     global count
+#     counter += 1
+#     any_key = 0
+#     def count_any():
+#         nonlocal any_key
+#         any_key += 1
+# #In main so def needs global to it to call. 
+# #In def and nested def calls it, nested def need nonlocal NOT global to call it
+#===============================================================================
+    
+#===============================================================================
+# ATTENTION!!!: A = ((X and Y) or Z). Always try to evaluate to True and return the latest item when it stop
+# Semantic: evaluate left to right 
+#     1. On X true, evaluate Y; on Y true stop evaluation since next is 'or'. So return Y.  
+#     2. On X false, not going to Y, jump to evaluation Z. Either Z True or False, always return Z bcauz Z is the last item
+#     3. On X true, evaluate Y; on Y false, evaluate Z and return Z since Z is the last item. (CAN'T use replace an if else)
+# Note: 1 and 2 can use to replace ternary Y if X else Z. 3 can't use since it return Z on X true and Y false.
+#     I.e, only use it to replace Y if X else Z when you are sure Y always TRUE!!!!
+#===============================================================================
+
+#===============================================================================
+# d = {}
+# for num in range(5):
+#     t = str(num)
+#     d.setdefault(t, [])
+# d['0'].append('zero')
+# print(d) 
+# #setdefault(...) is function, so its argument will be evaluated even before it got called. So, default [] always
+# #got created even on found key. On found key, [] will be discarded. On not found key, [] will be assigned to value
+# #of the new key. Thus, it is wasteful if searching on big list and on key already exist.
+# #In that case, use defaultdict(...) instead. Defaultdic(...) is the class accept callable(function, object) factory,
+# #so, it doesn't have issue of wastefull creating and discarding [] on existed key
+#===============================================================================
+ 
+#===============================================================================
+# Is there a way to introspect a function so that it shows me information on the arguments it takes (like number of args, type if possible, name of arguments if named) 
+# and the return value? dir() doesn't seem to do what I want. 
+# >>
+# import inspect 
+# print(inspect.getargspec(the_function)) 
+# but help() is much better
+#===============================================================================
+
 #===============================================================================
 # ###### Good STD Module 
 #  import dataclasses ,collections ,itertools ,functools ,pickle ,os ,asyncio ,email ,json ,pdb ,csv, Argparse, Request
@@ -366,18 +413,45 @@ Created on Aug 2, 2018
 # print(s.translate(trans))
 #===============================================================================
 
-class Methods:
-    def __init__(self):
-        self.name = 'My Test Class'
-        
-    def imeth(self, x): # Normal instance method: passed a self
-        print([self, x])
-        
-    def smeth(x): # Static: no instance passed
-        print([x])
-        
-    def cmeth(cls, x): # Class: gets class, not instance
-        print([cls, x])
-        
-#     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
-#     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
+#===============================================================================
+# class Methods:
+#     def __init__(self):
+#         self.name = 'My Test Class'
+#         
+#     def imeth(self, x): # Normal instance method: passed a self
+#         print([self, x])
+#         
+#     def smeth(x): # Static: no instance passed
+#         print([x])
+#         
+#     def cmeth(cls, x): # Class: gets class, not instance
+#         print([cls, x])
+#         
+# #     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
+# #     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
+#===============================================================================
+
+#===============================================================================
+# #implement defaultdict to add missing key and count total missing key.
+# #Note: this is NOT closure because counter is global and it is never going out of scope
+# #    To implement closure. implement all these codes in function and change 'global counter' to 'nonlocal counter'
+# from collections import defaultdict
+# counter = 0 #this in main so def specify global to it to call. 
+#             #If this is in def and nested def calls it, nested def need specify nonlocal NOT global to call it 
+# def count_misskey():
+#     global counter
+#     counter += 1
+#     return 0
+#  
+# current = {'green': 12, 'blue': 3}
+# increments = [
+#             ('red', 5),
+#             ('blue', 17),
+#             ('orange', 9),
+#             ] 
+# result = defaultdict(count_misskey, current)
+# print('Before:', dict(result), counter)
+# for key, amount in increments:
+#     result[key] += amount
+# print("After: ", dict(result), counter)
+#===============================================================================
