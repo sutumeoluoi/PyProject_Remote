@@ -4,6 +4,157 @@ Created on Aug 2, 2018
 @author: hal
 '''
 
+******Create/copy list of mutable object******
+**remember that repetition, concatenation, and slicing copy only the top level of their operand objects
+**L1, L2, X,board,... is reference to list object [2, 3, 4], [4, 5, 6],... Thus, any repetition, concatenation
+**of them just clone them(clone reference), NOT clone the object. It will create multiple copies of the same
+**object.
+L1 = [2, 3, 4]
+L2 = L1[:] # Make a copy of L1 (or list(L1), copy.copy(L1), etc.). Note: copy.copy() only works on sequences
+L2 = list(L1)
+L2 = copy.copy(L1)
+L2 = [L1]*3
+L = [1, 2, 3]
+M = ['X', L[:], 'Y'] # Embed a copy of L (or list(L), or L.copy())
+L = [4, 5, 6]
+X = L * 4 # Like [4, 5, 6] + [4, 5, 6] + ...
+Y = [L] * 4 # [L] + [L] + ... = [L, L,...]. Change L[1] change every sublist in Y
+Y = [list(L)] * 4 # Embed a (shared) copy of L. Avoid trap above, but encounter another below
+Same as Y = [L for _ in range(4)] or Y = []; for _ in range(4): Y.append(L)
+However, Y = [[4, 5, 6] for _ in range(4)] or Y = [list(L) for i in range(4)] fixed this trap
+print(Y)
+Y[0][1] = 99 # All four copies are still the same
+# Y => [[4, 99, 6], [4, 99, 6], [4, 99, 6], [4, 99, 6]]
+print(Y)
+ 
+  
+board = []
+row = [0,0,0,0,0,0,0,0]
+for i in range(8):
+    board.append(row)
+    print(id(row))
+#     board.append([0,0,0,0,0,0,0,0])    #This works. Avoid the trap
+# board = [[0,0,0,0,0,0,0,0] for _ in range(8)] #This works. Avoid the trap
+def drawboard():
+    for i in board:
+        print(id(i))
+# board[0][0] = "K"
+# board[1].append("j")
+print(board)
+drawboard()
+
+#===============================================================================
+# # ******CLOSURE******
+# # **A closure is a function remembers the values from its enclosing lexical scope even when the program flow is no longer in that scope
+# # **A function object remembers values in enclosing scopes regardless of whether those scopes are still present in memory
+# # **A functions that refer to variables from the scope in which they were defined
+# # **A function with an extended scope that encompasses nonglobal variables referenced in the body of the function 
+# # but not defined there. It does not matter whether the function is anonymous or not; what matters is that it can access nonglobal
+# # variables that are defined outside of its body. closures only matter when you have nested functions.
+# funcs = []
+# for i in range(4):
+#     def f():
+#         print(i)
+#     funcs.append(f)# 
+# for f in funcs:
+#     f()
+# # OR
+# flist = []
+# for i in range(3):
+#     def func(x): return x * i
+#     flist.append(func)
+# for f in flist:
+#     print(f(2))
+# # There is no closure involved in above 2 codes. The functions just searches in the global scope for i. 
+# # Check f.func_closure (Python 2) or f.__closure__ (Python 3) to see value = None
+# # Python (apparently) just doesn't bother capturing the enclosing scope because it doesn't need to. 
+# # Global scopes never go away. It doesn't capture enclosing scope(which is global), so it truly no closure
+# flist = []
+# def outer():
+#     for i in range(3):
+#         def inner(x): return x * i
+#         print(inner.__closure__)
+#         flist.append(inner)
+# outer()
+# for f in flist:
+#     print(f.__closure__)
+#     print(f(2))
+# #Closure on i in inner() function. But, it's late-binding, so it returns 4 4 4
+#===============================================================================
+
+#===============================================================================
+# a = [1, 2, 7, 9, 6]
+# b = [3, 4]
+# a.append(14) #add 14 to the same list
+# a.extend(b)  #add b list to the same a list
+# a = a + b    #create a new list joining old a and b
+# a += b       #add b list to the same list. So, augmented assignment(iadd) is same ass extend()
+#===============================================================================
+
+#===============================================================================
+# class Spam:
+#     numInstances = 0
+#     
+#     def __init__(self):
+#         Spam.numInstances = Spam.numInstances + 1
+#         self.counter = 99
+#     
+#     def printNumInstances():
+#         print("Number of instances created: %s" % Spam.numInstances)
+#     
+#     def printUnbound(self):
+#         print('unbound {}', self.counter)
+#         
+# class Selfless:
+#     def __init__(self, data):
+#         self.data = data
+#         
+#     def selfless(arg1, arg2): # A simple function in 3.X
+#         return arg1 + arg2
+#     
+#     def normal(self, arg1, arg2): # Instance expected when called
+#         return self.data + arg1 + arg2
+#===============================================================================
+
+###### lambda TRAP!!!
+## Expecting output: [2, 3, 4, 5, 6 ,7]; BUT print-out: [7, 7, 7, 7, 7, 7].
+## I.e, expecting lambda closure to hold each x after each iteration, assume x going out of scope after each iteration
+## Reason: each iteration creates an <function <listcomp>.<lambda> at 0x000000000222EBF8> object binding var 'x' to it. 
+##         For loop never create new scope. 'x' belongs to enclosing scope of lambda(the scope where for loop belongs to),
+##         so there is no closure in lambda. Closure only happens when var of local scope got encased into function object after that scope goes out
+##         The function lambda objects got created with ref of 'x' of outer scope, so when outer scope call lambda obj, latest values of 'x'
+##         got passed to lambda obj creates [7, 7, 7, 7, 7, 7].
+## Note: for loop leak 'x' after loop finish while list comprehension doesn't. Thus, change x value after loop will change return of lambda.
+##        However, changing x value after list comprehension, NOT change return value of lambda
+##        Python 3, list comprehension creates own scope
+## Ref: https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture/23557126
+##        http://math.andrej.com/2009/04/09/pythons-lambda-is-broken/
+##        https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
+##        https://stackoverflow.com/questions/13905741/accessing-class-variables-from-a-list-comprehension-in-the-class-definition
+
+# lds = []
+# for x in range(6):
+#     lds.append(lambda: x + 2)
+# x = 10
+# print([ld() for ld in lds])
+
+### assign x = 0 after list comprehension NOT change return value of lambda. Lambda got closure on x with the lastes value = 5 and 
+### calculate to return 7 on every lambda object
+### 
+# lds = [lambda: x + 2 for x in range(6)]
+# x = 10
+# print([ld() for ld in lds])
+# print(lds[0]())
+# print(lds)
+
+#===============================================================================
+# ## list comprehension leak 'x' into outside scope in python 2. However, Python 3 fixed it.
+# ## Thus, python 2 will print '6' and python 3 will error "name 'x' is not defined"
+# ## Ref: https://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-thi
+# lds = [lambda: x + 2 for x in range(6)]
+# print(x)
+#===============================================================================
+
 #===============================================================================
 # counter = 0  
 # def count_misskey():
