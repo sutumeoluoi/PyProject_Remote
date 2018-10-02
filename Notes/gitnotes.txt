@@ -1,0 +1,21 @@
+1. get git projects from github. Project folder will create matching project name in github. 
+
+C:\>git clone https://github.com/sutumeoluoi/Py_Projects.git
+
+folder C:\Py_Projects got created with all matching git info from github project
+
+#################################################
+git init
+git remote add origin git://github.com/cmcculloh/repo.git
+git fetch --all
+git pull origin master
+
+Vs.
+
+git clone git://github.com/cmcculloh/repo.git
+
+>>>They're basically the same, except clone will setup additional remote tracking branches, not just master. 
+Clones a repository into a newly created directory, creates remote-tracking branches for each branch in the cloned repository 
+(visible using git branch -r), and creates and checks out an initial branch that is forked from the cloned 
+repository's currently active branch.
+#################################################
