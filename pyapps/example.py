@@ -3,27 +3,99 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
-def count_arr(arr):
-    for i, next_index in enumerate(arr):
-        if next_index > 0:
-            arr[i] = 0
-            while True:
-                next_item = arr[next_index-1]
-                if next_item < 0:
-                    arr[next_index-1] -= 1
-                    break
-                elif next_item > 0:                     
-                    arr[next_index-1] = -1
-                    next_index = next_item
-                else:
-                    arr[next_index-1] = -1
-                    break
-                
-    return dict(enumerate(arr, 1))
-                   
-a = [3, 4, 3, 1, 2, 1, 5, 5, 5,8]
-arr = count_arr(a)
-print(arr)
+from itertools import cycle, chain
+# server1 = ['a','b','c']
+# server2 = ['d','e','f']
+# server3 = ['g','h','i']
+# server_names = chain.from_iterable(zip(server1, server2, server3)) 
+# print(list(server_names))
+
+#===============================================================================
+# ######## Remove 0 in sub-list
+# L = [[5, 0, 6], [7, 22], [0, 4, 2], [9, 0, 45, 17]]
+# # L = [list(filter(lambda x: x != 0,item)) for item in L]
+# # L = [list(filter(None,item)) for item in L] #None defaulted to use identity funct where false item return false. in this case 0 is false
+# # L = list(map(lambda y: list(filter(lambda x: x != 0, y)) , L))
+# L = [[subitem for subitem in item if subitem] for item in L]    #using nested conditional list comprehension taking advantage of 0 is false
+# print(L)
+#===============================================================================
+
+# ****** SINGLETON Design Pattern
+# Standard singleton design pattern, for most languages, to ensure that only one instance of 
+# the class is ever created. An implementation of the singleton pattern must:
+# _ ensure that only one instance of the singleton class ever exists; and
+# _ provide global access to that instance.
+# ***
+# The constructor says:
+# If there is no instance recorded, 
+#    create an instance and record it
+# return the recorded instance
+# ***
+# Using base class method
+# class Singleton:
+#     instance = None
+#     def __new__(cls):
+#         if cls.instance is None:
+#             cls.instance = super().__new__(cls)
+#         return cls.instance
+# 
+# singleton_obj1 = Singleton()
+# singleton_obj2 = Singleton()
+# 
+# print(singleton_obj1)
+# print(singleton_obj2)
+# >>> <__main__.Singleton object at 0x10dbc0f60>
+# >>> <__main__.Singleton object at 0x10dbc0f60>
+# 
+# Using metaclass method
+# class Singleton(type):
+#     _instances = {}
+#     def __call__(cls, *args, **kwargs):
+#         if cls not in cls._instances:
+#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+#         return cls._instances[cls]
+# 
+# #Python2
+# class MyClass(BaseClass):
+#     __metaclass__ = Singleton
+# 
+# #Python3
+# class MyClass(BaseClass, metaclass=Singleton):
+#     pass
+# 
+# Other methods: using class decorator(define function to decorate class, at the end class turn into function
+# *******************
+
+
+#===============================================================================
+# from collections import Counter, defaultdict
+# def count_arr(arr):
+#     for i, next_index in enumerate(arr):
+#         if next_index > 0:
+#             arr[i] = 0
+#             while True:
+#                 next_item = arr[next_index-1]
+#                 if next_item < 0:
+#                     arr[next_index-1] -= 1
+#                     break
+#                 elif next_item > 0:                     
+#                     arr[next_index-1] = -1
+#                     next_index = next_item
+#                 else:
+#                     arr[next_index-1] = -1
+#                     break
+#                 
+#     return dict((i, abs(v)) for i, v in enumerate(arr, 1))
+#                    
+# a = [3, 4, 3, 1, 2, 1, 5, 5, 5,8]
+# # ct = Counter(a)
+# ct = defaultdict(int)
+# for item in a:
+#     ct[item] += 1
+# print(sorted(ct, key=reversed))
+# arr = count_arr(a)
+# print(arr)
+#===============================================================================
 
 
 #===============================================================================
