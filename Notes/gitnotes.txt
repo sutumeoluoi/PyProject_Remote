@@ -19,3 +19,23 @@ Clones a repository into a newly created directory, creates remote-tracking bran
 (visible using git branch -r), and creates and checks out an initial branch that is forked from the cloned 
 repository's currently active branch.
 #################################################
+
+2. Merge master -> branch or branch -> master(master is way behind branch)
+*Stay on branch
+git checkout develop
+git merge master
+
+*Vice versa
+git checkout master
+git merge develop
+
+3. Force point master to branch. This force create new master and delete old master
+git branch -f master branchToMoveMasterTo
+
+4. Push all local branch to remote and tracking those branches
+git push origin --all -u 
+
+5. Stash current un-commit changes of working directory to switch to different branch. Without stashing, current changes LOST
+git stash save 'gitnotes change'	#save with notes
+git stash list	#list all stashes
+git stash pop	#push stashes back to working directory

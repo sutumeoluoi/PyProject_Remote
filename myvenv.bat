@@ -1,3 +1,3 @@
 c:
 cd \workspace
-myvenv\scripts\activate.bat
+\myvenv\scripts\activate.bat

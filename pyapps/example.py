@@ -3,45 +3,69 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+def count_arr(arr):
+    for i, next_index in enumerate(arr):
+        if next_index > 0:
+            arr[i] = 0
+            while True:
+                next_item = arr[next_index-1]
+                if next_item < 0:
+                    arr[next_index-1] -= 1
+                    break
+                elif next_item > 0:                     
+                    arr[next_index-1] = -1
+                    next_index = next_item
+                else:
+                    arr[next_index-1] = -1
+                    break
+                
+    return dict(enumerate(arr, 1))
+                   
+a = [3, 4, 3, 1, 2, 1, 5, 5, 5,8]
+arr = count_arr(a)
+print(arr)
 
-******Create/copy list of mutable object******
-**remember that repetition, concatenation, and slicing copy only the top level of their operand objects
-**L1, L2, X,board,... is reference to list object [2, 3, 4], [4, 5, 6],... Thus, any repetition, concatenation
-**of them just clone them(clone reference), NOT clone the object. It will create multiple copies of the same
-**object.
-L1 = [2, 3, 4]
-L2 = L1[:] # Make a copy of L1 (or list(L1), copy.copy(L1), etc.). Note: copy.copy() only works on sequences
-L2 = list(L1)
-L2 = copy.copy(L1)
-L2 = [L1]*3
-L = [1, 2, 3]
-M = ['X', L[:], 'Y'] # Embed a copy of L (or list(L), or L.copy())
-L = [4, 5, 6]
-X = L * 4 # Like [4, 5, 6] + [4, 5, 6] + ...
-Y = [L] * 4 # [L] + [L] + ... = [L, L,...]. Change L[1] change every sublist in Y
-Y = [list(L)] * 4 # Embed a (shared) copy of L. Avoid trap above, but encounter another below
-Same as Y = [L for _ in range(4)] or Y = []; for _ in range(4): Y.append(L)
-However, Y = [[4, 5, 6] for _ in range(4)] or Y = [list(L) for i in range(4)] fixed this trap
-print(Y)
-Y[0][1] = 99 # All four copies are still the same
-# Y => [[4, 99, 6], [4, 99, 6], [4, 99, 6], [4, 99, 6]]
-print(Y)
- 
-  
-board = []
-row = [0,0,0,0,0,0,0,0]
-for i in range(8):
-    board.append(row)
-    print(id(row))
-#     board.append([0,0,0,0,0,0,0,0])    #This works. Avoid the trap
-# board = [[0,0,0,0,0,0,0,0] for _ in range(8)] #This works. Avoid the trap
-def drawboard():
-    for i in board:
-        print(id(i))
-# board[0][0] = "K"
-# board[1].append("j")
-print(board)
-drawboard()
+
+#===============================================================================
+# ******Create/copy list of mutable object******
+# **remember that repetition, concatenation, and slicing copy only the top level of their operand objects
+# **L1, L2, X,board,... is reference to list object [2, 3, 4], [4, 5, 6],... Thus, any repetition, concatenation
+# **of them just clone them(clone reference), NOT clone the object. It will create multiple copies of the same
+# **object.
+# L1 = [2, 3, 4]
+# L2 = L1[:] # Make a copy of L1 (or list(L1), copy.copy(L1), etc.). Note: copy.copy() only works on sequences
+# L2 = list(L1)
+# L2 = copy.copy(L1)
+# L2 = [L1]*3
+# L = [1, 2, 3]
+# M = ['X', L[:], 'Y'] # Embed a copy of L (or list(L), or L.copy())
+# L = [4, 5, 6]
+# X = L * 4 # Like [4, 5, 6] + [4, 5, 6] + ...
+# Y = [L] * 4 # [L] + [L] + ... = [L, L,...]. Change L[1] change every sublist in Y
+# Y = [list(L)] * 4 # Embed a (shared) copy of L. Avoid trap above, but encounter another below
+# Same as Y = [L for _ in range(4)] or Y = []; for _ in range(4): Y.append(L)
+# However, Y = [[4, 5, 6] for _ in range(4)] or Y = [list(L) for i in range(4)] fixed this trap
+# print(Y)
+# Y[0][1] = 99 # All four copies are still the same
+# # Y => [[4, 99, 6], [4, 99, 6], [4, 99, 6], [4, 99, 6]]
+# print(Y)
+#  
+#   
+# board = []
+# row = [0,0,0,0,0,0,0,0]
+# for i in range(8):
+#     board.append(row)
+#     print(id(row))
+# #     board.append([0,0,0,0,0,0,0,0])    #This works. Avoid the trap
+# # board = [[0,0,0,0,0,0,0,0] for _ in range(8)] #This works. Avoid the trap
+# def drawboard():
+#     for i in board:
+#         print(id(i))
+# # board[0][0] = "K"
+# # board[1].append("j")
+# print(board)
+# drawboard()
+#===============================================================================
 
 #===============================================================================
 # # ******CLOSURE******
@@ -51,6 +75,7 @@ drawboard()
 # # **A function with an extended scope that encompasses nonglobal variables referenced in the body of the function 
 # # but not defined there. It does not matter whether the function is anonymous or not; what matters is that it can access nonglobal
 # # variables that are defined outside of its body. closures only matter when you have nested functions.
+# # **A nested function that accesses values from outer local variables is also known as a closure
 # funcs = []
 # for i in range(4):
 #     def f():
