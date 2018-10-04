@@ -3,7 +3,50 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
-from itertools import cycle, chain
+
+from itertools import cycle, chain, combinations, tee
+from collections import Counter
+from random import sample
+import timeit
+start_time = timeit.default_timer()
+nums = [-1, 0, 1, 2, -1, -4, -9, 4]*100
+# print(len(nums))
+# get triplet tuples
+# lc = combinations(nums, 3)
+ # get triplet tuples
+lc = [sample(nums,3) for i in range(100000)]
+
+# keep only those triplets that sum to 0
+# lf = filter(lambda x: sum(x) == 0, lc)
+lsum = sum
+lsorted = sorted
+lf = (lsorted(item) for item in lc if not lsum(item))
+print(timeit.default_timer() - start_time)
+# sort each triplet because (-1,0,1) == (-1,1,0)
+# and we need unique triplets only
+# lfms = map(sorted, lf)
+# lfms = (lsorted(item) for item in lf)
+# lfms = map(lambda x: tuple(sorted(x)), lf)
+
+# now, add to result list only unique triplets
+# that sum to 0
+
+# s = []
+# for t in lf:
+#     if t not in s:
+#         s.append(t)
+# print(timeit.default_timer() - start_time)
+
+start_time = timeit.default_timer()
+lfms = map(tuple, lf)
+s = set(lfms)
+print(timeit.default_timer() - start_time)
+
+
+print(s)
+print(len(s))
+
+
 # server1 = ['a','b','c']
 # server2 = ['d','e','f']
 # server3 = ['g','h','i']
@@ -84,9 +127,9 @@ from itertools import cycle, chain
 #                 else:
 #                     arr[next_index-1] = -1
 #                     break
-#                 
+#                  
 #     return dict((i, abs(v)) for i, v in enumerate(arr, 1))
-#                    
+#                     
 # a = [3, 4, 3, 1, 2, 1, 5, 5, 5,8]
 # # ct = Counter(a)
 # ct = defaultdict(int)
