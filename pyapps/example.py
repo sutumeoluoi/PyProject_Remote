@@ -3,6 +3,45 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+#****print each item in args list per line
+def printnl(*args):
+    st = '{}\n'*(len(args)-1) + '{}'
+    print(st.format(*args))
+
+#**** sorted dictionary to list
+dic1 = {'first': 13, 'third': 5, 'second': 7,}
+sortlist = sorted(dic1.values(), reverse=True)
+sortlist1 = sorted(dic1.keys(), reverse=True)
+sortlist2 = sorted(dic1, reverse=True) #same as above
+sortlist3 = sorted(dic1, key=dic1.get, reverse=True) #sorted by values, output: keys
+sortlist4 = sorted(dic1.items(), reverse=True)
+printnl(sortlist, sortlist1, sortlist2, sortlist3, sortlist4)
+
+#===============================================================================
+# #**** find max value in dict
+# from operator import itemgetter
+# dic1 = {'first': 13, 'second': 7, 'third': 5}
+# mx = max(dic1, key=dic1.get)    #output: 'first'
+# mx2 = max(dic1.items(), key=itemgetter(1)) #output: '{'first', '13'}
+# mx3 = max(dic1.items(), key=itemgetter(1))[0] #output: 'first'
+# printnl(mx, mx2, mx3)
+#===============================================================================
+
+#****filter specific value from list
+#**using None in function of filter apply id test as 'lambda x: x' or 'is' test
+#'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
+#'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
+#use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
+#or where you want to protect against objects breaking when being compared against None
+a = [1, 2, 3, None, 0, [], 86469]
+b = [x for x in a if x is not 86469] #failed to ignore 86469 cause 'is not' id test 86469 check on obj. 
+            #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
+y = 0
+c = list(filter(y.__ne__, a))
+d = list(filter(None, a))
+e = [x for x in a if x != None]
+printnl(a, b, c, d, e)
+
 # ###**Insert list b to 'i' position of list a
 # list_a[i:i] = list_b
 
@@ -54,7 +93,6 @@ Created on Aug 2, 2018
 # print(sum_a) 
 # print(sum_b)
 #===============================================================================
-
  
 #===============================================================================
 #import re
@@ -121,11 +159,7 @@ Created on Aug 2, 2018
 #   
 #     print(result)
 #===============================================================================
-
-
-
-            
-
+         
 # dictlist = [{'label':'240p','url':'url'}, {'label':'720p','url':'url'},{'label':'480p','url':'url'}]
 # print(max(dictlist, key=lambda x: x['label'])['label'])
 
@@ -162,8 +196,7 @@ Created on Aug 2, 2018
 # for item in a:
 #     print(check_bigger(item))
 #===============================================================================
-
-            
+     
 #===============================================================================
 # #****** Check repeated char string
 # import re
@@ -208,7 +241,6 @@ Created on Aug 2, 2018
 # # test_regex 1.36632800102
 #===============================================================================
 
-
 # alist = [1, 7, 3, 9, 2]
 # # alist = [3, 7, 1, 9, 2]
 # # alist = [6, 7, 1, 5]
@@ -216,7 +248,6 @@ Created on Aug 2, 2018
 # min_i = alist.index(min_item)
 # max_item = max(alist[min_i+1:])
 # print(max_item - min_item)    
-    
     
 # # triplet_list = [chr(i)*3 for i in range(ord('a'),ord('z')+1)]
 # # print(triplet_list)
@@ -247,7 +278,6 @@ Created on Aug 2, 2018
 # print(check_str[matches.start():matches.end()])
 
 
-
 # d = {
 #     'Woody': lambda x: x1 - 30,
 #     'Herbaceous': 31 - 85,
@@ -275,45 +305,69 @@ Created on Aug 2, 2018
 
 #===============================================================================
 # from itertools import cycle, chain, combinations, tee
-# from collections import Counter
 # import timeit
+# 
+# nums = [-1, 0, 1, 2, -1, -4, -9, 4, -5, 7, 8, -3, -2, 6]*100
+# nums = sorted(set(nums))
+# 
 # start_time = timeit.default_timer()
-# nums = [-1, 0, 1, 2, -1, -4, -9, 4]*50
-# ## get triplet tuples
+# # print(len(nums))
+# # get triplet tuples
 # lc = combinations(nums, 3)
-# # list(lc)
-# # print('after combo', timeit.default_timer() - start_time)
-#   
-# # ## keep only those triplets that sum to 0
-# # # lf = filter(lambda x: sum(x) == 0, lc)
+#    
+# # keep only those triplets that sum to 0
+# # lf = filter(lambda x: sum(x) == 0, lc)
 # lsum = sum
 # lsorted = sorted
-# # lf = [lsorted(item) for item in lc if not lsum(item)]
-# lf = [tuple(lsorted(item)) for item in lc if not lsum(item)]
-# # list(lf)
-# # print('after sorted and filter', timeit.default_timer() - start_time)
-# 
-# # # sort each triplet because (-1,0,1) == (-1,1,0)
-# # # and we need unique triplets only
-# # # lfms = map(sorted, lf)
-# # # lfms = (lsorted(item) for item in lf)
-# # # lfms = map(lambda x: tuple(sorted(x)), lf)
-# # # print('gen and sort', timeit.default_timer() - start_time)
-#   
-# ## now, add to result list only unique triplets that sum to 0  
-# # start_time = timeit.default_timer()
+# lf = (lsorted(item) for item in lc if not lsum(item))
+# # print(timeit.default_timer() - start_time)
+# # sort each triplet because (-1,0,1) == (-1,1,0)
+# # and we need unique triplets only
+# # lfms = map(sorted, lf)
+# # lfms = (lsorted(item) for item in lf)
+# # lfms = map(lambda x: tuple(sorted(x)), lf)
+#    
+# # now, add to result list only unique triplets
+# # that sum to 0
+#    
 # # s = []
-# # for t in lfms:
+# # for t in lf:
 # #     if t not in s:
 # #         s.append(t)
-# # print(timeit.default_timer() - start_time)
-#   
-# # lfms = map(tuple, lf)
-# s = set(lf)
-# print('final', timeit.default_timer() - start_time)
-# #   
-# # print(s)
-# # print(len(s))
+#    
+# lfms = map(tuple, lf)
+# s = set(lfms)
+# print(s)
+# print(len(s))
+# print(timeit.default_timer() - start_time)
+#  
+# start_time = timeit.default_timer()
+# def find_3sum(arr):
+#     sum3_list = set()
+#     for i, item in enumerate(arr):
+#         j = i + 1
+#         sum = -item
+#         k = len(arr) - 1
+#         while j < k:
+#             sum2 =  arr[j] + arr[k]
+#             if sum == sum2:
+#                 sum3_list.add((item, arr[j], arr[k]))
+#                 j += 1
+#                 k -= 1
+#                 while arr[j] == arr[j-1]:
+#                     j += 1
+#             elif sum > sum2:
+#                 j += 1
+#             else:
+#                 k -= 1
+#     return sum3_list
+#     
+# nums.sort()
+# trip_set = find_3sum(nums)
+# print(sorted(list(trip_set)), '\n', len(trip_set))
+# print(timeit.default_timer() - start_time)
+# 
+# print(s == trip_set)
 #===============================================================================
 
 #===============================================================================
