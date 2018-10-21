@@ -3,49 +3,331 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+# ###**Insert list b to 'i' position of list a
+# list_a[i:i] = list_b
 
-from itertools import cycle, chain, combinations, tee
-from collections import Counter
-from random import sample
-import timeit
-start_time = timeit.default_timer()
-nums = [-1, 0, 1, 2, -1, -4, -9, 4]*100
-# print(len(nums))
-# get triplet tuples
+#===============================================================================
+# ###**Insert list b in front list a
+# list_a = list_b + list_a
+# 
+# for item in list_b:
+#     list_a.insert(0, item)
+# 
+# for item in self.list_a:
+#     list_b.append(item)
+# 
+# list_a = list_b
+# 
+# list_a[0:0] = list_b
+#===============================================================================
+
+#===============================================================================
+# from itertools import accumulate
+# def find_mean(a,q):
+#     lr = ['1 3', '2 4', '2 5']
+#     for item in lr:
+# #     for _ in range(q):
+# #         lr = input()
+#         l,r = map(int,item.split())
+#         k = a[l-1:r]
+# #         print(type(k))
+#         print(sum(k)//len(k))
+#     
+# 
+# # nq = input()
+# # arr = input()
+# nq = '5 3'
+# arr = '1 15 2 99 4 5'
+# n,q = map(int,nq.split())
+# arr_int = list(map(int, arr.split()))
+# arr_sums =[0]
+# arr_sums.extend(list(accumulate(arr_int)))
+# 
+# print(arr_sums)
+# lr = ['1 3', '2 4', '2 5', '3 6']
+# sum_a = []
+# sum_b = []
+# for item in lr:
+#     l,r = map(int,item.split())
+#     sum_a.append(sum(arr_int[l-1:r]))
+#     sum_b.append(arr_sums[r] - arr_sums[l-1])
+# print(sum_a) 
+# print(sum_b)
+#===============================================================================
+
+ 
+#===============================================================================
+#import re
+#from functools import reduce
+## G = '11'
+## P = '11111'
+## founds = re.finditer(r'(?=' + P + ')', G)
+## result = [found.start() for found in founds]
+## print(result)
+
+# def gridSearch(G, P):   
+#     delta_len = len(G) - len(P)
+#     match_list = []
+#     for i, st1 in enumerate(G):
+#         if i < delta_len:
+#             matches = re.finditer(r'(?=' + P[0] + ')', st1)
+#             result = [a_match.start() for a_match in matches]         
+#             if result:
+#                 match_list.append(result)
+#                 break
+#     else:    
+#         return 'NO'
+#            
+#     for st1, st2 in zip(G[i+1:], P[1:]):        
+#         matches = re.finditer(r'(?=' + st2 + ')', st1)
+#         result = [a_match.start() for a_match in matches]         
+#         if not result:
+#             return 'NO'        
+#         match_list.append(result)
+#     
+#     answer_list = list(reduce(lambda x, y: x & y, map(set, match_list)))
+#          
+#     return 'YES' if answer_list else 'NO'
+#   
+#   
+# t = int(input())
+#   
+# for t_itr in range(t):
+#     RC = input().split()
+#   
+#     R = int(RC[0])
+#   
+#     C = int(RC[1])
+#   
+#     G = []
+#   
+#     for _ in range(R):
+#         G_item = input()
+#         G.append(G_item)
+#   
+#     rc = input().split()
+#   
+#     r = int(rc[0])
+#   
+#     c = int(rc[1])
+#   
+#     P = []
+#   
+#     for _ in range(r):
+#         P_item = input()
+#         P.append(P_item)
+#   
+#     result = gridSearch(G, P)
+#   
+#     print(result)
+#===============================================================================
+
+
+
+            
+
+# dictlist = [{'label':'240p','url':'url'}, {'label':'720p','url':'url'},{'label':'480p','url':'url'}]
+# print(max(dictlist, key=lambda x: x['label'])['label'])
+
+#===============================================================================
+# # ****Find next lexicographical permutation
+# # ref: https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
+# # 1. Find largest index i such that array[i - 1] < array[i]
+# #    (from rightmost, find largest(size) subset in increasing order right to left. ex: [5, 4] of [2, 3, 5, 4]
+# #    Pivot = 3, max_of_subset = 5. Keep their indices. If no such i exists, then this is already the last permutation.)
+# # 2. Find largest index j such that j >= i and array[j] > array[i - 1].
+# #    (On found subset, from rightmost, find item > pivot. keep its index. 
+# #    Subset already ordered right to left, so item is the smallest item and > pivot)
+# # 3. Swap array[j] and array[i - 1].
+# # 4. Reverse the suffix starting at array[i].
+# # Note: step 4 could use sorted() or reversed() because sublist already sorted and swapping still keep it sorted
+# def check_bigger(a):
+#     for i in range(-1, -len(a), -1):
+#         if a[i] > a[i-1]:
+#             max_i = i       
+#             pivot = a[i-1]
+#             break
+#     else:        
+#         return 'no answer'
+#       
+#     sub_list = list(a[max_i:])
+#     for j in range(-1, -(len(sub_list)+1), -1):
+#         if sub_list[j] > pivot:
+#             sub_list[j], pivot = pivot, sub_list[j]
+#             break
+#              
+#     return a[:max_i-1] + str(pivot) + ''.join(sorted(sub_list))
+#       
+# a = ['lmno', 'dcba', 'dcbb', 'abdc', 'abcd', 'fedcbabcd', 'zedawdvyyfumwpupuinbdbfndyehircmylb']
+# for item in a:
+#     print(check_bigger(item))
+#===============================================================================
+
+            
+#===============================================================================
+# #****** Check repeated char string
+# import re
+# def test_regex(s,regex=re.compile(r'^(.)\1*$')):
+#     return bool(regex.match(s))
+# 
+# def test_all(s):
+#     return all(x == s[0] for x in s)
+# 
+# def test_count(s):
+#     return s.count(s[0]) == len(s)
+# 
+# def test_set(s):
+#     return len(set(s)) == 1
+# 
+# def test_replace(s):
+#     return not s.replace(s[0],'')
+# 
+# def test_translate(s):
+#     return not s.translate(None,s[0])
+# 
+# def test_strmul(s):
+#     return s == s[0]*len(s)
+# 
+# #**Result
+# # WITH ALL EQUAL
+# # test_all 5.83863711357
+# # test_count 0.947771072388
+# # test_set 2.01028490067
+# # test_replace 1.24682998657
+# # test_translate 0.941282987595
+# # test_strmul 0.629556179047
+# # test_regex 2.52913498878
+# # 
+# # WITH FIRST NON-EQUAL
+# # test_all 2.41147494316
+# # test_count 0.942595005035
+# # test_set 2.00480484962
+# # test_replace 0.960338115692
+# # test_translate 0.924381017685
+# # test_strmul 0.622269153595
+# # test_regex 1.36632800102
+#===============================================================================
+
+
+# alist = [1, 7, 3, 9, 2]
+# # alist = [3, 7, 1, 9, 2]
+# # alist = [6, 7, 1, 5]
+# min_item = min(alist)
+# min_i = alist.index(min_item)
+# max_item = max(alist[min_i+1:])
+# print(max_item - min_item)    
+    
+    
+# # triplet_list = [chr(i)*3 for i in range(ord('a'),ord('z')+1)]
+# # print(triplet_list)
+# # check_str = 'aaaaabcdefghhh'
+# # count_triplet = list(map(check_str.count, triplet_list))
+# # print(count_triplet)
+# 
+# import re
+# 
+# # check_str = 'aaaabbbcdeeeefghhhaaa'
+# # pat = r'(\w)(?<!\1)\1{2}(?!\1)'
+# # reg_obj = re.compile(pat, re.S)
+# # ## triplet = reg_obj.match(check_str)
+# # ## print(triplet)
+# # counter = [_ for _ in reg_obj.finditer(check_str)]
+# # print(counter)
+# # # counter = [1 for _ in reg_obj.finditer(check_str)]        
+# # # print(sum(counter))
+# # # list_triplet = re.findall(pat, check_str)
+# # # print(list_triplet)
+# 
+# p = re.compile(r'(\w)\1\1(?<!\1\1\1\1)')
+# #r'(?<=(?=(.)\1\1)...)'
+# check_str = 'aaaaabcdeeeefghhhaaa'
+# # matches = re.findall(p, check_str)
+# matches = re.search(p, check_str)
+# print(matches.start(), matches.end())
+# print(check_str[matches.start():matches.end()])
+
+
+
+# d = {
+#     'Woody': lambda x: x1 - 30,
+#     'Herbaceous': 31 - 85,
+#     'Algae': 86 - 90,
+#     'Fungus': 91 - 100,
+#     }
+# roll = 5
+# if roll in range(1, 30):
+#     pass
+# elif roll in range(31, 85):
+#     pass
+# elif roll in range(86, 90):
+#     pass
+# elif roll in range(91, 100):
+#     pass
+
+#===============================================================================
+# #***Nested tuple unpacking
+# floraTypes = {'woody': [1,30], 'herby': [31,85]}
+# num = 31
+# for t, (start, end) in floraTypes.items():
+#     if start <= num <= end: 
+#         print(t)
+#===============================================================================
+
+#===============================================================================
+# from itertools import cycle, chain, combinations, tee
+# from collections import Counter
+# import timeit
+# start_time = timeit.default_timer()
+# nums = [-1, 0, 1, 2, -1, -4, -9, 4]*50
+# ## get triplet tuples
 # lc = combinations(nums, 3)
- # get triplet tuples
-lc = [sample(nums,3) for i in range(100000)]
+# # list(lc)
+# # print('after combo', timeit.default_timer() - start_time)
+#   
+# # ## keep only those triplets that sum to 0
+# # # lf = filter(lambda x: sum(x) == 0, lc)
+# lsum = sum
+# lsorted = sorted
+# # lf = [lsorted(item) for item in lc if not lsum(item)]
+# lf = [tuple(lsorted(item)) for item in lc if not lsum(item)]
+# # list(lf)
+# # print('after sorted and filter', timeit.default_timer() - start_time)
+# 
+# # # sort each triplet because (-1,0,1) == (-1,1,0)
+# # # and we need unique triplets only
+# # # lfms = map(sorted, lf)
+# # # lfms = (lsorted(item) for item in lf)
+# # # lfms = map(lambda x: tuple(sorted(x)), lf)
+# # # print('gen and sort', timeit.default_timer() - start_time)
+#   
+# ## now, add to result list only unique triplets that sum to 0  
+# # start_time = timeit.default_timer()
+# # s = []
+# # for t in lfms:
+# #     if t not in s:
+# #         s.append(t)
+# # print(timeit.default_timer() - start_time)
+#   
+# # lfms = map(tuple, lf)
+# s = set(lf)
+# print('final', timeit.default_timer() - start_time)
+# #   
+# # print(s)
+# # print(len(s))
+#===============================================================================
 
-# keep only those triplets that sum to 0
-# lf = filter(lambda x: sum(x) == 0, lc)
-lsum = sum
-lsorted = sorted
-lf = (lsorted(item) for item in lc if not lsum(item))
-print(timeit.default_timer() - start_time)
-# sort each triplet because (-1,0,1) == (-1,1,0)
-# and we need unique triplets only
-# lfms = map(sorted, lf)
-# lfms = (lsorted(item) for item in lf)
-# lfms = map(lambda x: tuple(sorted(x)), lf)
-
-# now, add to result list only unique triplets
-# that sum to 0
-
-# s = []
-# for t in lf:
-#     if t not in s:
-#         s.append(t)
-# print(timeit.default_timer() - start_time)
-
-start_time = timeit.default_timer()
-lfms = map(tuple, lf)
-s = set(lfms)
-print(timeit.default_timer() - start_time)
-
-
-print(s)
-print(len(s))
-
+#===============================================================================
+# #**** in this case array.array slower than list
+# import array
+# import timeit
+# start_time = timeit.default_timer()
+# nums = [5, 7, 2, 9, 12, 4, 65, 35, 1, 89]*100000
+# sort_arr = sorted(nums)
+# # num_arr = array.array('i', nums)
+# # sort_arr = sorted(num_arr)
+# # print(sort_arr)
+# print('final', timeit.default_timer() - start_time)
+#===============================================================================
 
 # server1 = ['a','b','c']
 # server2 = ['d','e','f']
