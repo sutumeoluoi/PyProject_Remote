@@ -3,48 +3,94 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+#****filter specific value from list
+#**using None in function of filter apply id test as 'lambda x: x' or 'is' test
+#'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
+#'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
+#use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
+#or where you want to protect against objects breaking when being compared against None
 
-from itertools import cycle, chain, combinations, tee
-from collections import Counter
-from random import sample
-import timeit
-start_time = timeit.default_timer()
-nums = [-1, 0, 1, 2, -1, -4, -9, 4]*100
-# print(len(nums))
-# get triplet tuples
+a = [1, 2, 3, None, 0, [], 86469]
+b = [x for x in a if x is not 86469] #failed to ignore 86469 cause 'is not' id test 86469 check on obj. 
+            #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
+y = 0
+c = list(filter(y.__ne__, a))
+d = list(filter(None, a))
+e = [x for x in a if x != None]
+for l in (a, b, c, d, e):
+    print( l)
+
+
+#===============================================================================
+# from itertools import cycle, chain, combinations, tee
+# import timeit
+# 
+# nums = [-1, 0, 1, 2, -1, -4, -9, 4, -5, 7, 8, -3, -2, 6]*100
+# nums = sorted(set(nums))
+# 
+# start_time = timeit.default_timer()
+# # print(len(nums))
+# # get triplet tuples
 # lc = combinations(nums, 3)
- # get triplet tuples
-lc = [sample(nums,3) for i in range(100000)]
-
-# keep only those triplets that sum to 0
-# lf = filter(lambda x: sum(x) == 0, lc)
-lsum = sum
-lsorted = sorted
-lf = (lsorted(item) for item in lc if not lsum(item))
-print(timeit.default_timer() - start_time)
-# sort each triplet because (-1,0,1) == (-1,1,0)
-# and we need unique triplets only
-# lfms = map(sorted, lf)
-# lfms = (lsorted(item) for item in lf)
-# lfms = map(lambda x: tuple(sorted(x)), lf)
-
-# now, add to result list only unique triplets
-# that sum to 0
-
-# s = []
-# for t in lf:
-#     if t not in s:
-#         s.append(t)
+#    
+# # keep only those triplets that sum to 0
+# # lf = filter(lambda x: sum(x) == 0, lc)
+# lsum = sum
+# lsorted = sorted
+# lf = (lsorted(item) for item in lc if not lsum(item))
+# # print(timeit.default_timer() - start_time)
+# # sort each triplet because (-1,0,1) == (-1,1,0)
+# # and we need unique triplets only
+# # lfms = map(sorted, lf)
+# # lfms = (lsorted(item) for item in lf)
+# # lfms = map(lambda x: tuple(sorted(x)), lf)
+#    
+# # now, add to result list only unique triplets
+# # that sum to 0
+#    
+# # s = []
+# # for t in lf:
+# #     if t not in s:
+# #         s.append(t)
+#    
+# lfms = map(tuple, lf)
+# s = set(lfms)
+# print(s)
+# print(len(s))
 # print(timeit.default_timer() - start_time)
+#  
+# start_time = timeit.default_timer()
+# def find_3sum(arr):
+#     sum3_list = set()
+#     for i, item in enumerate(arr):
+#         j = i + 1
+#         sum = -item
+#         k = len(arr) - 1
+#         while j < k:
+#             sum2 =  arr[j] + arr[k]
+#             if sum == sum2:
+#                 sum3_list.add((item, arr[j], arr[k]))
+#                 j += 1
+#                 k -= 1
+#                 while arr[j] == arr[j-1]:
+#                     j += 1
+#             elif sum > sum2:
+#                 j += 1
+#             else:
+#                 k -= 1
+#     return sum3_list
+#     
+# nums.sort()
+# trip_set = find_3sum(nums)
+# print(sorted(list(trip_set)), '\n', len(trip_set))
+# print(timeit.default_timer() - start_time)
+# 
+# print(s == trip_set)
+#===============================================================================
 
-start_time = timeit.default_timer()
-lfms = map(tuple, lf)
-s = set(lfms)
-print(timeit.default_timer() - start_time)
 
 
-print(s)
-print(len(s))
+            
 
 
 # server1 = ['a','b','c']
