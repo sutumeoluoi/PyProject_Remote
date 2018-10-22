@@ -40,6 +40,10 @@ git stash save 'gitnotes change'	#save with notes
 git stash list	#list all stashes
 git stash pop	#push stashes back to working directory
 
-5. pull new branch from remote(pulling new branch from remote to local as name 'origin/home_1020'. Create new branch 'home_1020' at local and checkout it
+6. pull new branch from remote(pulling new branch from remote to local as name 'origin/home_1020'. Create new branch 'home_1020' at local and checkout it
 git fetch origin
 git checkout -b home_1020 origin/home_1020
+
+7. merge remote master to local master(update local master to match remote master)
+git fetch origin
+git merge origin/master

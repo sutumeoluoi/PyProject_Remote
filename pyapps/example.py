@@ -7,15 +7,20 @@ Created on Aug 2, 2018
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
+#*************************************************
 
-#**** sorted dictionary to list
-dic1 = {'first': 13, 'third': 5, 'second': 7,}
-sortlist = sorted(dic1.values(), reverse=True)
-sortlist1 = sorted(dic1.keys(), reverse=True)
-sortlist2 = sorted(dic1, reverse=True) #same as above
-sortlist3 = sorted(dic1, key=dic1.get, reverse=True) #sorted by values, output: keys
-sortlist4 = sorted(dic1.items(), reverse=True)
-printnl(sortlist, sortlist1, sortlist2, sortlist3, sortlist4)
+
+
+
+#===============================================================================
+# #**** sorted dictionary to list
+# dic1 = {'first': 13, 'third': 5, 'second': 7,}
+# sortlist = sorted(dic1.values(), reverse=True)
+# sortlist1 = sorted(dic1.keys(), reverse=True)
+# sortlist2 = sorted(dic1, reverse=True) #same as above
+# sortlist3 = sorted(dic1, key=dic1.get, reverse=True) #sorted by values, output: keys
+# sortlist4 = sorted(dic1.items(), reverse=True)
+# printnl(sortlist, sortlist1, sortlist2, sortlist3, sortlist4)
 
 #===============================================================================
 # #**** find max value in dict
@@ -27,20 +32,24 @@ printnl(sortlist, sortlist1, sortlist2, sortlist3, sortlist4)
 # printnl(mx, mx2, mx3)
 #===============================================================================
 
-#****filter specific value from list
-#**using None in function of filter apply id test as 'lambda x: x' or 'is' test
-#'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
-#'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
-#use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
-#or where you want to protect against objects breaking when being compared against None
+ #****filter specific value from list
+ #**using None in function of filter apply id test as 'lambda x: x' or 'is' test
+ #'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
+ #'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
+ #use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
+ #or where you want to protect against objects breaking when being compared against None
 a = [1, 2, 3, None, 0, [], 86469]
 b = [x for x in a if x is not 86469] #failed to ignore 86469 cause 'is not' id test 86469 check on obj. 
-            #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
+             #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
 y = 0
 c = list(filter(y.__ne__, a))
 d = list(filter(None, a))
 e = [x for x in a if x != None]
 printnl(a, b, c, d, e)
+# print(max(a, b, default=0)) #Python 3: TypeError: unorderable types: NoneType() > int(). same as [] inside the list
+#                 #default also NOT work on multiple iterables
+print(max(filter(lambda x: x not in (None, []), [None, None])) if any([None, None]) else None) #fix TypeError above
+max([] or [99]) #ver < 3.4
 
 # ###**Insert list b to 'i' position of list a
 # list_a[i:i] = list_b
