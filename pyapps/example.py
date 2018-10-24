@@ -10,7 +10,78 @@ def printnl(*args):
 #*************************************************
 
 
+#****Count occurences in list
+from collections import Counter
+from collections import defaultdict
 
+mylist=[1,1,1,1,1,1,2,3,2,2,2,2,3,3,4,5,5,5,5]*10
+
+def s1(mylist): 
+    return {k:mylist.count(k) for k in set(mylist)}
+
+def s2(mlist):
+    return Counter(mylist)
+
+def s3(mylist):
+    mydict=dict()
+    for index in mylist:
+        mydict[index] = mydict.setdefault(index, 0) + 1
+    return mydict   
+
+def s4(mylist):
+    mydict={}.fromkeys(mylist,0)
+    for k in mydict:
+        mydict[k]=mylist.count(k)    
+    return mydict    
+
+def s5(mylist):
+    mydict={}
+    for k in mylist:
+        mydict[k]=mydict.get(k,0)+1
+    return mydict     
+
+def s6(mylist):
+    mydict=defaultdict(int)
+    for i in mylist:
+        mydict[i] += 1
+    return mydict       
+
+def s7(mylist):
+    mydict={}.fromkeys(mylist,0)
+    for e in mylist:
+        mydict[e]+=1    
+    return mydict    
+
+if __name__ == '__main__':   
+    import timeit 
+    n=1000000
+    print(timeit.timeit("s1(mylist)", setup="from __main__ import s1, mylist",number=n))
+    print(timeit.timeit("s2(mylist)", setup="from __main__ import s2, mylist, Counter",number=n))
+    print(timeit.timeit("s3(mylist)", setup="from __main__ import s3, mylist",number=n))
+    print(timeit.timeit("s4(mylist)", setup="from __main__ import s4, mylist",number=n))
+    print(timeit.timeit("s5(mylist)", setup="from __main__ import s5, mylist",number=n))
+    print(timeit.timeit("s6(mylist)", setup="from __main__ import s6, mylist, defaultdict",number=n))
+    print(timeit.timeit("s7(mylist)", setup="from __main__ import s7, mylist",number=n))
+
+# Result:
+# 1. 27.912882882080456
+# 2. 20.123256369280778
+# 3. 47.757165042503054
+# 4. 28.73874751076798
+# 5. 47.79526024672896
+# 6. 25.16641805965054
+# 7. 29.540249596749277
+
+#===============================================================================
+# st = 'lolabbcdtellllc'
+# # result = {ch for i, ch in enumerate(st) if st.find(ch, i+1) != -1}
+# # print(result)
+# 
+# for i, ch in enumerate(st):
+#     if st.find(ch, i+1) != -1:
+#         print(ch)
+#         break
+#===============================================================================
 
 #===============================================================================
 # #**** sorted dictionary to list
@@ -32,24 +103,26 @@ def printnl(*args):
 # printnl(mx, mx2, mx3)
 #===============================================================================
 
- #****filter specific value from list
- #**using None in function of filter apply id test as 'lambda x: x' or 'is' test
- #'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
- #'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
- #use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
- #or where you want to protect against objects breaking when being compared against None
-a = [1, 2, 3, None, 0, [], 86469]
-b = [x for x in a if x is not 86469] #failed to ignore 86469 cause 'is not' id test 86469 check on obj. 
-             #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
-y = 0
-c = list(filter(y.__ne__, a))
-d = list(filter(None, a))
-e = [x for x in a if x != None]
-printnl(a, b, c, d, e)
-# print(max(a, b, default=0)) #Python 3: TypeError: unorderable types: NoneType() > int(). same as [] inside the list
-#                 #default also NOT work on multiple iterables
-print(max(filter(lambda x: x not in (None, []), [None, None])) if any([None, None]) else None) #fix TypeError above
-max([] or [99]) #ver < 3.4
+#===============================================================================
+# #****filter specific value from list
+# #**using None in function of filter apply id test as 'lambda x: x' or 'is' test
+# #'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
+# #'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
+# #use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
+# #or where you want to protect against objects breaking when being compared against None
+# a = [1, 2, 3, None, 0, [], 86469]
+# b = [x for x in a if x is not 86469] #failed to ignore 86469 cause 'is not' id test 86469 check on obj. 
+#         #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
+# y = 0
+# c = list(filter(y.__ne__, a))
+# d = list(filter(None, a))
+# e = [x for x in a if x != None]
+# printnl(a, b, c, d, e)
+# # print(max(a, b, default=0)) #Python 3: TypeError: unorderable types: NoneType() > int(). same as [] inside the list
+# #                 #default also NOT work on multiple iterables
+# print(max(filter(lambda x: x not in (None, []), [None, None])) if any([None, None]) else None) #fix TypeError above
+# max([] or [99]) #ver < 3.4
+#===============================================================================
 
 # ###**Insert list b to 'i' position of list a
 # list_a[i:i] = list_b
