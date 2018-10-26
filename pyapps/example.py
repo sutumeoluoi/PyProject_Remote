@@ -9,68 +9,209 @@ def printnl(*args):
     print(st.format(*args))
 #*************************************************
 
+#===============================================================================
+# #**** Itertools.tee() CAUTION!!!
+# tee() create n independent iterators, each iterator is essentially working with its own FIFO queue.
+# When a value is extracted from one iterator, that value is appended to the queues for the other iterators. 
+# Thus, if one is exhausted before others, each remaining iterator will hold a copy of the entire iterable in memory
+#===============================================================================
 
-#****Count occurences in list
-from collections import Counter
-from collections import defaultdict
+#===============================================================================
+# #**** Implement FIRST ORDER RECURRENCE logic using accumulate
+# import itertools as itr
+# def first_order(p, q, initial_val):
+#     """Return sequence defined by s(n) = p * s(n-1) + q."""
+#     return itr.accumulate(itr.repeat(initial_val), lambda s, _: p*s + q)
+# 
+# evens = first_order(p=1, q=2, initial_val=0)
+# a = list(next(evens) for _ in range(5))
+# ##[0, 2, 4, 6, 8]
+# 
+# odds = first_order(p=1, q=2, initial_val=1)
+# b = list(next(odds) for _ in range(5))
+# ##[1, 3, 5, 7, 9]
+# 
+# count_by_threes = first_order(p=1, q=3, initial_val=0)
+# c = list(next(count_by_threes) for _ in range(5))
+# ##[0, 3, 6, 9, 12]
+# 
+# count_by_fours = first_order(p=1, q=4, initial_val=0)
+# d = list(next(count_by_fours) for _ in range(5))
+# ##[0, 4, 8, 12, 16]
+# 
+# all_ones = first_order(p=1, q=0, initial_val=1)
+# e = list(next(all_ones) for _ in range(5))
+# ##[1, 1, 1, 1, 1]
+# 
+# all_twos = first_order(p=1, q=0, initial_val=2)
+# f = list(next(all_twos) for _ in range(5))
+# ##[2, 2, 2, 2, 2]
+# 
+# alternating_ones = first_order(p=-1, q=0, initial_val=1)
+# g = list(next(alternating_ones) for _ in range(5))
+# ##[1, -1, 1, -1, 1]
+# 
+# # printnl(*(chr(i) for i in range(ord('a'), ord('g')+1))) # NOT Work
+# printnl(*((globals()[chr(i)] for i in range(ord('a'), ord('g')+1)))) #globals() return all symbols in global __dict__
+# # printnl(a, b, c, d, e, f, g)
+#===============================================================================
 
-mylist=[1,1,1,1,1,1,2,3,2,2,2,2,3,3,4,5,5,5,5]*10
+#===============================================================================
+# #**** print list previous, current, next item
+# l=[1,2,3, 99, 65, 8656, 'me', 896, 23]
+# for prev,cur,next in zip([None]+l[:-1], l, l[1:]+[None]):
+#     print(prev,cur,next)
+#===============================================================================
 
-def s1(mylist): 
-    return {k:mylist.count(k) for k in set(mylist)}
+#**** l[n] - l[n-1]
+l=[1, 22, 3, 99, 65]
+import operator
+print(list(map(operator.sub, l[1:], l)))
 
-def s2(mlist):
-    return Counter(mylist)
+#===============================================================================
+# #**** print list current, next item
+l=[1, 2, 3, 99, 65, 8656, 896, 23]
+# # for i, j in zip(l, l[1:]):
+# #     print(i, j)
+# ##OR
+# # for i in range(len(l)-1):
+# #     print(l[i], l[i+1])
+# ##OR
+# for (i, curr) in enumerate(l[:-1]):
+#     print(curr, l[i+1])
+#     
+# ##OR
+# # def pairwise(iterable):
+# #     it = iter(iterable)
+# #     a = next(it, None)
+# #     for b in it:
+# #         yield (a, b)
+# #         a = b
+# # print(list(pairwise(l)))
+# ##OR
+# # import itertools
+# # def pairwise(iterable):   
+# #     a, b = itertools.tee(iterable)
+# #     next(b, None)
+# #     return zip(a, b)
+# # print(list(pairwise(l)))
+#===============================================================================
 
-def s3(mylist):
-    mydict=dict()
-    for index in mylist:
-        mydict[index] = mydict.setdefault(index, 0) + 1
-    return mydict   
-
-def s4(mylist):
-    mydict={}.fromkeys(mylist,0)
-    for k in mydict:
-        mydict[k]=mylist.count(k)    
-    return mydict    
-
-def s5(mylist):
-    mydict={}
-    for k in mylist:
-        mydict[k]=mydict.get(k,0)+1
-    return mydict     
-
-def s6(mylist):
-    mydict=defaultdict(int)
-    for i in mylist:
-        mydict[i] += 1
-    return mydict       
-
-def s7(mylist):
-    mydict={}.fromkeys(mylist,0)
-    for e in mylist:
-        mydict[e]+=1    
-    return mydict    
-
-if __name__ == '__main__':   
-    import timeit 
-    n=1000000
-    print(timeit.timeit("s1(mylist)", setup="from __main__ import s1, mylist",number=n))
-    print(timeit.timeit("s2(mylist)", setup="from __main__ import s2, mylist, Counter",number=n))
-    print(timeit.timeit("s3(mylist)", setup="from __main__ import s3, mylist",number=n))
-    print(timeit.timeit("s4(mylist)", setup="from __main__ import s4, mylist",number=n))
-    print(timeit.timeit("s5(mylist)", setup="from __main__ import s5, mylist",number=n))
-    print(timeit.timeit("s6(mylist)", setup="from __main__ import s6, mylist, defaultdict",number=n))
-    print(timeit.timeit("s7(mylist)", setup="from __main__ import s7, mylist",number=n))
-
-# Result:
-# 1. 27.912882882080456
-# 2. 20.123256369280778
-# 3. 47.757165042503054
-# 4. 28.73874751076798
-# 5. 47.79526024672896
-# 6. 25.16641805965054
-# 7. 29.540249596749277
+#**** NOT WORK!!!!!
+#===============================================================================
+# # a = 'abcbaba'
+# # a = 'cacbbbbcac'
+# a = 'aadaa'
+# 
+# def is_same(s):
+#     if len(s) == 1:
+#         return -1
+#     elif s == s[0]*len(s):
+#         return (len(s)-1)*len(s)//2
+#     else:
+#         return 0
+# 
+# def is_mid_same(s):
+#     if len(s) % 2:
+#         m = len(s) // 2
+#         left = s[:m]
+#         right = s[m+1:]
+#         count_same = is_same(left)
+#         if count_same and left == right:
+#             if count_same == -1:
+#                 return len(left)
+#             else:
+#                 return len(left) + 2*count_same 
+#                     
+#     return 0
+#     
+# def count_spc_pal(st):
+#     count = 0
+#     i = 0
+#     while i < len(st)-1:
+#         for j in range(len(st), i+2, -1):            
+#             sub = st[i:j]
+#             count_same = is_same(sub)
+#             if count_same:
+#                 count += count_same
+#                 i = j-1
+#                 break   #out innner loop
+#             
+#             count_mid_same = is_mid_same(sub)
+#             if count_mid_same:
+#                 count += count_mid_same
+#                 break
+#         i += 1
+#         
+#     return count
+# 
+# print(count_spc_pal(a))
+#===============================================================================
+    
+    
+#===============================================================================
+# #****Count occurences in list
+# from collections import Counter
+# from collections import defaultdict
+# 
+# mylist=[1,1,1,1,1,1,2,3,2,2,2,2,3,3,4,5,5,5,5]*10
+# 
+# def s1(mylist): 
+#     return {k:mylist.count(k) for k in set(mylist)}
+# 
+# def s2(mlist):
+#     return Counter(mylist)
+# 
+# def s3(mylist):
+#     mydict=dict()
+#     for index in mylist:
+#         mydict[index] = mydict.setdefault(index, 0) + 1
+#     return mydict   
+# 
+# def s4(mylist):
+#     mydict={}.fromkeys(mylist,0)
+#     for k in mydict:
+#         mydict[k]=mylist.count(k)    
+#     return mydict    
+# 
+# def s5(mylist):
+#     mydict={}
+#     for k in mylist:
+#         mydict[k]=mydict.get(k,0)+1
+#     return mydict     
+# 
+# def s6(mylist):
+#     mydict=defaultdict(int)
+#     for i in mylist:
+#         mydict[i] += 1
+#     return mydict       
+# 
+# def s7(mylist):
+#     mydict={}.fromkeys(mylist,0)
+#     for e in mylist:
+#         mydict[e]+=1    
+#     return mydict    
+# 
+# if __name__ == '__main__':   
+#     import timeit 
+#     n=1000000
+#     print(timeit.timeit("s1(mylist)", setup="from __main__ import s1, mylist",number=n))
+#     print(timeit.timeit("s2(mylist)", setup="from __main__ import s2, mylist, Counter",number=n))
+#     print(timeit.timeit("s3(mylist)", setup="from __main__ import s3, mylist",number=n))
+#     print(timeit.timeit("s4(mylist)", setup="from __main__ import s4, mylist",number=n))
+#     print(timeit.timeit("s5(mylist)", setup="from __main__ import s5, mylist",number=n))
+#     print(timeit.timeit("s6(mylist)", setup="from __main__ import s6, mylist, defaultdict",number=n))
+#     print(timeit.timeit("s7(mylist)", setup="from __main__ import s7, mylist",number=n))
+# 
+# # Result:
+# # 1. 27.912882882080456
+# # 2. 20.123256369280778
+# # 3. 47.757165042503054
+# # 4. 28.73874751076798
+# # 5. 47.79526024672896
+# # 6. 25.16641805965054
+# # 7. 29.540249596749277
+#===============================================================================
 
 #===============================================================================
 # st = 'lolabbcdtellllc'
