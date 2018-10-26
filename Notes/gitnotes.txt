@@ -47,3 +47,8 @@ git checkout -b home_1020 origin/home_1020
 7. merge remote master to local master(update local master to match remote master)
 git fetch origin
 git merge origin/master
+
+8. reset current change in local. update local match remote(stay on local master)
+git fetch --all
+git reset --hard origin/master
+#git pull origin master (optional)

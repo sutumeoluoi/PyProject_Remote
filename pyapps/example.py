@@ -4,10 +4,86 @@ Created on Aug 2, 2018
 @author: hal
 '''
 #****print each item in args list per line
+from pip._vendor.distlib._backport.tarfile import TUREAD
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 #*************************************************
+
+#**** Consume whole iterator withou using it
+# collections.deque(iterator, maxlen=0) #deque consume whole iterator, but never keep any item due to maxlen=0
+
+#===============================================================================
+# l=[1, 2, 3, 99, 65, 8656, 896, 23]
+# it = reversed(l)
+# for first, second in zip(l, it):
+#     print(first, second)
+#===============================================================================
+
+### islice consumes iterator and throw-away elements to 'start' position. Then, create slice to 'stop' position.
+### after islice done. The current position of iterator will be at max(start, stop). ie., at either greatest
+### On 'step' over 'stop', slice won't reach 'stop', but iterator will consume(move) to 'stop'
+import itertools
+print([x*2 for x in range(10)])
+ge = (x*2 for x in range(10))
+# it = itertools.islice(ge, 6, 3, None) #empty slice. Move iterator to position 6
+it = itertools.islice(ge, 3, 5, 3) #slice=[6], next step over 'stop'. Move iterator to postion 'stop'(5)
+print(list(it))
+print(list(ge))
+    
+#===============================================================================
+# #**** l[n] - l[n-1]
+# l=[1, 22, 3, 99, 65]
+# # import operator, itertools
+# # print(list(map(operator.sub, l[1:], l)))
+# 
+# ###OR
+# it = itertools.islice(l, 1, None, None)
+# print(list(map(operator.sub, it, l)))
+# 
+# ###OR
+# it = itertools.islice(l, 1, None, None)
+# print([next - curr for next, curr in zip(it, l)])
+#===============================================================================
+        
+
+# a = (item*2 for item in range(6))
+# print(a)
+# print(sorted(a, reverse=True))
+
+#===============================================================================
+# # from operator import itemgetter
+# # a = {(0, 0): 'a', (1, 1): 'd', (0, 1): 'b', (1, 0): 'c'}
+# # a_keys_sorted = sorted(a)
+# # b = [a[k1]+a[k2] for k1, k2 in zip(a_keys_sorted[::2], a_keys_sorted[1::2])]
+# # print(b)
+# # print(list(a))
+# # print(a_keys_sorted)
+# # 
+# # ###### OR
+# # t = iter(sorted(a.items()))
+# # getter = itemgetter(1)
+# # # b = [getter(next(t)), getter(next(t))]
+# # # b = [d1[1] + d2[1] for d1, d2 in zip(t, t)]
+# # b = [getter(v1) + getter(v2) for v1, v2 in zip(t, t)]
+# # print(b)
+#  
+# ###### OR
+# a = {(0, 0): 'a', (1, 1): 'd', (0, 1): 'b', (1, 0): 'c'}
+# t = iter(sorted(a.items()))
+# # print(next(t), next(t))
+# b = [v1+v2  for (k1, v1), (k2, v2) in zip(t, t)] #zip return outer tuple 2 items. each item again inner tuple 2 item (((0, 0), 'a'), ((0, 1), 'b'))
+#                 #so, need unpack outer tuple. then unpack inner tuple to (k, v). K is also tuple, but no need process k, so not gonna unpack further
+# ###### OR 
+# # b = [d1[1] + d2[1] for d1, d2 in zip(t, t)]
+# print(b)  
+#  
+# # ###### OR
+# # a = {(0, 0): 'a', (1, 1): 'd', (0, 1): 'b', (1, 0): 'c'}
+# # t = iter(sorted(a))
+# # b = [a[d1] + a[d2] for d1, d2 in zip(t, t)]
+# # print(b)    
+#===============================================================================
 
 #===============================================================================
 # #**** Itertools.tee() CAUTION!!!
@@ -63,39 +139,31 @@ def printnl(*args):
 #     print(prev,cur,next)
 #===============================================================================
 
-#**** l[n] - l[n-1]
-l=[1, 22, 3, 99, 65]
-import operator
-print(list(map(operator.sub, l[1:], l)))
-
-#===============================================================================
-# #**** print list current, next item
-l=[1, 2, 3, 99, 65, 8656, 896, 23]
-# # for i, j in zip(l, l[1:]):
-# #     print(i, j)
-# ##OR
-# # for i in range(len(l)-1):
-# #     print(l[i], l[i+1])
-# ##OR
+#**** print list current, next item
+# l=[1, 2, 3, 99, 65, 8656, 896, 23]
+#  for i, j in zip(l, l[1:]):
+#      print(i, j)
+##OR
+#  for i in range(len(l)-1):
+#      print(l[i], l[i+1])
+##OR
 # for (i, curr) in enumerate(l[:-1]):
 #     print(curr, l[i+1])
-#     
-# ##OR
-# # def pairwise(iterable):
-# #     it = iter(iterable)
-# #     a = next(it, None)
-# #     for b in it:
-# #         yield (a, b)
-# #         a = b
-# # print(list(pairwise(l)))
-# ##OR
-# # import itertools
-# # def pairwise(iterable):   
-# #     a, b = itertools.tee(iterable)
-# #     next(b, None)
-# #     return zip(a, b)
-# # print(list(pairwise(l)))
-#===============================================================================
+##OR
+#  def pairwise(iterable):
+#      it = iter(iterable)
+#      a = next(it, None)
+#      for b in it:
+#          yield (a, b)
+#          a = b
+#  print(list(pairwise(l)))
+##OR
+#  import itertools
+#  def pairwise(iterable):   
+#      a, b = itertools.tee(iterable)
+#      next(b, None)
+#      return zip(a, b)
+#  print(list(pairwise(l)))
 
 #**** NOT WORK!!!!!
 #===============================================================================
