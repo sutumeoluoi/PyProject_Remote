@@ -3,15 +3,35 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
-#****print each item in args list per line
-from pip._vendor.distlib._backport.tarfile import TUREAD
+''' **** print each item in args list per line ****'''
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
-#*************************************************
+''' ************************************************* '''
 
-#**** Consume whole iterator withou using it
-# collections.deque(iterator, maxlen=0) #deque consume whole iterator, but never keep any item due to maxlen=0
+#===============================================================================
+# ''' **** why dict.fromkeys() sorted in this case? '''
+# from random import shuffle
+# a = list(range(0,5))*2
+# shuffle(a)
+# print(a)
+# print(dict.fromkeys(a).keys()) #dict_keys([0, 1, 2, 3, 4]). why sorted?
+#===============================================================================
+
+''' **** Remove duplicate item and retain list current order **** '''
+### Python < 3.6
+from collections import OrderedDict
+t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
+od = OrderedDict.fromkeys(t)
+### Python >= 3.6. Regular dict is now having insertion order
+# od = dict.fromkeys(t)
+print(list(od))
+
+
+#===============================================================================
+# ''' **** Consume whole iterator without using it **** '''
+#  collections.deque(iterator, maxlen=0) #deque consume whole iterator, but never keep any item due to maxlen=0
+#===============================================================================
 
 #===============================================================================
 # l=[1, 2, 3, 99, 65, 8656, 896, 23]
@@ -20,16 +40,20 @@ def printnl(*args):
 #     print(first, second)
 #===============================================================================
 
-### islice consumes iterator and throw-away elements to 'start' position. Then, create slice to 'stop' position.
-### after islice done. The current position of iterator will be at max(start, stop). ie., at either greatest
-### On 'step' over 'stop', slice won't reach 'stop', but iterator will consume(move) to 'stop'
-import itertools
-print([x*2 for x in range(10)])
-ge = (x*2 for x in range(10))
-# it = itertools.islice(ge, 6, 3, None) #empty slice. Move iterator to position 6
-it = itertools.islice(ge, 3, 5, 3) #slice=[6], next step over 'stop'. Move iterator to postion 'stop'(5)
-print(list(it))
-print(list(ge))
+#===============================================================================
+# '''
+# islice consumes iterator and throw-away elements to 'start' position. Then, create slice to 'stop' position.
+# after islice done. The current position of iterator will be at max(start, stop). ie., at either greatest
+# On 'step' over 'stop', slice won't reach 'stop', but iterator will consume(move) to 'stop'
+# '''
+# import itertools
+# print([x*2 for x in range(10)])
+# ge = (x*2 for x in range(10))
+# # it = itertools.islice(ge, 6, 3, None) #empty slice. Move iterator to position 6
+# it = itertools.islice(ge, 3, 5, 3) #slice=[6], next step over 'stop'. Move iterator to postion 'stop'(5)
+# print(list(it))
+# print(list(ge))
+#===============================================================================
     
 #===============================================================================
 # #**** l[n] - l[n-1]
@@ -86,14 +110,14 @@ print(list(ge))
 #===============================================================================
 
 #===============================================================================
-# #**** Itertools.tee() CAUTION!!!
+# ''' **** Itertools.tee() CAUTION!!! '''
 # tee() create n independent iterators, each iterator is essentially working with its own FIFO queue.
 # When a value is extracted from one iterator, that value is appended to the queues for the other iterators. 
 # Thus, if one is exhausted before others, each remaining iterator will hold a copy of the entire iterable in memory
 #===============================================================================
 
 #===============================================================================
-# #**** Implement FIRST ORDER RECURRENCE logic using accumulate
+# ''' **** Implement FIRST ORDER RECURRENCE logic using accumulate **** '''
 # import itertools as itr
 # def first_order(p, q, initial_val):
 #     """Return sequence defined by s(n) = p * s(n-1) + q."""
@@ -139,7 +163,7 @@ print(list(ge))
 #     print(prev,cur,next)
 #===============================================================================
 
-#**** print list current, next item
+#''' **** print list current, next item **** '''
 # l=[1, 2, 3, 99, 65, 8656, 896, 23]
 #  for i, j in zip(l, l[1:]):
 #      print(i, j)
@@ -218,48 +242,48 @@ print(list(ge))
     
     
 #===============================================================================
-# #****Count occurences in list
+# '''****Count occurences in list'''
 # from collections import Counter
 # from collections import defaultdict
-# 
+#  
 # mylist=[1,1,1,1,1,1,2,3,2,2,2,2,3,3,4,5,5,5,5]*10
-# 
+#  
 # def s1(mylist): 
 #     return {k:mylist.count(k) for k in set(mylist)}
-# 
+#  
 # def s2(mlist):
 #     return Counter(mylist)
-# 
+#  
 # def s3(mylist):
 #     mydict=dict()
 #     for index in mylist:
 #         mydict[index] = mydict.setdefault(index, 0) + 1
 #     return mydict   
-# 
+#  
 # def s4(mylist):
 #     mydict={}.fromkeys(mylist,0)
 #     for k in mydict:
 #         mydict[k]=mylist.count(k)    
 #     return mydict    
-# 
+#  
 # def s5(mylist):
 #     mydict={}
 #     for k in mylist:
 #         mydict[k]=mydict.get(k,0)+1
 #     return mydict     
-# 
+#  
 # def s6(mylist):
 #     mydict=defaultdict(int)
 #     for i in mylist:
 #         mydict[i] += 1
 #     return mydict       
-# 
+#  
 # def s7(mylist):
 #     mydict={}.fromkeys(mylist,0)
 #     for e in mylist:
 #         mydict[e]+=1    
 #     return mydict    
-# 
+#  
 # if __name__ == '__main__':   
 #     import timeit 
 #     n=1000000
@@ -270,15 +294,16 @@ print(list(ge))
 #     print(timeit.timeit("s5(mylist)", setup="from __main__ import s5, mylist",number=n))
 #     print(timeit.timeit("s6(mylist)", setup="from __main__ import s6, mylist, defaultdict",number=n))
 #     print(timeit.timeit("s7(mylist)", setup="from __main__ import s7, mylist",number=n))
-# 
-# # Result:
-# # 1. 27.912882882080456
-# # 2. 20.123256369280778
-# # 3. 47.757165042503054
-# # 4. 28.73874751076798
-# # 5. 47.79526024672896
-# # 6. 25.16641805965054
-# # 7. 29.540249596749277
+# '''   
+# ********** RESULT ***********
+# 1. 27.912882882080456
+# 2. 20.123256369280778
+# 3. 47.757165042503054
+# 4. 28.73874751076798
+# 5. 47.79526024672896
+# 6. 25.16641805965054
+# 7. 29.540249596749277
+# '''
 #===============================================================================
 
 #===============================================================================
@@ -338,10 +363,12 @@ print(list(ge))
 
 #===============================================================================
 # ###**Insert list b in front list a
+##!!Hettinger: should consider collections.dequeue
 # list_a = list_b + list_a
 # 
 # for item in list_b:
 #     list_a.insert(0, item)
+#     ##!!Hettinger: should consider collections.dequeue
 # 
 # for item in self.list_a:
 #     list_b.append(item)
@@ -701,39 +728,50 @@ print(list(ge))
 #    create an instance and record it
 # return the recorded instance
 # ***
-# Using base class method
-# class Singleton:
-#     instance = None
-#     def __new__(cls):
-#         if cls.instance is None:
-#             cls.instance = super().__new__(cls)
-#         return cls.instance
-# 
-# singleton_obj1 = Singleton()
-# singleton_obj2 = Singleton()
-# 
-# print(singleton_obj1)
-# print(singleton_obj2)
-# >>> <__main__.Singleton object at 0x10dbc0f60>
-# >>> <__main__.Singleton object at 0x10dbc0f60>
-# 
-# Using metaclass method
-# class Singleton(type):
-#     _instances = {}
-#     def __call__(cls, *args, **kwargs):
-#         if cls not in cls._instances:
-#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-#         return cls._instances[cls]
-# 
-# #Python2
-# class MyClass(BaseClass):
-#     __metaclass__ = Singleton
-# 
-# #Python3
-# class MyClass(BaseClass, metaclass=Singleton):
-#     pass
-# 
+#### Method 1: Using base class method
+class Singleton:
+    instance = None
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+        return cls.instance
+ 
+singleton_obj1 = Singleton()
+singleton_obj2 = Singleton()
+ 
+print(singleton_obj1)
+print(singleton_obj2)
+>>> <__main__.Singleton object at 0x10dbc0f60>
+>>> <__main__.Singleton object at 0x10dbc0f60>
+################################################### 
+#### Method 2: Using metaclass method
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls] 
+##Python2
+class MyClass(BaseClass):
+    __metaclass__ = Singleton 
+##Python3
+class MyClass(BaseClass, metaclass=Singleton):
+    pass
+###################################################
+#### Method 3: 
 # Other methods: using class decorator(define function to decorate class, at the end class turn into function
+#### Method 4: Encapsulate class and declare an instance of class in same module. Import module.
+####    Import only happens once, so there is only one instance exist.
+#Put these code in mysingleton.py
+#>>>>>>>>>
+class My_Singleton(object):
+    def foo(self):
+        pass
+my_singleton = My_Singleton()   #a global instance of My_Singleton obj in mysingleton module 
+#>>>>>>>>>
+#on using
+from mysingleton import my_singleton
+my_singleton.foo()
 # *******************
 
 
