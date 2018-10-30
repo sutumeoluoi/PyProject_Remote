@@ -8,6 +8,71 @@ def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
+    
+    
+def getNumber(uppercaseLetter):
+    tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz", "0123456789"]
+    numbers = ''
+    for letter in uppercaseLetter.lower():
+        for i in range(len(tele_pad)):
+            if letter in tele_pad[i]:
+                if i == 8:
+                    numbers += letter
+                else:
+                    numbers += str(i+2)
+                
+#     numbers = ''.join(str(i+2) for letter in uppercaseLetter.lower() for i in range(len(tele_pad)) 
+#                                                                         if letter in tele_pad[i])
+                 
+    return numbers   
+
+# def getNumber(uppercaseLetter):
+# #     twoSet = "abc"
+# #     threeSet = "def"
+# #     fourSet = "ghi"
+# #     fiveSet = "jkl"
+# #     sixSet = "mno"
+# #     sevenSet = "pqrs"
+# #     eightSet = "tuv"
+# #     nineSet = "wxyz"
+#     tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz"]
+#  
+#     numbers = ''
+# #     for index in uppercaseLetter.lower():
+#     for letter in uppercaseLetter.lower():
+# #         for number, numberset in enumerate(tele_pad, 2):
+#         for i in range(len(tele_pad)):
+#             if letter in tele_pad[i]:
+#                 numbers += str(i+2)
+#                  
+#     return numbers
+# #         if index in twoSet:
+# #             number = '2'
+# #         elif index in threeSet:
+# #             number = '3'
+# #         elif index in fourSet:
+# #             number = '4'
+# #         elif index in fiveSet:
+# #             number = '5'
+# #         elif index in sixSet:
+# #             number = '6'
+# #         elif index in sevenSet:
+# #             number = '7'
+# #         elif index in eightSet:
+# #             number = '7'
+# #         elif index in nineSet:
+# #             number = '9'
+# #             
+# #         numbers += number
+#          
+# #     return numbers
+ 
+def run():
+    phoneNumber = input("Enter a phone number:")
+    print(getNumber(phoneNumber))
+
+if __name__ == '__main__':
+    run()
 
 #===============================================================================
 # ''' **** why dict.fromkeys() sorted in this case? '''
@@ -18,14 +83,14 @@ def printnl(*args):
 # print(dict.fromkeys(a).keys()) #dict_keys([0, 1, 2, 3, 4]). why sorted?
 #===============================================================================
 
-''' **** Remove duplicate item and retain list current order **** '''
-### Python < 3.6
-from collections import OrderedDict
-t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
-od = OrderedDict.fromkeys(t)
-### Python >= 3.6. Regular dict is now having insertion order
-# od = dict.fromkeys(t)
-print(list(od))
+# ''' **** Remove duplicate item and retain list current order **** '''
+# ### Python < 3.6
+# from collections import OrderedDict
+# t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
+# od = OrderedDict.fromkeys(t)
+# ### Python >= 3.6. Regular dict is now having insertion order
+# # od = dict.fromkeys(t)
+# print(list(od))
 
 
 #===============================================================================
@@ -717,62 +782,64 @@ print(list(od))
 # print(L)
 #===============================================================================
 
-# ****** SINGLETON Design Pattern
-# Standard singleton design pattern, for most languages, to ensure that only one instance of 
-# the class is ever created. An implementation of the singleton pattern must:
-# _ ensure that only one instance of the singleton class ever exists; and
-# _ provide global access to that instance.
-# ***
-# The constructor says:
-# If there is no instance recorded, 
-#    create an instance and record it
-# return the recorded instance
-# ***
-#### Method 1: Using base class method
-class Singleton:
-    instance = None
-    def __new__(cls):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls)
-        return cls.instance
- 
-singleton_obj1 = Singleton()
-singleton_obj2 = Singleton()
- 
-print(singleton_obj1)
-print(singleton_obj2)
->>> <__main__.Singleton object at 0x10dbc0f60>
->>> <__main__.Singleton object at 0x10dbc0f60>
-################################################### 
-#### Method 2: Using metaclass method
-class Singleton(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls] 
-##Python2
-class MyClass(BaseClass):
-    __metaclass__ = Singleton 
-##Python3
-class MyClass(BaseClass, metaclass=Singleton):
-    pass
-###################################################
-#### Method 3: 
-# Other methods: using class decorator(define function to decorate class, at the end class turn into function
-#### Method 4: Encapsulate class and declare an instance of class in same module. Import module.
-####    Import only happens once, so there is only one instance exist.
-#Put these code in mysingleton.py
-#>>>>>>>>>
-class My_Singleton(object):
-    def foo(self):
-        pass
-my_singleton = My_Singleton()   #a global instance of My_Singleton obj in mysingleton module 
-#>>>>>>>>>
-#on using
-from mysingleton import my_singleton
-my_singleton.foo()
-# *******************
+#===============================================================================
+# # ****** SINGLETON Design Pattern
+# # Standard singleton design pattern, for most languages, to ensure that only one instance of 
+# # the class is ever created. An implementation of the singleton pattern must:
+# # _ ensure that only one instance of the singleton class ever exists; and
+# # _ provide global access to that instance.
+# # ***
+# # The constructor says:
+# # If there is no instance recorded, 
+# #    create an instance and record it
+# # return the recorded instance
+# # ***
+# #### Method 1: Using base class method
+# class Singleton:
+#     instance = None
+#     def __new__(cls):
+#         if cls.instance is None:
+#             cls.instance = super().__new__(cls)
+#         return cls.instance
+#  
+# singleton_obj1 = Singleton()
+# singleton_obj2 = Singleton()
+#  
+# print(singleton_obj1)
+# print(singleton_obj2)
+# >>> <__main__.Singleton object at 0x10dbc0f60>
+# >>> <__main__.Singleton object at 0x10dbc0f60>
+# ################################################### 
+# #### Method 2: Using metaclass method
+# class Singleton(type):
+#     _instances = {}
+#     def __call__(cls, *args, **kwargs):
+#         if cls not in cls._instances:
+#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+#         return cls._instances[cls] 
+# ##Python2
+# class MyClass(BaseClass):
+#     __metaclass__ = Singleton 
+# ##Python3
+# class MyClass(BaseClass, metaclass=Singleton):
+#     pass
+# ###################################################
+# #### Method 3: 
+# # Other methods: using class decorator(define function to decorate class, at the end class turn into function
+# #### Method 4: Encapsulate class and declare an instance of class in same module. Import module.
+# ####    Import only happens once, so there is only one instance exist.
+# #Put these code in mysingleton.py
+# #>>>>>>>>>
+# class My_Singleton(object):
+#     def foo(self):
+#         pass
+# my_singleton = My_Singleton()   #a global instance of My_Singleton obj in mysingleton module 
+# #>>>>>>>>>
+# #on using
+# from mysingleton import my_singleton
+# my_singleton.foo()
+# # *******************
+#===============================================================================
 
 
 #===============================================================================
