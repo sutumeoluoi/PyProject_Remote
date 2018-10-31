@@ -10,63 +10,31 @@ def printnl(*args):
 ''' ************************************************* '''
     
     
-def getNumber(uppercaseLetter):
-    tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz", "0123456789"]
-    numbers = ''
-    for letter in uppercaseLetter.lower():
-        for i in range(len(tele_pad)):
-            if letter in tele_pad[i]:
-                if i == 8:
-                    numbers += letter
-                else:
-                    numbers += str(i+2)
-                
-#     numbers = ''.join(str(i+2) for letter in uppercaseLetter.lower() for i in range(len(tele_pad)) 
-#                                                                         if letter in tele_pad[i])
-                 
-    return numbers   
-
 # def getNumber(uppercaseLetter):
-# #     twoSet = "abc"
-# #     threeSet = "def"
-# #     fourSet = "ghi"
-# #     fiveSet = "jkl"
-# #     sixSet = "mno"
-# #     sevenSet = "pqrs"
-# #     eightSet = "tuv"
-# #     nineSet = "wxyz"
-#     tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz"]
-#  
+#     tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz", "0123456789"]
 #     numbers = ''
-# #     for index in uppercaseLetter.lower():
 #     for letter in uppercaseLetter.lower():
-# #         for number, numberset in enumerate(tele_pad, 2):
 #         for i in range(len(tele_pad)):
 #             if letter in tele_pad[i]:
-#                 numbers += str(i+2)
+#                 if i == 8:
+#                     numbers += letter
+#                 else:
+#                     numbers += str(i+2)
+#                     
+#                 break
+#                 
+# #     numbers = ''.join(str(i+2) for letter in uppercaseLetter.lower() for i in range(len(tele_pad)) 
+# #                                                                         if letter in tele_pad[i])
 #                  
-#     return numbers
-# #         if index in twoSet:
-# #             number = '2'
-# #         elif index in threeSet:
-# #             number = '3'
-# #         elif index in fourSet:
-# #             number = '4'
-# #         elif index in fiveSet:
-# #             number = '5'
-# #         elif index in sixSet:
-# #             number = '6'
-# #         elif index in sevenSet:
-# #             number = '7'
-# #         elif index in eightSet:
-# #             number = '7'
-# #         elif index in nineSet:
-# #             number = '9'
-# #             
-# #         numbers += number
-#          
-# #     return numbers
- 
+#     return numbers   
+
+def getNumber(uppercaseLetter):
+    tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz"]
+    tele_dict = {letter: str(i) for i, items in enumerate(tele_pad, 2) for letter in items}
+    numbers = ''.join(num if num not in tele_dict else tele_dict[num] for num in uppercaseLetter.lower())
+    
+    return numbers
+    
 def run():
     phoneNumber = input("Enter a phone number:")
     print(getNumber(phoneNumber))
