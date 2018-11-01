@@ -8,7 +8,48 @@ def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
-    
+
+
+''' 
+*** flatten nested list.
+Note: below work on shallow and deeper nested ['The Benchwarmers', 'Batman', 'The Avengers', ['Iron Man 1', ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+     But, NOT ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+***''' 
+# l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+# for i, item in enumerate(l):
+#     if isinstance(item, list):
+#         l[i:i+1] = item
+# print(l)    
+
+''' *** list comprehension on one-level nested list. NOT work on deeper nested!!! '''
+l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+n = [num for item in l for num in (item if isinstance(item, list) else (item,))]
+print(n)
+
+# from timeit import timeit
+# print(timeit("[item for items in newlist for item in items]", "from __main__ import newlist"))
+# print(timeit("sum(newlist, [])", "from __main__ import newlist"))
+# print(timeit("reduce(lambda x,y: x+y, newlist)", "from __main__ import newlist; from functools import reduce"))
+# print(timeit("reduce(add, newlist)", "from __main__ import newlist; from operator import add; from functools import reduce"))
+# print(timeit("list(chain(*newlist))", "from __main__ import newlist; from itertools import chain"))
+# print(timeit("list(chain.from_iterable(newlist))", "from __main__ import newlist; from itertools import chain"))\
+
+#===============================================================================
+# ''' *** list += vs .extend()
+# can't use += for non-local variable (variable which is not local for function and also not global)
+# while .extend works
+# '''
+# def main():
+#     l = [1, 2, 3]
+#     def foo():
+#         l.extend([4])
+#     def boo():
+#         l += [5]
+#     foo()
+#     print(l)
+# #     boo()  # this will fail
+# main()
+#===============================================================================
     
 # def getNumber(uppercaseLetter):
 #     tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz", "0123456789"]
@@ -21,26 +62,31 @@ def printnl(*args):
 #                 else:
 #                     numbers += str(i+2)
 #                     
-#                 break
-#                 
-# #     numbers = ''.join(str(i+2) for letter in uppercaseLetter.lower() for i in range(len(tele_pad)) 
-# #                                                                         if letter in tele_pad[i])
-#                  
+#                 break                  
 #     return numbers   
 
-def getNumber(uppercaseLetter):
-    tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz"]
-    tele_dict = {letter: str(i) for i, items in enumerate(tele_pad, 2) for letter in items}
-    numbers = ''.join(num if num not in tele_dict else tele_dict[num] for num in uppercaseLetter.lower())
-    
-    return numbers
-    
-def run():
-    phoneNumber = input("Enter a phone number:")
-    print(getNumber(phoneNumber))
+# def getNumber(uppercaseLetter):
+#     tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz"]
+#     tele_dict = {letter: str(i) for i, items in enumerate(tele_pad, 2) for letter in items}
+#     numbers = ''.join(num if num not in tele_dict else tele_dict[num] for num in uppercaseLetter.lower())
+#     
+#     return numbers
+#     
+# def run():
+#     phoneNumber = input("Enter a phone number:")
+#     print(getNumber(phoneNumber))
+# 
+# if __name__ == '__main__':
+#     run()
 
-if __name__ == '__main__':
-    run()
+# from itertools import repeat
+# t = iter(range(ord('a'), ord('z')+1))
+# t1 = iter(range(2, 10))
+# print(list(zip(zip(t, t, t), (t1,)*3)))
+
+# nums = [0, 3, 2, -95, 0, False, -5, 1, 0.00, 3, 4]
+# nums.sort(key=lambda x: x is not False and x == 0)
+# print(nums)
 
 #===============================================================================
 # ''' **** why dict.fromkeys() sorted in this case? '''
