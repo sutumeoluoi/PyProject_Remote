@@ -9,22 +9,80 @@ def printnl(*args):
     print(st.format(*args))
 ''' ************************************************* '''
 
+#===============================================================================
+# ''' *** @classmethod, @staticmethod and inheritance '''
+# class Foo():
+#   message = "I'm Foo class"
+# 
+#   def method(self, foo):
+#     self.foo = foo
+#     print(self.message)
+# 
+#   @classmethod
+#   def class_method(cls, foo):
+#     cls.foo = foo
+#     print(cls.message)
+# 
+#   @staticmethod
+#   def static_method(foo):
+#     Foo.foo = foo
+#     print(Foo.message)
+# 
+# class Bar(Foo):
+#   message = "I'm Bar class"
+# 
+# f = Foo()
+# b = Bar()
+# 
+# Foo.class_method(None)  # I'm Foo class
+# Foo.static_method(None) # I'm Foo class
+# Foo.method(Foo, None)   # I'm Foo class
+# Foo.method(Bar, None)   # I'm Bar class. (Call through Foo, but passing Bar, so manipulate Bar class.
+# Bar.class_method(None)  # I'm Bar class
+# Bar.static_method(None) # I'm Foo class  
+# Bar.method(Bar, None)   # I'm Bar class
+# Bar.method(Foo, None)   # I'm Foo class. (Call through Bar, but passing Foo, so manipulate Foo class.   
+# # print('***calling by instance') #output the same as call through class
+# # f.class_method(None)
+# # f.static_method(None)
+# # b.class_method(None)
+# # b.static_method(None) 
+#===============================================================================
 
-''' 
-*** flatten nested list.
-Note: below work on shallow and deeper nested ['The Benchwarmers', 'Batman', 'The Avengers', ['Iron Man 1', ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-     But, NOT ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-***''' 
+#===============================================================================
+# ''' 
+# *** flatten nested list.
+# Note: below work on shallow and deeper nested ['The Benchwarmers', 'Batman', 'The Avengers', ['Iron Man 1', ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+#      But, NOT ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+# ***''' 
+# # l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+# # for i, item in enumerate(l):
+# #     if isinstance(item, list):
+# #         l[i:i+1] = item
+# # print(l)
+#===============================================================================
+    
+#===============================================================================
+# ''' *** generator flatten deeper nested list. NOTICE: importantly of using 'yield from' '''
+# def flatten(iterable):
+#     for item in iterable:
+#         if isinstance(item, list) and not isinstance(item, str):  # `basestring` < 3.x
+# #             yield from item          # This only flatten one level. `for subitem in item: yield item` < 3.3
+#             yield from flatten(item)   # force genfunc yield items.
+# #             yield flatten(item) #NOT work: return gen obj. flatten() is genfunc and only yield item on next(). For loop, list constructor, or yield from call next()
+# #             flatten(item) #NOT work!!: ignore list sub-item completely            
+#         else:
+#             yield item
+# l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]            
+# print(list(flatten(l)))
+#===============================================================================
+
+#===============================================================================
+# ''' *** list comprehension on one-level nested list. NOT work on deeper nested!!! '''
 # l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-# for i, item in enumerate(l):
-#     if isinstance(item, list):
-#         l[i:i+1] = item
-# print(l)    
-
-''' *** list comprehension on one-level nested list. NOT work on deeper nested!!! '''
-l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-n = [num for item in l for num in (item if isinstance(item, list) else (item,))]
-print(n)
+# n = [num for item in l for num in (item if isinstance(item, list) else (item,))]
+# print(n)
+#===============================================================================
 
 # from timeit import timeit
 # print(timeit("[item for items in newlist for item in items]", "from __main__ import newlist"))
@@ -98,13 +156,23 @@ print(n)
 #===============================================================================
 
 # ''' **** Remove duplicate item and retain list current order **** '''
-# ### Python < 3.6
+# ### Python < 3.6. NOTE: NOT work if list item is NOT hashable
 # from collections import OrderedDict
 # t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
 # od = OrderedDict.fromkeys(t)
 # ### Python >= 3.6. Regular dict is now having insertion order
 # # od = dict.fromkeys(t)
 # print(list(od))
+
+###OR: hacking way and list  comprehension. Work on un-hashable items
+###Note: can't use tuple such as (x,) or ([11],). Although tuple is immutable, [11] in it is mutable so hash value could NOT created.
+''' tuple as a key if all elements in it are immutable. If the tuple contains mutable objects, it cannot be used as a key. 
+Thus, a tuple to be used as a key can contain strings, numbers, and other tuples containing references to immutable objects.
+'''
+seq = [1, 2, 9, [11], 58, 15, [11], 3, 1, 2, 5, 6, 7, 8]
+seen = set()
+l = [x for x in seq if str(x) not in seen and not seen.add(str(x))]
+print(l)
 
 
 #===============================================================================
