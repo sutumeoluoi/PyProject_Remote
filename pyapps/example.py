@@ -10,6 +10,25 @@ def printnl(*args):
 ''' ************************************************* '''
 
 #===============================================================================
+# ''' generator yield flow: 
+# each for-loop call requests countfrom() running to yield; then yield n, freeze countfrom(), return control to for-loop
+# '''    
+# def countfrom(n):
+#     while True:
+#         print("before yield n= ", n)
+#         yield n        
+#         n += 1
+#         print("after yield n= ", n)
+#  
+# for i in countfrom(10):
+#     print("enter for loop i= ", i)
+#     if i <= 10:
+#         print('i= ', i)
+#     else:
+#         break    
+#===============================================================================
+
+#===============================================================================
 # ''' *** @classmethod, @staticmethod and inheritance '''
 # class Foo():
 #   message = "I'm Foo class"
@@ -60,7 +79,89 @@ def printnl(*args):
 # #     if isinstance(item, list):
 # #         l[i:i+1] = item
 # # print(l)
-#===============================================================================
+#==================================================\============================
+
+from itertools import chain
+from collections import Iterable
+# def f(item):
+# #     return [item] if not isinstance(item, Iterable) or isinstance(item, str) else flatten(item) #one-liner
+#     #**Base case:
+#     if not isinstance(item, Iterable) or isinstance(item, str):    
+#         return [item]
+#     #**Recursive
+#     return flatten(item)
+  
+def f(item):
+    '''**Error: infinitive recursive due to yield [item] doesn't stop function as return. It jumps to yield from
+      and recursive to maximum stack error. Need to use if else'''
+#     #**Base case:
+#     if not isinstance(item, Iterable) or isinstance(item, str):    
+#         yield [item]
+#     #**Recursive
+#     yield from flatten(item)
+    '''**'''
+    if not isinstance(item, Iterable) or isinstance(item, str):
+        yield [item] 
+    else:
+#         yield from flatten(item)
+#         for sub in flatten(item):
+#             yield sub
+        yield flatten(item)
+  
+def g(itt):
+    for it in itt:
+#         yield f(it) #cause print(n) returning generator obj flatter
+        return f(it)
+    
+def flatten(its):
+#     ### map equivalent
+#     for it in its:
+#         yield f(it)
+#     ###    
+    gen = g(its)
+    ### from_iterable equivalent
+    for it in gen:
+        for element in it:
+            yield element
+    ###
+#     return chain.from_iterable(gen)    
+  
+l = [ [ [5] ] ]
+# l = ['The Benchwarmers','hi', [[[1]]], range(4), {99, 89}, {'a': 65, 'b': 12}, 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2', ['Iron Man 3']]], ['The Hulk']]
+n = list(flatten(l))
+print(n)         
+
+''' *** Work on deeper nested list '''
+def t(its):
+    for x in its:
+        if not isinstance(x, Iterable) or isinstance(x, str):
+            yield [x] 
+        else: 
+            yield flatten(x)
+          
+def flatten(itera):
+    gen = t(itera)
+    return chain.from_iterable(gen)
+ 
+l = [ [ [5] ] ] 
+# l = ['The Benchwarmers','hi', [[[1]]], range(4), {99, 89}, {'a': 65, 'b': 12}, 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2', ['Iron Man 3']]], ['The Hulk']]
+n = list(flatten(l))
+print(n)
+
+''' *** Testing recursive generator and yield flow '''  
+# def flatten(nested, depth=0):
+#     try:
+#         print("{}Iterate on {}".format('  '*depth, nested))
+#         for sublist in nested:
+#             for element in flatten(sublist, depth+1):
+#                 print("{}got back {}".format('  '*depth, element))
+#                 yield element
+#     except TypeError:
+#         print('{}not iterable - return {}'.format('  '*depth, nested))
+#         yield nested
+#    
+# l = [ [ [5] ] ]
+# list(flatten(l))
     
 #===============================================================================
 # ''' *** generator flatten deeper nested list. NOTICE: importantly of using 'yield from' '''
@@ -155,24 +256,26 @@ def printnl(*args):
 # print(dict.fromkeys(a).keys()) #dict_keys([0, 1, 2, 3, 4]). why sorted?
 #===============================================================================
 
-# ''' **** Remove duplicate item and retain list current order **** '''
-# ### Python < 3.6. NOTE: NOT work if list item is NOT hashable
-# from collections import OrderedDict
-# t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
-# od = OrderedDict.fromkeys(t)
-# ### Python >= 3.6. Regular dict is now having insertion order
-# # od = dict.fromkeys(t)
-# print(list(od))
-
-###OR: hacking way and list  comprehension. Work on un-hashable items
-###Note: can't use tuple such as (x,) or ([11],). Although tuple is immutable, [11] in it is mutable so hash value could NOT created.
-''' tuple as a key if all elements in it are immutable. If the tuple contains mutable objects, it cannot be used as a key. 
-Thus, a tuple to be used as a key can contain strings, numbers, and other tuples containing references to immutable objects.
-'''
-seq = [1, 2, 9, [11], 58, 15, [11], 3, 1, 2, 5, 6, 7, 8]
-seen = set()
-l = [x for x in seq if str(x) not in seen and not seen.add(str(x))]
-print(l)
+#===============================================================================
+# # ''' **** Remove duplicate item and retain list current order **** '''
+# # ### Python < 3.6. NOTE: NOT work if list item is NOT hashable
+# # from collections import OrderedDict
+# # t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
+# # od = OrderedDict.fromkeys(t)
+# # ### Python >= 3.6. Regular dict is now having insertion order
+# # # od = dict.fromkeys(t)
+# # print(list(od))
+# 
+# ###OR: hacking way and list  comprehension. Work on un-hashable items
+# ###Note: can't use tuple such as (x,) or ([11],). Although tuple is immutable, [11] in it is mutable so hash value could NOT created.
+# ''' tuple as a key if all elements in it are immutable. If the tuple contains mutable objects, it cannot be used as a key. 
+# Thus, a tuple to be used as a key can contain strings, numbers, and other tuples containing references to immutable objects.
+# '''
+# seq = [1, 2, 9, [11], 58, 15, [11], 3, 1, 2, 5, 6, 7, 8]
+# seen = set()
+# l = [x for x in seq if str(x) not in seen and not seen.add(str(x))]
+# print(l)
+#===============================================================================
 
 
 #===============================================================================
