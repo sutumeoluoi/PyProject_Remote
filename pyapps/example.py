@@ -9,10 +9,10 @@ def printnl(*args):
     print(st.format(*args))
 ''' ************************************************* '''
 
+''' generator yield flow: 
+each for-loop call requests countfrom() running to yield; then yield n, freeze countfrom(), return control to for-loop
+'''    
 #===============================================================================
-# ''' generator yield flow: 
-# each for-loop call requests countfrom() running to yield; then yield n, freeze countfrom(), return control to for-loop
-# '''    
 # def countfrom(n):
 #     while True:
 #         print("before yield n= ", n)
@@ -28,8 +28,8 @@ def printnl(*args):
 #         break    
 #===============================================================================
 
+''' *** @classmethod, @staticmethod and inheritance '''
 #===============================================================================
-# ''' *** @classmethod, @staticmethod and inheritance '''
 # class Foo():
 #   message = "I'm Foo class"
 # 
@@ -68,21 +68,40 @@ def printnl(*args):
 # # b.static_method(None) 
 #===============================================================================
 
+''' 
+*** flatten nested list.
+ Note: below work on shallow and deeper nested ['The Benchwarmers', 'Batman', 'The Avengers', ['Iron Man 1', ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+      But, NOT ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+***''' 
 #===============================================================================
-# ''' 
-# *** flatten nested list.
-# Note: below work on shallow and deeper nested ['The Benchwarmers', 'Batman', 'The Avengers', ['Iron Man 1', ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-#      But, NOT ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-# ***''' 
-# # l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-# # for i, item in enumerate(l):
-# #     if isinstance(item, list):
-# #         l[i:i+1] = item
-# # print(l)
-#==================================================\============================
+#  # l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+#  # for i, item in enumerate(l):
+#  #     if isinstance(item, list):
+#  #         l[i:i+1] = item
+#  # print(l)
+#  
+# #  ####OR
+# #  ''' *** list comprehension on one-level nested list. NOT work on deeper nested!!! '''
+# #  l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
+# #  n = [num for item in l for num in (item if isinstance(item, list) else (item,))]
+# #  print(n)
+#  
+# ###OR
+# from itertools import chain
+# def f(item):
+#    return flatten_all(item) if isinstance(item, list) else [item]
+#      
+# def flatten_all(alist):
+#     return chain.from_iterable(map(f, alist))
+#  
+# l = ['The Benchwarmers', 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2'], 'Iron Man 3'], ['The Hulk']]
+# n = list(flatten_all(l))
+# print(n)
+#===============================================================================
 
 from itertools import chain
 from collections import Iterable
+''' *** Version recursive using function, NOT generator '''
 # def f(item):
 # #     return [item] if not isinstance(item, Iterable) or isinstance(item, str) else flatten(item) #one-liner
 #     #**Base case:
@@ -90,81 +109,115 @@ from collections import Iterable
 #         return [item]
 #     #**Recursive
 #     return flatten(item)
-  
-def f(item):
-    '''**Error: infinitive recursive due to yield [item] doesn't stop function as return. It jumps to yield from
-      and recursive to maximum stack error. Need to use if else'''
-#     #**Base case:
-#     if not isinstance(item, Iterable) or isinstance(item, str):    
-#         yield [item]
-#     #**Recursive
-#     yield from flatten(item)
-    '''**'''
-    if not isinstance(item, Iterable) or isinstance(item, str):
-        yield [item] 
-    else:
+
+''' Version A: *** Work on deeper nested list. Diff from ver. B on return item instead of [item] 
+chain.from_iterable() requires an iterable of iterables. If passing generator, the generator must yield iterables
+on each next(). Reason: from_iterable(gen) calls next(gen), then it calls next(...) on the yield of next(gen).
+Roughly equivalent implement of chain.from_iterable():
+#     for it in gen:
+#         for element in it:
+#             yield element
+In this implement,  g(itt) equivalent map(f, itt). from_iterable calls next(g) yield generator f(it).
+It then calls next() on f(it) which yield [item]. 
+This is where it's different from Ver. B, so this version doesn't flatten list completely. It even make worse 
+on already flattened list such as [5, 6] -> [[5], [6]]. I.e, it returns 1 level deep list [[x], ...,[z]] no matter deeper level
+Issue: This version implement 3-level iterables while from_iterable() only flatten 2-level iterables. 
+Fix: instead of yield [item], change to yield item to reduce to 2-level iterables
+Note: yield flatten(item) will yield generator obj, NOT value. Use yield from flatten(item) to force yield value
+'''
+#===============================================================================
+# def f(item):
+#     '''**Error: infinitive recursive due to yield [item] doesn't stop function as return. It jumps to yield from
+#       and recursive to maximum stack error. Need to use if else'''
+# #     #**Base case:
+# #     if not isinstance(item, Iterable) or isinstance(item, str):    
+# #         yield [item]
+# #     #**Recursive
+# #     yield from flatten(item)
+#     '''**'''
+#     if not isinstance(item, Iterable) or isinstance(item, str):
+#         yield item
+#     else:
+#         yield from flatten(item) # equivalent: for sub in flatten(item): yield sub
+# #         yield flatten(item) #cause print(n) returning generator obj flatt
+# 
+# def g(itt): #equivalent map(f, itt)
+#     for it in itt:
+#         yield f(it) 
+# #         return f(it)    # only return 1st element of itt
+#         
+# def flatten(its):
+#     gen = g(its)
+#     return chain.from_iterable(gen)   
+#===============================================================================
+
+''' *** Ver. A simplify. Same as A, just using built-in map and take out comment. Read note in A '''
+# def f(item):
+#     if not isinstance(item, Iterable) or isinstance(item, str):
+#         yield item
+#     else:
 #         yield from flatten(item)
-#         for sub in flatten(item):
-#             yield sub
+#         
+# def flatten(its):
+#     return chain.from_iterable(map(f, its))     
+
+''' *** Ver. A simplify, but weird!!! Need thoroughly analyze it later '''
+def f(item):
+    if not isinstance(item, Iterable) or isinstance(item, str):
+        yield [item]
+    else:
         yield flatten(item)
-  
-def g(itt):
-    for it in itt:
-#         yield f(it) #cause print(n) returning generator obj flatter
-        return f(it)
-    
+         
 def flatten(its):
-#     ### map equivalent
-#     for it in its:
-#         yield f(it)
-#     ###    
-    gen = g(its)
-    ### from_iterable equivalent
-    for it in gen:
-        for element in it:
-            yield element
-    ###
-#     return chain.from_iterable(gen)    
-  
-l = [ [ [5] ] ]
+    return chain.from_iterable(chain(*map(f, its)))     
+
+l = [ [ [ [5]]], 6, [7]]
 # l = ['The Benchwarmers','hi', [[[1]]], range(4), {99, 89}, {'a': 65, 'b': 12}, 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2', ['Iron Man 3']]], ['The Hulk']]
 n = list(flatten(l))
 print(n)         
 
-''' *** Work on deeper nested list '''
-def t(its):
-    for x in its:
-        if not isinstance(x, Iterable) or isinstance(x, str):
-            yield [x] 
-        else: 
-            yield flatten(x)
-          
-def flatten(itera):
-    gen = t(itera)
-    return chain.from_iterable(gen)
- 
-l = [ [ [5] ] ] 
+''' Version B: *** Work on deeper nested list 
+In this implement t(its), each next(t) yield [x]/generator flatten() (which is an iterable). It then calls next()
+on [x] or flatten() which yield x/item or recursive yield to flatten() until reach x/item
+Thus, it works to flatten all deepen nested list. It correctly returns [x, ..., z]
+'''
+#===============================================================================
+# def t(its):
+#     for x in its:
+#         if not isinstance(x, Iterable) or isinstance(x, str):
+#             yield [x] 
+#         else: 
+#             yield flatten(x)
+#             
+# def flatten(itera):
+#     gen = t(itera)
+#     return chain.from_iterable(gen)
+#    
+# # l = [ [5], [1, [2, 3]] ]  
 # l = ['The Benchwarmers','hi', [[[1]]], range(4), {99, 89}, {'a': 65, 'b': 12}, 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2', ['Iron Man 3']]], ['The Hulk']]
-n = list(flatten(l))
-print(n)
+# n = list(flatten(l))
+# print(n)
+#===============================================================================
 
 ''' *** Testing recursive generator and yield flow '''  
-# def flatten(nested, depth=0):
-#     try:
-#         print("{}Iterate on {}".format('  '*depth, nested))
-#         for sublist in nested:
-#             for element in flatten(sublist, depth+1):
-#                 print("{}got back {}".format('  '*depth, element))
-#                 yield element
-#     except TypeError:
-#         print('{}not iterable - return {}'.format('  '*depth, nested))
-#         yield nested
-#    
-# l = [ [ [5] ] ]
-# list(flatten(l))
-    
 #===============================================================================
-# ''' *** generator flatten deeper nested list. NOTICE: importantly of using 'yield from' '''
+# # def flatten(nested, depth=0):
+# #     try:
+# #         print("{}Iterate on {}".format('  '*depth, nested))
+# #         for sublist in nested:
+# #             for element in flatten(sublist, depth+1):
+# #                 print("{}got back {}".format('  '*depth, element))
+# #                 yield element
+# #     except TypeError:
+# #         print('{}not iterable - return {}'.format('  '*depth, nested))
+# #         yield nested
+# #    
+# # l = [ [ [5] ] ]
+# # list(flatten(l))
+#===============================================================================
+     
+''' *** generator flatten deeper nested list. NOTICE: importantly of using 'yield from' '''
+#===============================================================================
 # def flatten(iterable):
 #     for item in iterable:
 #         if isinstance(item, list) and not isinstance(item, str):  # `basestring` < 3.x
@@ -178,13 +231,6 @@ print(n)
 # print(list(flatten(l)))
 #===============================================================================
 
-#===============================================================================
-# ''' *** list comprehension on one-level nested list. NOT work on deeper nested!!! '''
-# l = ['The Benchwarmers', 'Batman', 'The Avengers', [['Iron Man 1'], ['Iron Man 2', 'Iron Man 3']], ['The Hulk']]
-# n = [num for item in l for num in (item if isinstance(item, list) else (item,))]
-# print(n)
-#===============================================================================
-
 # from timeit import timeit
 # print(timeit("[item for items in newlist for item in items]", "from __main__ import newlist"))
 # print(timeit("sum(newlist, [])", "from __main__ import newlist"))
@@ -193,11 +239,11 @@ print(n)
 # print(timeit("list(chain(*newlist))", "from __main__ import newlist; from itertools import chain"))
 # print(timeit("list(chain.from_iterable(newlist))", "from __main__ import newlist; from itertools import chain"))\
 
+''' *** list += vs .extend()
+can't use += for non-local variable (variable which is not local for function and also not global)
+while .extend works
+'''
 #===============================================================================
-# ''' *** list += vs .extend()
-# can't use += for non-local variable (variable which is not local for function and also not global)
-# while .extend works
-# '''
 # def main():
 #     l = [1, 2, 3]
 #     def foo():
@@ -247,8 +293,8 @@ print(n)
 # nums.sort(key=lambda x: x is not False and x == 0)
 # print(nums)
 
+''' **** why dict.fromkeys() sorted in this case? '''
 #===============================================================================
-# ''' **** why dict.fromkeys() sorted in this case? '''
 # from random import shuffle
 # a = list(range(0,5))*2
 # shuffle(a)
@@ -256,21 +302,23 @@ print(n)
 # print(dict.fromkeys(a).keys()) #dict_keys([0, 1, 2, 3, 4]). why sorted?
 #===============================================================================
 
+''' **** Remove duplicate item and retain list current order **** '''
 #===============================================================================
-# # ''' **** Remove duplicate item and retain list current order **** '''
-# # ### Python < 3.6. NOTE: NOT work if list item is NOT hashable
-# # from collections import OrderedDict
-# # t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
-# # od = OrderedDict.fromkeys(t)
-# # ### Python >= 3.6. Regular dict is now having insertion order
-# # # od = dict.fromkeys(t)
-# # print(list(od))
-# 
-# ###OR: hacking way and list  comprehension. Work on un-hashable items
-# ###Note: can't use tuple such as (x,) or ([11],). Although tuple is immutable, [11] in it is mutable so hash value could NOT created.
-# ''' tuple as a key if all elements in it are immutable. If the tuple contains mutable objects, it cannot be used as a key. 
-# Thus, a tuple to be used as a key can contain strings, numbers, and other tuples containing references to immutable objects.
-# '''
+# ### Python < 3.6. NOTE: NOT work if list item is NOT hashable
+# from collections import OrderedDict
+# t = [1, 2, 9, 58, 15, 3, 1, 2, 5, 6, 7, 8]
+# od = OrderedDict.fromkeys(t)
+# ### Python >= 3.6. Regular dict is now having insertion order
+# # od = dict.fromkeys(t)
+# print(list(od))
+#===============================================================================
+ 
+''' ###OR: hacking way and list  comprehension. Work on un-hashable items
+###Note: can't use tuple such as (x,) or ([11],). Although tuple is immutable, [11] in it is mutable so hash value could NOT created.
+tuple as a key if all elements in it are immutable. If the tuple contains mutable objects, it cannot be used as a key. 
+Thus, a tuple to be used as a key can contain strings, numbers, and other tuples containing references to immutable objects.
+'''
+#===============================================================================
 # seq = [1, 2, 9, [11], 58, 15, [11], 3, 1, 2, 5, 6, 7, 8]
 # seen = set()
 # l = [x for x in seq if str(x) not in seen and not seen.add(str(x))]
@@ -278,8 +326,8 @@ print(n)
 #===============================================================================
 
 
+''' **** Consume whole iterator without using it **** '''
 #===============================================================================
-# ''' **** Consume whole iterator without using it **** '''
 #  collections.deque(iterator, maxlen=0) #deque consume whole iterator, but never keep any item due to maxlen=0
 #===============================================================================
 
@@ -290,12 +338,12 @@ print(n)
 #     print(first, second)
 #===============================================================================
 
+'''
+islice consumes iterator and throw-away elements to 'start' position. Then, create slice to 'stop' position.
+after islice done. The current position of iterator will be at max(start, stop). ie., at either greatest
+On 'step' over 'stop', slice won't reach 'stop', but iterator will consume(move) to 'stop'
+'''
 #===============================================================================
-# '''
-# islice consumes iterator and throw-away elements to 'start' position. Then, create slice to 'stop' position.
-# after islice done. The current position of iterator will be at max(start, stop). ie., at either greatest
-# On 'step' over 'stop', slice won't reach 'stop', but iterator will consume(move) to 'stop'
-# '''
 # import itertools
 # print([x*2 for x in range(10)])
 # ge = (x*2 for x in range(10))
@@ -305,8 +353,8 @@ print(n)
 # print(list(ge))
 #===============================================================================
     
+''' **** l[n] - l[n-1] '''
 #===============================================================================
-# #**** l[n] - l[n-1]
 # l=[1, 22, 3, 99, 65]
 # # import operator, itertools
 # # print(list(map(operator.sub, l[1:], l)))
@@ -359,15 +407,14 @@ print(n)
 # # print(b)    
 #===============================================================================
 
-#===============================================================================
-# ''' **** Itertools.tee() CAUTION!!! '''
-# tee() create n independent iterators, each iterator is essentially working with its own FIFO queue.
-# When a value is extracted from one iterator, that value is appended to the queues for the other iterators. 
-# Thus, if one is exhausted before others, each remaining iterator will hold a copy of the entire iterable in memory
-#===============================================================================
+''' **** Itertools.tee() CAUTION!!! '''
+''' tee() create n independent iterators, each iterator is essentially working with its own FIFO queue.
+When a value is extracted from one iterator, that value is appended to the queues for the other iterators. 
+Thus, if one is exhausted before others, each remaining iterator will hold a copy of the entire iterable in memory
+'''
 
+''' **** Implement FIRST ORDER RECURRENCE logic using accumulate **** '''
 #===============================================================================
-# ''' **** Implement FIRST ORDER RECURRENCE logic using accumulate **** '''
 # import itertools as itr
 # def first_order(p, q, initial_val):
 #     """Return sequence defined by s(n) = p * s(n-1) + q."""
@@ -406,14 +453,14 @@ print(n)
 # # printnl(a, b, c, d, e, f, g)
 #===============================================================================
 
+''' **** print list previous, current, next item '''
 #===============================================================================
-# #**** print list previous, current, next item
 # l=[1,2,3, 99, 65, 8656, 'me', 896, 23]
 # for prev,cur,next in zip([None]+l[:-1], l, l[1:]+[None]):
 #     print(prev,cur,next)
 #===============================================================================
 
-#''' **** print list current, next item **** '''
+''' **** print list current, next item **** '''
 # l=[1, 2, 3, 99, 65, 8656, 896, 23]
 #  for i, j in zip(l, l[1:]):
 #      print(i, j)
@@ -438,61 +485,9 @@ print(n)
 #      next(b, None)
 #      return zip(a, b)
 #  print(list(pairwise(l)))
-
-#**** NOT WORK!!!!!
-#===============================================================================
-# # a = 'abcbaba'
-# # a = 'cacbbbbcac'
-# a = 'aadaa'
-# 
-# def is_same(s):
-#     if len(s) == 1:
-#         return -1
-#     elif s == s[0]*len(s):
-#         return (len(s)-1)*len(s)//2
-#     else:
-#         return 0
-# 
-# def is_mid_same(s):
-#     if len(s) % 2:
-#         m = len(s) // 2
-#         left = s[:m]
-#         right = s[m+1:]
-#         count_same = is_same(left)
-#         if count_same and left == right:
-#             if count_same == -1:
-#                 return len(left)
-#             else:
-#                 return len(left) + 2*count_same 
-#                     
-#     return 0
-#     
-# def count_spc_pal(st):
-#     count = 0
-#     i = 0
-#     while i < len(st)-1:
-#         for j in range(len(st), i+2, -1):            
-#             sub = st[i:j]
-#             count_same = is_same(sub)
-#             if count_same:
-#                 count += count_same
-#                 i = j-1
-#                 break   #out innner loop
-#             
-#             count_mid_same = is_mid_same(sub)
-#             if count_mid_same:
-#                 count += count_mid_same
-#                 break
-#         i += 1
-#         
-#     return count
-# 
-# print(count_spc_pal(a))
-#===============================================================================
     
-    
+'''****Count occurences in list'''
 #===============================================================================
-# '''****Count occurences in list'''
 # from collections import Counter
 # from collections import defaultdict
 #  
@@ -567,8 +562,8 @@ print(n)
 #         break
 #===============================================================================
 
+''' **** sorted dictionary to list '''
 #===============================================================================
-# #**** sorted dictionary to list
 # dic1 = {'first': 13, 'third': 5, 'second': 7,}
 # sortlist = sorted(dic1.values(), reverse=True)
 # sortlist1 = sorted(dic1.keys(), reverse=True)
@@ -577,8 +572,8 @@ print(n)
 # sortlist4 = sorted(dic1.items(), reverse=True)
 # printnl(sortlist, sortlist1, sortlist2, sortlist3, sortlist4)
 
+''' **** find max value in dict '''
 #===============================================================================
-# #**** find max value in dict
 # from operator import itemgetter
 # dic1 = {'first': 13, 'second': 7, 'third': 5}
 # mx = max(dic1, key=dic1.get)    #output: 'first'
@@ -587,13 +582,14 @@ print(n)
 # printnl(mx, mx2, mx3)
 #===============================================================================
 
+''' ****filter specific value from list
+**using None in function of filter apply id test as 'lambda x: x' or 'is' test
+'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
+'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
+use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
+or where you want to protect against objects breaking when being compared against None
+'''
 #===============================================================================
-# #****filter specific value from list
-# #**using None in function of filter apply id test as 'lambda x: x' or 'is' test
-# #'==' is an equality test. It checks equal objects (according to their __eq__ or __cmp__ methods.)
-# #'is' is an identity test. It checks the very same object. No method calls are done, objects cannot influence the 'is' operation.
-# #use 'is' (and 'is not') for singletons, like None, where don't care about objects that might want to pretend to be None 
-# #or where you want to protect against objects breaking when being compared against None
 # a = [1, 2, 3, None, 0, [], 86469]
 # b = [x for x in a if x is not 86469] #failed to ignore 86469 cause 'is not' id test 86469 check on obj. 
 #         #obj 86469 in list comp is different obj in a. for -255 to 255, python creates constant obj so will ignore fine.
@@ -608,11 +604,11 @@ print(n)
 # max([] or [99]) #ver < 3.4
 #===============================================================================
 
-# ###**Insert list b to 'i' position of list a
+''' ***Insert list b to 'i' position of list a '''
 # list_a[i:i] = list_b
 
+''' ***Insert list b in front list a '''
 #===============================================================================
-# ###**Insert list b in front list a
 ##!!Hettinger: should consider collections.dequeue
 # list_a = list_b + list_a
 # 
@@ -731,18 +727,19 @@ print(n)
 # dictlist = [{'label':'240p','url':'url'}, {'label':'720p','url':'url'},{'label':'480p','url':'url'}]
 # print(max(dictlist, key=lambda x: x['label'])['label'])
 
+''' ****Find next lexicographical permutation 
+ref: https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
+1. Find largest index i such that array[i - 1] < array[i]
+   (from rightmost, find largest(size) subset in increasing order right to left. ex: [5, 4] of [2, 3, 5, 4]
+   Pivot = 3, max_of_subset = 5. Keep their indices. If no such i exists, then this is already the last permutation.)
+2. Find largest index j such that j >= i and array[j] > array[i - 1].
+   (On found subset, from rightmost, find item > pivot. keep its index. 
+   Subset already ordered right to left, so item is the smallest item and > pivot)
+3. Swap array[j] and array[i - 1].
+4. Reverse the suffix starting at array[i].
+Note: step 4 could use sorted() or reversed() because sublist already sorted and swapping still keep it sorted
+'''
 #===============================================================================
-# # ****Find next lexicographical permutation
-# # ref: https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
-# # 1. Find largest index i such that array[i - 1] < array[i]
-# #    (from rightmost, find largest(size) subset in increasing order right to left. ex: [5, 4] of [2, 3, 5, 4]
-# #    Pivot = 3, max_of_subset = 5. Keep their indices. If no such i exists, then this is already the last permutation.)
-# # 2. Find largest index j such that j >= i and array[j] > array[i - 1].
-# #    (On found subset, from rightmost, find item > pivot. keep its index. 
-# #    Subset already ordered right to left, so item is the smallest item and > pivot)
-# # 3. Swap array[j] and array[i - 1].
-# # 4. Reverse the suffix starting at array[i].
-# # Note: step 4 could use sorted() or reversed() because sublist already sorted and swapping still keep it sorted
 # def check_bigger(a):
 #     for i in range(-1, -len(a), -1):
 #         if a[i] > a[i-1]:
@@ -765,8 +762,8 @@ print(n)
 #     print(check_bigger(item))
 #===============================================================================
      
+''' *** Check repeated char string '''
 #===============================================================================
-# #****** Check repeated char string
 # import re
 # def test_regex(s,regex=re.compile(r'^(.)\1*$')):
 #     return bool(regex.match(s))
@@ -862,8 +859,8 @@ print(n)
 # elif roll in range(91, 100):
 #     pass
 
+''' *** Nested tuple unpacking '''
 #===============================================================================
-# #***Nested tuple unpacking
 # floraTypes = {'woody': [1,30], 'herby': [31,85]}
 # num = 31
 # for t, (start, end) in floraTypes.items():
@@ -938,8 +935,8 @@ print(n)
 # print(s == trip_set)
 #===============================================================================
 
+''' *** in this case array.array slower than list '''
 #===============================================================================
-# #**** in this case array.array slower than list
 # import array
 # import timeit
 # start_time = timeit.default_timer()
@@ -957,8 +954,8 @@ print(n)
 # server_names = chain.from_iterable(zip(server1, server2, server3)) 
 # print(list(server_names))
 
+''' *** Remove 0 in sub-list '''
 #===============================================================================
-# ######## Remove 0 in sub-list
 # L = [[5, 0, 6], [7, 22], [0, 4, 2], [9, 0, 45, 17]]
 # # L = [list(filter(lambda x: x != 0,item)) for item in L]
 # # L = [list(filter(None,item)) for item in L] #None defaulted to use identity funct where false item return false. in this case 0 is false
@@ -967,8 +964,8 @@ print(n)
 # print(L)
 #===============================================================================
 
+''' ****** SINGLETON Design Pattern '''
 #===============================================================================
-# # ****** SINGLETON Design Pattern
 # # Standard singleton design pattern, for most languages, to ensure that only one instance of 
 # # the class is ever created. An implementation of the singleton pattern must:
 # # _ ensure that only one instance of the singleton class ever exists; and
@@ -1058,12 +1055,13 @@ print(n)
 #===============================================================================
 
 
+''' ***Create/copy list of mutable object*** 
+* remember that repetition, concatenation, and slicing copy only the top level of their operand objects
+* L1, L2, X,board,... is reference to list object [2, 3, 4], [4, 5, 6],... Thus, any repetition, concatenation
+of them just clone them(clone reference), NOT clone the object. It will create multiple copies of the same
+object.
+'''
 #===============================================================================
-# ******Create/copy list of mutable object******
-# **remember that repetition, concatenation, and slicing copy only the top level of their operand objects
-# **L1, L2, X,board,... is reference to list object [2, 3, 4], [4, 5, 6],... Thus, any repetition, concatenation
-# **of them just clone them(clone reference), NOT clone the object. It will create multiple copies of the same
-# **object.
 # L1 = [2, 3, 4]
 # L2 = L1[:] # Make a copy of L1 (or list(L1), copy.copy(L1), etc.). Note: copy.copy() only works on sequences
 # L2 = list(L1)
@@ -1099,15 +1097,16 @@ print(n)
 # drawboard()
 #===============================================================================
 
+''' ******CLOSURE******
+* A closure is a function remembers the values from its enclosing lexical scope even when the program flow is no longer in that scope
+* A function object remembers values in enclosing scopes regardless of whether those scopes are still present in memory
+* A functions that refer to variables from the scope in which they were defined
+* A function with an extended scope that encompasses nonglobal variables referenced in the body of the function 
+but not defined there. It does not matter whether the function is anonymous or not; what matters is that it can access nonglobal
+variables that are defined outside of its body. closures only matter when you have nested functions.
+* A nested function that accesses values from outer local variables is also known as a closure
+'''
 #===============================================================================
-# # ******CLOSURE******
-# # **A closure is a function remembers the values from its enclosing lexical scope even when the program flow is no longer in that scope
-# # **A function object remembers values in enclosing scopes regardless of whether those scopes are still present in memory
-# # **A functions that refer to variables from the scope in which they were defined
-# # **A function with an extended scope that encompasses nonglobal variables referenced in the body of the function 
-# # but not defined there. It does not matter whether the function is anonymous or not; what matters is that it can access nonglobal
-# # variables that are defined outside of its body. closures only matter when you have nested functions.
-# # **A nested function that accesses values from outer local variables is also known as a closure
 # funcs = []
 # for i in range(4):
 #     def f():
@@ -1173,7 +1172,7 @@ print(n)
 #         return self.data + arg1 + arg2
 #===============================================================================
 
-###### lambda TRAP!!!
+'''*** lambda TRAP!!! ***
 ## Expecting output: [2, 3, 4, 5, 6 ,7]; BUT print-out: [7, 7, 7, 7, 7, 7].
 ## I.e, expecting lambda closure to hold each x after each iteration, assume x going out of scope after each iteration
 ## Reason: each iteration creates an <function <listcomp>.<lambda> at 0x000000000222EBF8> object binding var 'x' to it. 
@@ -1188,6 +1187,7 @@ print(n)
 ##        http://math.andrej.com/2009/04/09/pythons-lambda-is-broken/
 ##        https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
 ##        https://stackoverflow.com/questions/13905741/accessing-class-variables-from-a-list-comprehension-in-the-class-definition
+'''
 
 # lds = []
 # for x in range(6):
@@ -1195,19 +1195,22 @@ print(n)
 # x = 10
 # print([ld() for ld in lds])
 
+'''
 ### assign x = 0 after list comprehension NOT change return value of lambda. Lambda got closure on x with the lastes value = 5 and 
 ### calculate to return 7 on every lambda object
-### 
+'''
 # lds = [lambda: x + 2 for x in range(6)]
 # x = 10
 # print([ld() for ld in lds])
 # print(lds[0]())
 # print(lds)
 
+'''
+list comprehension leak 'x' into outside scope in python 2. However, Python 3 fixed it.
+Thus, python 2 will print '6' and python 3 will error "name 'x' is not defined"
+Ref: https://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-thi
+'''
 #===============================================================================
-# ## list comprehension leak 'x' into outside scope in python 2. However, Python 3 fixed it.
-# ## Thus, python 2 will print '6' and python 3 will error "name 'x' is not defined"
-# ## Ref: https://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-thi
 # lds = [lambda: x + 2 for x in range(6)]
 # print(x)
 #===============================================================================
@@ -1224,17 +1227,24 @@ print(n)
 # #In main so def needs global to it to call. 
 # #In def and nested def calls it, nested def need nonlocal NOT global to call it
 #===============================================================================
-    
-#===============================================================================
-# ATTENTION!!!: A = ((X and Y) or Z). Always try to evaluate to True and return the latest item when it stop
-# Semantic: evaluate left to right 
-#     1. On X true, evaluate Y; on Y true stop evaluation since next is 'or'. So return Y.  
-#     2. On X false, not going to Y, jump to evaluation Z. Either Z True or False, always return Z bcauz Z is the last item
-#     3. On X true, evaluate Y; on Y false, evaluate Z and return Z since Z is the last item. (CAN'T use replace an if else)
-# Note: 1 and 2 can use to replace ternary Y if X else Z. 3 can't use since it return Z on X true and Y false.
-#     I.e, only use it to replace Y if X else Z when you are sure Y always TRUE!!!!
-#===============================================================================
 
+'''    
+ATTENTION!!!: A = ((X and Y) or Z). Always try to evaluate to True and return the latest item when it stop
+Semantic: evaluate left to right 
+    1. On X true, evaluate Y; on Y true stop evaluation since next is 'or'. So return Y.  
+    2. On X false, not going to Y, jump to evaluation Z. Either Z True or False, always return Z bcauz Z is the last item
+    3. On X true, evaluate Y; on Y false, evaluate Z and return Z since Z is the last item. (CAN'T use replace an if else)
+Note: 1 and 2 can use to replace ternary Y if X else Z. 3 can't use since it return Z on X true and Y false.
+    I.e, only use it to replace Y if X else Z when you are sure Y always TRUE!!!!
+'''
+
+'''
+setdefault(...) is function, so its argument will be evaluated even before it got called. So, default [] always
+got created even on found key. On found key, [] will be discarded. On not found key, [] will be assigned to value
+of the new key. Thus, it is wasteful if searching on big list and on key already exist.
+In that case, use defaultdict(...) instead. Defaultdic(...) is the class accept callable(function, object) factory,
+so, it doesn't have issue of wastefull creating and discarding [] on existed key
+'''
 #===============================================================================
 # d = {}
 # for num in range(5):
@@ -1242,27 +1252,20 @@ print(n)
 #     d.setdefault(t, [])
 # d['0'].append('zero')
 # print(d) 
-# #setdefault(...) is function, so its argument will be evaluated even before it got called. So, default [] always
-# #got created even on found key. On found key, [] will be discarded. On not found key, [] will be assigned to value
-# #of the new key. Thus, it is wasteful if searching on big list and on key already exist.
-# #In that case, use defaultdict(...) instead. Defaultdic(...) is the class accept callable(function, object) factory,
-# #so, it doesn't have issue of wastefull creating and discarding [] on existed key
 #===============================================================================
  
-#===============================================================================
-# Is there a way to introspect a function so that it shows me information on the arguments it takes (like number of args, type if possible, name of arguments if named) 
-# and the return value? dir() doesn't seem to do what I want. 
-# >>
-# import inspect 
-# print(inspect.getargspec(the_function)) 
-# but help() is much better
-#===============================================================================
+'''
+Is there a way to introspect a function so that it shows me information on the arguments it takes (like number of args, type if possible, name of arguments if named) 
+and the return value? dir() doesn't seem to do what I want. 
+>>
+import inspect 
+print(inspect.getargspec(the_function)) 
+but help() is much better
+'''
 
-#===============================================================================
-# ###### Good STD Module 
-#  import dataclasses ,collections ,itertools ,functools ,pickle ,os ,asyncio ,email ,json ,pdb ,csv, Argparse, Request
-# #####
-#===============================================================================
+''' ###### Good STD Module 
+ import dataclasses ,collections ,itertools ,functools ,pickle ,os ,asyncio ,email ,json ,pdb ,csv, Argparse, Request
+'''
 
 #import sys
 # import pyodbc
@@ -1468,8 +1471,6 @@ print(n)
 #    
 # print(al_rks)        
 
-
-
 #===============================================================================
 # s = 'candleg'
 # s = list(s.upper())
@@ -1478,14 +1479,13 @@ print(n)
 # print(''.join(s))
 #===============================================================================
 
+''' *** 'candle' becomes 'ACDNEL' '''
 #===============================================================================
-# # 'candle' becomes 'ACDNEL'
 # word = 'candleg'
 # new_word = ''.join(word[i:(i+2)][::-1] for i in range(0, len(word), 2)).upper() #join accept iterables(list, tuple, generator, iterator...)
 # print(new_word)
 #===============================================================================
 
-#===============================================================================
 #===============================================================================
 # with open("in-out.txt", "r") as f:
 #     read_list = [line.rstrip('\n') + " is an excellent webcomic\n" for line in f]
@@ -1494,10 +1494,9 @@ print(n)
 # with open("in-out.txt", "w") as f:
 #     f.writelines(read_list)
 #===============================================================================
-#===============================================================================
 
+''' ***populate 2d list from user input '''
 #===============================================================================
-# #####populate 2d list from user input
 # n= 5
 # a = []
 # for a_i in range(n): 
@@ -1518,8 +1517,6 @@ print(n)
 #        ]
 # diff = [itm[i] - itm[-(i+1)] for i, itm in enumerate(arr)]
 # print(diff)        
-
-#!/bin/python
 
 #===============================================================================
 # ar = [-4,  3,  -9,  0,  4,  1]
@@ -1580,24 +1577,6 @@ print(n)
 #===============================================================================
 
 #===============================================================================
-# import itertools
-# line = '-' * 37
-# print(line)
-# print("|    №   | isdigit | isdecimal | chr")
-# print(line)
-# for number in itertools.chain(range(1000), range(4969, 4978), range(8304, 11000)):
-#     char = chr(number)
-#     if (char.isdigit() or char.isdecimal()):
-#         print('| {0:>6} | {1:^7} | {2:^9} | {3:3} '.format(
-#             number,
-#             '+' if char.isdigit() else '-',
-#             '+' if char.isdecimal() else '-',
-#             char
-#         )
-#     )
-#===============================================================================
-
-#===============================================================================
 # num = 567
 # num_weight = sum(map(int, list(str(num))))
 # print(num_weight)
@@ -1639,10 +1618,12 @@ print(n)
 # #     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
 #===============================================================================
 
+'''
+implement defaultdict to add missing key and count total missing key.
+Note: this is NOT closure because counter is global and it is never going out of scope
+    To implement closure. implement all these codes in function and change 'global counter' to 'nonlocal counter'
+'''
 #===============================================================================
-# #implement defaultdict to add missing key and count total missing key.
-# #Note: this is NOT closure because counter is global and it is never going out of scope
-# #    To implement closure. implement all these codes in function and change 'global counter' to 'nonlocal counter'
 # from collections import defaultdict
 # counter = 0 #this in main so def specify global to it to call. 
 #             #If this is in def and nested def calls it, nested def need specify nonlocal NOT global to call it 
