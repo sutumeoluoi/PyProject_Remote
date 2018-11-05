@@ -8,6 +8,9 @@ def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
+    
+for num in range(1000, 1, -1):
+    print('{}\t{}'.format(num, num if not num % 97 else '' ))
 
 ''' generator yield flow: 
 each for-loop call requests countfrom() running to yield; then yield n, freeze countfrom(), return control to for-loop
@@ -100,7 +103,7 @@ each for-loop call requests countfrom() running to yield; then yield n, freeze c
 #===============================================================================
 
 from itertools import chain
-from collections import Iterable
+from collections import Iterable, OrderedDict
 ''' *** Version recursive using function, NOT generator '''
 # def f(item):
 # #     return [item] if not isinstance(item, Iterable) or isinstance(item, str) else flatten(item) #one-liner
@@ -162,19 +165,19 @@ Note: yield flatten(item) will yield generator obj, NOT value. Use yield from fl
 #     return chain.from_iterable(map(f, its))     
 
 ''' *** Ver. A simplify, but weird!!! Need thoroughly analyze it later '''
-def f(item):
-    if not isinstance(item, Iterable) or isinstance(item, str):
-        yield [item]
-    else:
-        yield flatten(item)
-         
-def flatten(its):
-    return chain.from_iterable(chain(*map(f, its)))     
-
-l = [ [ [ [5]]], 6, [7]]
-# l = ['The Benchwarmers','hi', [[[1]]], range(4), {99, 89}, {'a': 65, 'b': 12}, 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2', ['Iron Man 3']]], ['The Hulk']]
-n = list(flatten(l))
-print(n)         
+# def f(item):
+#     if not isinstance(item, Iterable) or isinstance(item, str):
+#         yield [item]
+#     else:
+#         yield flatten(item)
+#          
+# def flatten(its):
+#     return chain.from_iterable(chain(*map(f, its)))     
+# 
+# l = [ [ [ [5]]], 6, [7]]
+# # l = ['The Benchwarmers','hi', [[[1]]], range(4), {99, 89}, {'a': 65, 'b': 12}, 'Batman', 'The Avengers', [[['Iron Man 1']], ['Iron Man 2', ['Iron Man 3']]], ['The Hulk']]
+# n = list(flatten(l))
+# print(n)         
 
 ''' Version B: *** Work on deeper nested list 
 In this implement t(its), each next(t) yield [x]/generator flatten() (which is an iterable). It then calls next()
@@ -266,7 +269,7 @@ while .extend works
 #                     numbers += letter
 #                 else:
 #                     numbers += str(i+2)
-#                     
+#                      
 #                 break                  
 #     return numbers   
 
@@ -276,14 +279,28 @@ while .extend works
 #     numbers = ''.join(num if num not in tele_dict else tele_dict[num] for num in uppercaseLetter.lower())
 #     
 #     return numbers
-#     
+     
 # def run():
 #     phoneNumber = input("Enter a phone number:")
 #     print(getNumber(phoneNumber))
-# 
+#   
 # if __name__ == '__main__':
 #     run()
+  
+# from collections import OrderedDict, ChainMap
+# tele_pad = ["abc", "def", "ghi",  "jkl", "mno", "pqrs", "tuv", "wxyz"]
+# tele_cm = ChainMap()
+# # tele_dict = OrderedDict()
+# for i, pad in enumerate(tele_pad, 2):
+# #     tele_dict.update(dict.fromkeys(pad, i))
+#     tele_cm = tele_cm.new_child(dict.fromkeys(pad, i))
+# print(tele_cm)
 
+# c = ChainMap()
+# d = c.new_child()
+# e = d.new_child()
+# print(e)
+        
 # from itertools import repeat
 # t = iter(range(ord('a'), ord('z')+1))
 # t1 = iter(range(2, 10))
