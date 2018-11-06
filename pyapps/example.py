@@ -9,8 +9,58 @@ def printnl(*args):
     print(st.format(*args))
 ''' ************************************************* '''
     
-for num in range(1000, 1, -1):
-    print('{}\t{}'.format(num, num if not num % 97 else '' ))
+    
+''' anagram: An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, 
+typically using all the original letters exactly once
+Ex: ("binary", "brainy"), ("rail safety", "fairy tales")
+''' 
+def is_anagram(s1, s2):   
+    return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
+ 
+words = ("hi", "hello", "bye", "helol", "abc", "cab", 
+                "bac", "silenced", "licensed", "decli nes")
+ 
+anagram = set()
+for i, w1 in enumerate(words):
+    for w2 in words[i+1:len(words)]:
+        if is_anagram(w1, w2):
+            anagram.add(w1)
+            anagram.add(w2)
+            break
+         
+print(sorted(anagram, key=sorted))
+           
+
+''' Another implementation of anagram:
+_ Build a dictionary where keys would be histograms and values would be lists of words that have this histogram.
+_ For each word build it's histogram and add it to the list that corresponds to this histogram.
+_ Output list of dictionary values.
+Note: Counter is dict, so python <= 3.5 Counter(word).items() return not guarantee same order. 
+    Using tuple(Counter(word).items()) as key of dict cause 2 different keys although same counter.
+Fix: sorted() to list and convert to tuple 
+Ex: different order althought same counter.
+(('c', 1), ('e', 2), ('s', 1), ('d', 1), ('i', 1), ('l', 1), ('n', 1))    #silenced
+(('e', 2), ('c', 1), ('d', 1), ('l', 1), ('i', 1), ('n', 1), ('s', 1))    #licensed
+(('e', 2), ('n', 1), ('d', 1), ('l', 1), ('i', 1), ('c', 1), ('s', 1))    #declines
+'''
+from collections import Counter, defaultdict
+def anagram(words):
+    anagrams = defaultdict(list)
+    for word in words:
+        #histogram = tuple(Counter(word).items()) #
+        histogram = tuple(sorted(Counter(word).items())) # need sorted counter to list then convert to tuple
+        anagrams[histogram].append(word)
+#         print(histogram)
+#     printnl(anagrams)
+    return list(anagrams.values())
+ 
+keywords = ("hi", "hello", "bye", "helol", "abc", "cab", 
+                "bac", "silenced", "licensed", "declines")
+ 
+print(anagram(keywords))
+
+# for num in range(1000, 1, -1):
+#     print('{}\t{}'.format(num, num if not num % 97 else '' ))
 
 ''' generator yield flow: 
 each for-loop call requests countfrom() running to yield; then yield n, freeze countfrom(), return control to for-loop
