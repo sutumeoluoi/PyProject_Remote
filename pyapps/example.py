@@ -3,7 +3,6 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
-from sqlalchemy.sql.expression import false
 ''' **** print each item in args list per line ****'''
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
@@ -25,17 +24,30 @@ def consec_list(l1, l2):
                 return False    
     return True
 
-''' check a list in same order in another list *** alternative implementation '''    
-def sublist(lst1, lst2):
-    ind = 0
-    for a in lst1:
-        try:
-            ind = lst2.index(a, ind)
-        except ValueError:
-            return False
-    return True
+def consec_list(l1, l2):
+    it = iter(l1)
+    try:
+        item = next(it)
+        for item2 in l2:
+            if item == item2:
+                item = next(it)
+    except StopIteration:
+        return True
+    return False
 
-l1 = [15, 1]
+''' check a list in same order in another list *** alternative implementation '''    
+#===============================================================================
+# def sublist(lst1, lst2):
+#     ind = 0
+#     for a in lst1:
+#         try:
+#             ind = lst2.index(a, ind)
+#         except ValueError:
+#             return False
+#     return True
+#===============================================================================
+
+l1 = [15, 1, 20]*10
 l2 = [6, 1, 15, 3, 1, 6, 20]
 print(consec_list(l1, l2))
        
