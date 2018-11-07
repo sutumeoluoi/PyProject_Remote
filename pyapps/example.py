@@ -3,32 +3,62 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+from sqlalchemy.sql.expression import false
 ''' **** print each item in args list per line ****'''
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
-    
+
+''' check a list in same order in another list 
+Logic: Traverse list1 and scans list until match. On match, take next item of list1 continue scan list2 forward 
+Note: using iter() and next() on list2 is best approach in this case
+'''
+def consec_list(l1, l2):
+    it = iter(l2)
+    for item in l1:
+        while True:
+            try:
+                if item == next(it):
+                    break
+            except StopIteration:   #only catch end iterator. let other exception throw
+                return False    
+    return True
+
+''' check a list in same order in another list *** alternative implementation '''    
+def sublist(lst1, lst2):
+    ind = 0
+    for a in lst1:
+        try:
+            ind = lst2.index(a, ind)
+        except ValueError:
+            return False
+    return True
+
+l1 = [15, 1]
+l2 = [6, 1, 15, 3, 1, 6, 20]
+print(consec_list(l1, l2))
+       
     
 ''' anagram: An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, 
 typically using all the original letters exactly once
 Ex: ("binary", "brainy"), ("rail safety", "fairy tales")
 ''' 
-def is_anagram(s1, s2):   
-    return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
- 
-words = ("hi", "hello", "bye", "helol", "abc", "cab", 
-                "bac", "silenced", "licensed", "decli nes")
- 
-anagram = set()
-for i, w1 in enumerate(words):
-    for w2 in words[i+1:len(words)]:
-        if is_anagram(w1, w2):
-            anagram.add(w1)
-            anagram.add(w2)
-            break
-         
-print(sorted(anagram, key=sorted))
+# def is_anagram(s1, s2):   
+#     return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
+#  
+# words = ("hi", "hello", "bye", "helol", "abc", "cab", 
+#                 "bac", "silenced", "licensed", "decli nes")
+#  
+# anagram = set()
+# for i, w1 in enumerate(words):
+#     for w2 in words[i+1:len(words)]:
+#         if is_anagram(w1, w2):
+#             anagram.add(w1)
+#             anagram.add(w2)
+#             break
+#          
+# print(sorted(anagram, key=sorted))
            
 
 ''' Another implementation of anagram:
@@ -43,21 +73,23 @@ Ex: different order althought same counter.
 (('e', 2), ('c', 1), ('d', 1), ('l', 1), ('i', 1), ('n', 1), ('s', 1))    #licensed
 (('e', 2), ('n', 1), ('d', 1), ('l', 1), ('i', 1), ('c', 1), ('s', 1))    #declines
 '''
-from collections import Counter, defaultdict
-def anagram(words):
-    anagrams = defaultdict(list)
-    for word in words:
-        #histogram = tuple(Counter(word).items()) #
-        histogram = tuple(sorted(Counter(word).items())) # need sorted counter to list then convert to tuple
-        anagrams[histogram].append(word)
-#         print(histogram)
-#     printnl(anagrams)
-    return list(anagrams.values())
- 
-keywords = ("hi", "hello", "bye", "helol", "abc", "cab", 
-                "bac", "silenced", "licensed", "declines")
- 
-print(anagram(keywords))
+#===============================================================================
+# from collections import Counter, defaultdict
+# def anagram(words):
+#     anagrams = defaultdict(list)
+#     for word in words:
+#         #histogram = tuple(Counter(word).items()) #
+#         histogram = tuple(sorted(Counter(word).items())) # need sorted counter to list then convert to tuple
+#         anagrams[histogram].append(word)
+# #         print(histogram)
+# #     printnl(anagrams)
+#     return list(anagrams.values())
+#  
+# keywords = ("hi", "hello", "bye", "helol", "abc", "cab", 
+#                 "bac", "silenced", "licensed", "declines")
+#  
+# print(anagram(keywords))
+#===============================================================================
 
 # for num in range(1000, 1, -1):
 #     print('{}\t{}'.format(num, num if not num % 97 else '' ))
@@ -152,8 +184,8 @@ each for-loop call requests countfrom() running to yield; then yield n, freeze c
 # print(n)
 #===============================================================================
 
-from itertools import chain
-from collections import Iterable, OrderedDict
+# from itertools import chain
+# from collections import Iterable, OrderedDict
 ''' *** Version recursive using function, NOT generator '''
 # def f(item):
 # #     return [item] if not isinstance(item, Iterable) or isinstance(item, str) else flatten(item) #one-liner
