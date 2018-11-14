@@ -3,39 +3,120 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+
+
 ''' **** print each item in args list per line ****'''
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
 
+from functools import partial
+from itertools import repeat
+lines = ['"Fruits" Rob Mate Care Lost Red Pine Blue',
+         'Brisk Wind Nature Dog Cat "Mouse', 
+         'Butterfly Insect" "salmon" cord'
+         ]
+
+arr = ['Mate', 'Care', 'Insect', 'Mouse', 'Fruits']
+linenum = 0
+out = []
+for line in lines:
+#     linenum += 1
+#     print("Line "+str(linenum) + ":", end='')
+#     list = line.split()
+#     for a in list:
+#         if  (a in arr or
+#             (a.startswith('"') and a[1:] in arr) or 
+#             (a.endswith('"') and a[:-1] in arr) or 
+#             (a.startswith('"') and a.endswith('"') and a[1:-1] in arr)): 
+#             print ("Found", end=' ')
+#         else:
+#             print ("NOTFOUND",end=' ')
+#     print('\n')
+
+#     out.append(['Found' if a in arr or a.strip('"') in arr else 'NOTFOUND' for a in line.split()])
+
+#     out.append(list(map(arr.__contains__, [st.strip('"') for st in line.split()])))
+    out.append(list(map(arr.__contains__, map(str.strip, line.split(), repeat('"')) )))
+printnl(*out)
+
+# a = ['"Fruits"', 'Rob', 'Mate', 'Care', 'Lost', 'Red', 'Pine', 'Blue']
+# p = map(str.strip, a, repeat('"'))
+# n = list(p)
+# print(n)
+   
+        
+
+
+
+''' Turn multi-D list counter-clock wise 90 degree 
+Output:
+    [[4, 5, 6]
+    [3, 3, 3]
+    [2, 3, 4]
+    [1, 2, 5]]
+'''
+#===============================================================================
+# m = [[1, 2, 3, 4],
+#     [2, 3, 3, 5],
+#     [5, 4, 3, 6]]
+#  
+# # n = [[] for _ in range(len(m[0]))]
+# # for item in m: 
+# #     for j, x in enumerate(item[::-1]):
+# #        n[j].append(x)
+#  
+# # n = list(map(list, zip(*m)))[::-1]          #rotate 90 degree counter-clock wise
+# # n = list(map(list, map(reversed, m)))[::-1] #rotate 180 degree counter-clock wise. same as clock wise
+# n = [item[::-1] for item in m][::-1]        #another implementation 180 degree counter-clock wise. same as clock wise
+# # n = list(map(list, map(reversed, zip(*m)))) #rotate 90 degree clock wise
+#         
+# printnl(*n)
+#===============================================================================
+
+
+# from operator import itemgetter
+# ex = ['abc', 'xyz', 'aba', '1221', 'a', '']
+# # count = [item for item in ex if item and item[0])]
+# # gt = itemgetter(0)
+# count =list(filter(lambda x: x.endswith(gt(x)), ex))
+
+
+
+# from timeit import timeit
 ''' check a list in same order in another list 
-Logic: Traverse list1 and scans list until match. On match, take next item of list1 continue scan list2 forward 
+Logic: Traverse list1 and scans list2 until match. On match, next() list1 and continue scan list2 forward 
 Note: using iter() and next() on list2 is best approach in this case
 '''
-def consec_list(l1, l2):
-    it = iter(l2)
-    for item in l1:
-        while True:
-            try:
-                if item == next(it):
-                    break
-            except StopIteration:   #only catch end iterator. let other exception throw
-                return False    
-    return True
+#===============================================================================
+# def consec_list(l1, l2):
+#     it = iter(l2)
+#     for item in l1:
+#         while True:
+#             try:
+#                 if item == next(it):
+#                     break
+#             except StopIteration:   #only catch end iterator. let other exception throw
+#                 return False    
+#     return True
+#===============================================================================
 
-def consec_list(l1, l2):
-    it = iter(l1)
-    try:
-        item = next(it)
-        for item2 in l2:
-            if item == item2:
-                item = next(it)
-    except StopIteration:
-        return True
-    return False
+''' check a list in same order in another list -- alternative: Next() list1 and for-loop list2 ''' 
+#===============================================================================
+# def consec_list(l1, l2):
+#     it = iter(l1)
+#     try:
+#         item = next(it)
+#         for item2 in l2:
+#             if item == item2:
+#                 item = next(it)
+#     except StopIteration:
+#         return True
+#     return False
+#===============================================================================
 
-''' check a list in same order in another list *** alternative implementation '''    
+''' check a list in same order in another list --- alternative: for-loop list1, .index() list2 '''    
 #===============================================================================
 # def sublist(lst1, lst2):
 #     ind = 0
@@ -47,10 +128,9 @@ def consec_list(l1, l2):
 #     return True
 #===============================================================================
 
-l1 = [15, 1, 20]*10
-l2 = [6, 1, 15, 3, 1, 6, 20]
-print(consec_list(l1, l2))
-       
+# l1 = [15, 1, 20]*10
+# l2 = [6, 1, 15, 3, 1, 6, 20]
+# print(consec_list(l1, l2))
     
 ''' anagram: An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, 
 typically using all the original letters exactly once
