@@ -3,6 +3,7 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+from itertools import repeat
 
 
 ''' **** print each item in args list per line ****'''
@@ -10,36 +11,57 @@ def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
+    
 
-from functools import partial
+#===============================================================================
+# colors = ['rgb(109, 75, 100)', 'rgb(109, 75, 100)', 'rgb(109, 75, 100)', 'rgb(214, 180, 205)']
+# # # s1 = set(colors[:2])
+# # # s2 = set(colors[2:])
+# # # s3 = s1 - s2
+# # # s4 = s1 ^ s2
+# s = set(colors [:2]) ^ set(colors [2:])
+# print(s)    
+#===============================================================================
+
+''' return binary value without 0b '''
 from itertools import repeat
-lines = ['"Fruits" Rob Mate Care Lost Red Pine Blue',
-         'Brisk Wind Nature Dog Cat "Mouse', 
-         'Butterfly Insect" "salmon" cord'
-         ]
+dec_list = [5, 9, 55, 75]
+bin_list = list(map(lambda x: int(bin(x)[2:]), dec_list))
+# bin_list = list(map(int, map(format, dec_list, repeat('b'))))
+# print(bin(5))   #0b101
+# print('{:b}'.format(5)) #101
+print(bin_list)
 
-arr = ['Mate', 'Care', 'Insect', 'Mouse', 'Fruits']
-linenum = 0
-out = []
-for line in lines:
-#     linenum += 1
-#     print("Line "+str(linenum) + ":", end='')
-#     list = line.split()
-#     for a in list:
-#         if  (a in arr or
-#             (a.startswith('"') and a[1:] in arr) or 
-#             (a.endswith('"') and a[:-1] in arr) or 
-#             (a.startswith('"') and a.endswith('"') and a[1:-1] in arr)): 
-#             print ("Found", end=' ')
-#         else:
-#             print ("NOTFOUND",end=' ')
-#     print('\n')
-
-#     out.append(['Found' if a in arr or a.strip('"') in arr else 'NOTFOUND' for a in line.split()])
-
-#     out.append(list(map(arr.__contains__, [st.strip('"') for st in line.split()])))
-    out.append(list(map(arr.__contains__, map(str.strip, line.split(), repeat('"')) )))
-printnl(*out)
+#===============================================================================
+# from itertools import repeat
+# lines = ['"Fruits" Rob Mate Care Lost Red Pine Blue',
+#          'Brisk Wind Nature Dog Cat "Mouse', 
+#          'Butterfly Insect" "salmon" cord'
+#          ]
+# 
+# arr = ['Mate', 'Care', 'Insect', 'Mouse', 'Fruits']
+# linenum = 0
+# out = []
+# for line in lines:
+# #     linenum += 1
+# #     print("Line "+str(linenum) + ":", end='')
+# #     list = line.split()
+# #     for a in list:
+# #         if  (a in arr or
+# #             (a.startswith('"') and a[1:] in arr) or 
+# #             (a.endswith('"') and a[:-1] in arr) or 
+# #             (a.startswith('"') and a.endswith('"') and a[1:-1] in arr)): 
+# #             print ("Found", end=' ')
+# #         else:
+# #             print ("NOTFOUND",end=' ')
+# #     print('\n')
+# 
+# #     out.append(['Found' if a in arr or a.strip('"') in arr else 'NOTFOUND' for a in line.split()])
+# #     out.append(list(map(arr.__contains__, [st.strip('"') for st in line.split()])))
+#     '''strip(): 1st arg is string, 2nd arg is char to be stripped. map() work on multi iterables if function require multi args'''
+#     out.append(list(map(arr.__contains__, map(str.strip, line.split(), repeat('"')) )))
+# printnl(*out)
+#===============================================================================
 
 # a = ['"Fruits"', 'Rob', 'Mate', 'Care', 'Lost', 'Red', 'Pine', 'Blue']
 # p = map(str.strip, a, repeat('"'))
