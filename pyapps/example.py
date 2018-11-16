@@ -9,33 +9,52 @@ def printnl(*args):
     print(st.format(*args))
 ''' ************************************************* '''
     
-'''NOTE'''
-# b = bytes(mystring, 'utf-8')
-# ###Same As
-# b = mystring.encode('utf-8') #can ignore 'utf-8' because it is default argument
-     
+
+'''**************************************'''
+''' String to list of binary strings and list of binary to string '''
+''' 
+_ bytes is sequence of hex values and ascii chars. If hex value is the value of ascii char, asciichar will show.
+bytes is immutable while bytearray are mutable. 
+_ bytes(mystring, 'utf-8') is same as b = mystring.encode('utf-8') #can ignore 'utf-8' because it is default argument
+_ st.encode('utf-8') convert string to bytes ('EXAMPLE' to b'EXAMPLE'), bt.decode('utf-8') converts bytes string. 'utf-8' can be ignore 
+_ str(b'...', 'utf-8') same as b'...'.decode('utf-8')
+_ bytes('...', 'utf-8') same as '...'.encode('utf-8')
+_ bytes(iterables, 'utf-8') creates sequence/array of hex and ascii chars as bytes representation. Iterables must  0 <= x < 256
+https://www.programiz.com/python-programming/methods/built-in/bytes
+https://stackoverflow.com/questions/50509017/how-is-int-from-bytes-calculated
+https://docs.python.org/3/library/stdtypes.html#additional-methods-on-integer-types
+'''
+'''Method 1: String to list binary'''     
 st = 'EXAMPLE'
-b_st = ' '.join(format(ord(char), 'b') for char in st)
-print(b_st)
+#===============================================================================
+# b_st = ' '.join(format(ord(char), 'b') for char in st)
+# print(b_st)
+#===============================================================================
   
-# n_st = bin(int.from_bytes(st.encode(), 'big'))
-# print(n_st[2:])
-#  
-# bin_str1 = list(map(bin, bytearray(st, 'utf-8')))
-# bin_str2 = [bin(x)[2:] for x in bytearray(st, 'utf-8')]
-# bin_str3 = [bin(x)[2:] for x in bytes(st, 'utf-8')]
-  
+'''Method 2: String to list binary'''
+bin_str1 = list(map(bin, bytearray(st, 'utf-8')))
+bin_str2 = [bin(x)[2:] for x in bytearray(st, 'utf-8')]
+bin_str3 = [bin(x)[2:] for x in bytes(st, 'utf-8')]
 bin_str = [bin(x)[2:] for x in st.encode()]
 print(bin_str)
-# print(st.encode())
- 
-# br = ['1011010', '1000101', '1011000', '1000001', '1001101', '1010000', '1001100', '1000101']
+
+'''Method 3'''
+#===============================================================================
+# n_st = bin(int.from_bytes(st.encode(), 'big'))
+# print(n_st)
+#===============================================================================
+
+'''Method 4: List binary to String'''
+## br = ['1011010', '1000101', '1011000', '1000001', '1001101', '1010000', '1001100', '1000101']
 import array
 from itertools import repeat
-# arr = array.array('B', map(int, bin_str, repeat(2))).tobytes()
-arr = array.array('u', bin_str).tobytes()
+arr = array.array('B', map(int, bin_str, repeat(2))).tobytes()
 print(arr.decode())
 
+'''Method 5: List binary to String'''
+bt = bytes(map(int, bin_str, repeat(2)))   #b'EXAMPLE'
+print(bt.decode())
+'''**************************************'''
 
 
 #===============================================================================
