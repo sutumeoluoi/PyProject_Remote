@@ -3,15 +3,40 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
-from itertools import repeat
-
-
 ''' **** print each item in args list per line ****'''
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
     
+'''NOTE'''
+# b = bytes(mystring, 'utf-8')
+# ###Same As
+# b = mystring.encode('utf-8') #can ignore 'utf-8' because it is default argument
+     
+st = 'EXAMPLE'
+b_st = ' '.join(format(ord(char), 'b') for char in st)
+print(b_st)
+  
+# n_st = bin(int.from_bytes(st.encode(), 'big'))
+# print(n_st[2:])
+#  
+# bin_str1 = list(map(bin, bytearray(st, 'utf-8')))
+# bin_str2 = [bin(x)[2:] for x in bytearray(st, 'utf-8')]
+# bin_str3 = [bin(x)[2:] for x in bytes(st, 'utf-8')]
+  
+bin_str = [bin(x)[2:] for x in st.encode()]
+print(bin_str)
+# print(st.encode())
+ 
+# br = ['1011010', '1000101', '1011000', '1000001', '1001101', '1010000', '1001100', '1000101']
+import array
+from itertools import repeat
+# arr = array.array('B', map(int, bin_str, repeat(2))).tobytes()
+arr = array.array('u', bin_str).tobytes()
+print(arr.decode())
+
+
 
 #===============================================================================
 # colors = ['rgb(109, 75, 100)', 'rgb(109, 75, 100)', 'rgb(109, 75, 100)', 'rgb(214, 180, 205)']
@@ -24,13 +49,15 @@ def printnl(*args):
 #===============================================================================
 
 ''' return binary value without 0b '''
-from itertools import repeat
-dec_list = [5, 9, 55, 75]
-bin_list = list(map(lambda x: int(bin(x)[2:]), dec_list))
-# bin_list = list(map(int, map(format, dec_list, repeat('b'))))
-# print(bin(5))   #0b101
-# print('{:b}'.format(5)) #101
-print(bin_list)
+#===============================================================================
+# from itertools import repeat
+# dec_list = [5, 9, 55, 75]
+# bin_list = list(map(lambda x: int(bin(x)[2:]), dec_list))
+# # bin_list = list(map(int, map(format, dec_list, repeat('b'))))
+# # print(bin(5))   #0b101
+# # print('{:b}'.format(5)) #101
+# print(bin_list)
+#===============================================================================
 
 #===============================================================================
 # from itertools import repeat
