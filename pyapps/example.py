@@ -8,7 +8,53 @@ def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
-    
+
+'''interesting ways of if-else''' 
+#===============================================================================
+# h = 0 if g < 0 else g
+# #####to lambda'
+# lambda g: 0 if g < 0 else g
+# lambda g: g * (g >= 0)
+# lambda g: (g >= 0) and g
+# lambda g: (g, 0)[g < 0]
+#===============================================================================
+
+# d = {}
+# list_one = [1, 2, 3, 4]
+# list_two = [5, 6, 7, 8]
+# d['test'] = list_one, list_two  #assign tuple of 2 list to key 'test'
+# print(d)
+
+# st = 'ABCaD'
+# print(any(s.islower() for s in st))
+
+from itertools import zip_longest, starmap
+a = [1,2,3,4,5]
+t = iter(a)
+# b = list(zip(a[::2], a[1::2]))
+# b = list(map(lambda x, y: (x,) if y is None else (x, y), *zip(*zip_longest(t, t))))
+b = list(starmap(lambda x, y: (x) if y is None else (x, y), zip_longest(t, t)))
+print(b)
+
+#===============================================================================
+# from operator import sub
+# from itertools import repeat
+# # def 2sum(nums):
+# #     for i, num in enumerate(nums):
+# #         rev_num = -num
+# #         if rev_num == 
+#     
+# numbers = [1, 4, 5, -2, 7, 1, -2]
+# m_nums = list(map(sub, numbers, repeat(5/2)))
+# print(sorted(m_nums))    
+# 
+# # numbers = '1 7 2 0 -11 14 -3 -7'
+# # print([x(numbers.split(), key=int) for x in (max, min)])
+# # print([max(numbers.split(), key=int), 
+# #        min(numbers.split(), key=int)])    
+#===============================================================================
+
+
 
 '''**************************************'''
 ''' String to list of binary strings and list of binary to string '''
@@ -32,11 +78,13 @@ st = 'EXAMPLE'
 #===============================================================================
   
 '''Method 2: String to list binary'''
-bin_str1 = list(map(bin, bytearray(st, 'utf-8')))
-bin_str2 = [bin(x)[2:] for x in bytearray(st, 'utf-8')]
-bin_str3 = [bin(x)[2:] for x in bytes(st, 'utf-8')]
-bin_str = [bin(x)[2:] for x in st.encode()]
-print(bin_str)
+#===============================================================================
+# bin_str1 = list(map(bin, bytearray(st, 'utf-8')))
+# bin_str2 = [bin(x)[2:] for x in bytearray(st, 'utf-8')]
+# bin_str3 = [bin(x)[2:] for x in bytes(st, 'utf-8')]
+# bin_str = [bin(x)[2:] for x in st.encode()]
+# print(bin_str)
+#===============================================================================
 
 '''Method 3'''
 #===============================================================================
@@ -45,15 +93,17 @@ print(bin_str)
 #===============================================================================
 
 '''Method 4: List binary to String'''
-## br = ['1011010', '1000101', '1011000', '1000001', '1001101', '1010000', '1001100', '1000101']
-import array
-from itertools import repeat
-arr = array.array('B', map(int, bin_str, repeat(2))).tobytes()
-print(arr.decode())
-
-'''Method 5: List binary to String'''
-bt = bytes(map(int, bin_str, repeat(2)))   #b'EXAMPLE'
-print(bt.decode())
+#===============================================================================
+# ## br = ['1011010', '1000101', '1011000', '1000001', '1001101', '1010000', '1001100', '1000101']
+# import array
+# from itertools import repeat
+# arr = array.array('B', map(int, bin_str, repeat(2))).tobytes()
+# print(arr.decode())
+# 
+# '''Method 5: List binary to String'''
+# bt = bytes(map(int, bin_str, repeat(2)))   #b'EXAMPLE'
+# print(bt.decode())
+#===============================================================================
 '''**************************************'''
 
 
