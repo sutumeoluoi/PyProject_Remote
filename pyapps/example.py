@@ -3,12 +3,21 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+from operator import itemgetter
 ''' **** print each item in args list per line ****'''
 def printnl(*args):
     st = '{}\n'*(len(args)-1) + '{}'
     print(st.format(*args))
 ''' ************************************************* '''
 
+def print10(*args):
+    for line in range(len(args)//10):
+        st = '{}\t'*10*(line+1)
+        print(st.format(*args))
+
+print10(*list(range(20)))
+
+        
 '''interesting ways of if-else''' 
 #===============================================================================
 # h = 0 if g < 0 else g
@@ -28,13 +37,18 @@ def printnl(*args):
 # st = 'ABCaD'
 # print(any(s.islower() for s in st))
 
-from itertools import zip_longest, starmap
-a = [1,2,3,4,5]
-t = iter(a)
-# b = list(zip(a[::2], a[1::2]))
-# b = list(map(lambda x, y: (x,) if y is None else (x, y), *zip(*zip_longest(t, t))))
-b = list(starmap(lambda x, y: (x) if y is None else (x, y), zip_longest(t, t)))
-print(b)
+# from itertools import zip_longest, starmap
+# from operator import itemgetter
+# a = [1,2,3,4,5]
+# t = iter(a)
+# # b = list(zip(a[::2], a[1::2]))
+# # b = list(map(lambda x, y: (x,) if y is None else (x, y), *zip(*zip_longest(t, t))))
+# g = itemgetter(1)
+# b = list(map(lambda *x: x[0] if g(x[0]) is None else 55, zip_longest(t, t)))
+# print(b)
+# 
+# t = iter(a)
+# print(list(map(g, zip_longest(t, t))))
 
 #===============================================================================
 # from operator import sub
