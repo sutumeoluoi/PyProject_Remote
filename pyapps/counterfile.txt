@@ -1,4 +1,6 @@
-barry 0 0
-bob 0 0
-harry 0 0
-borris 0 0
+goop.com
+spam.net
+goo.edu
+text.br
+cat.qa
+goo.gov

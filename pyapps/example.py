@@ -4,28 +4,182 @@ Created on Aug 2, 2018
 @author: hal
 '''
 from operator import itemgetter
-''' **** print each item in args list per line ****'''
+from builtins import isinstance
+from typing import Iterable
+
+'''**** print each item in args list per line ****'''
 def printnl(*args):
-    st = '{}\n'*(len(args)-1) + '{}'
-    print(st.format(*args))
-''' ************************************************* '''
+#     st = '{}\n'*(len(args))
+#     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
+    print(*args, sep='\n')
+'''*************************************************'''
 
-def print10(*args):
-    for line in range(len(args)//10):
-        st = '{}\t'*10*(line+1)
-        print(st.format(*args))
+# from collections import Counter
+mydict = {'a':[1,2,5], 'b': [1,2,10]}
+# counts = Counter(val for val in mydict.values())
+# print(counts)
 
-print10(*list(range(20)))
+print(val for val in mydict.values())
+
+    
+'''
+Error: x += ([45, 46]). UnboundLocalError: local variable 'x' referenced before assignment
+Explanation:
++= gives an object the opportunity to alter the object in-place. 
+But this depends on the type of x, it is not a given that the object is altered in place.
+As such, += still needs to re-assign to x; either x.__iadd__() returns x, or a new object is returned; 
+x += something is really translated to:
+
+x = x.__iadd__(something)
+Because += includes an assignment, x is marked as a local in g().
+
+x.extend() on the other hand, is not an assignment. 
+The programmer has decided that x is always an object with an .extend() method and uses it directly. 
+Python sees no assignment and x is marked as a global.
+'''     
+#===============================================================================
+# def f():
+#     x.extend([43, 44])
+# def g():
+#     x += [45, 46]
+# x = [42]
+# f()
+# g()
+# print(x)    
+#===============================================================================
+
+
+'''
+Parameter is variables in a method declaration/header 
+Arguments are the data you pass into the method's parameters
+
+Mnemonic!!!: You Define Parameters, and You Make Arguments
+'''
+
+'''
+Wrong: def printit(self, new_line = self.line), default value is evaluated when  the method is defined which is before any instances exist. 
+Proper way is using a sentinel such as 'None' as default value. Implemented as belows
+'''
+#===============================================================================
+# class PrintDefaultVal:
+#     def __init__(self, line):    
+#         self.line = line
+#     
+#     def printit(self, new_line = None): 
+#         if new_line is not None:
+#             self.line = new_line
+#         print(self.line)
+# 
+# PrintDefaultVal('Wooo').printit()
+# PrintDefaultVal('andy').printit('Ngoc')            
+#===============================================================================
+            
+'''google style docstrings'''
+#===============================================================================
+# def square_root(n):
+#     """Calculate the square root of a number.
+#  
+#     Args:
+#         n: the number to get the square root of.
+#     Returns:
+#         the square root of n.
+#     Raises:
+#         TypeError: if n is not a number.
+#         ValueError: if n is negative.
+#     """
+#     pass
+#===============================================================================
+ 
+'''Javadoc style docsstrings'''
+"""
+This is a javadoc style.
+ 
+@param param1: this is a first param
+@param param2: this is a second param
+@return: this is a description of what is returned
+@raise keyError: raises an exception
+"""    
+
+#===============================================================================
+# domain = [
+#     'goop.com',
+#     'spam.net',
+#     'goo.edu',
+#     'text.br',
+#     'cat.qa',
+#     'goo.gov',
+#     ]
+#    
+# # with open('counterfile.txt', 'r') as f:
+# #     domain = f.read()
+# 
+# remove_list = (
+#     '.gov',
+#     '.br', 
+#     '.qa',
+#     '.edu',
+#     )
+# 
+# # final_list = [item for item in domain if item[item.find('.'):] not in remove_list] #remove_list must be list
+# final_list = [item for item in domain if not item.endswith(remove_list)] #endswith accept tuple of string, so remove_list must be tuple
+# print(final_list)
+#===============================================================================
+
+    
+'''Merge/update/add Dictionary'''    
+
+
+
+'''
+The call syntax *b can only be used in calling functions, function arguments, and tuple unpacking on Python < 3.5
+It was changed in Python 3.5.0, PEP-0448. Unpacking is proposed to be allowed inside tuple, list, set, and dictionary.
+So, below works on >= 3.5, but not 3.4. Your are on 3.4, so you will get errors.
+#===============================================================================
+# '''    
+# numbers = [2, 1, 3, 4, 7]
+# more_numbers = [*numbers, 11, 18]
+# print(*numbers, sep=', ')
+#===============================================================================
+
+
+# import itertools
+# a = map(lambda x, y: x*y, range(5), itertools.count(2, 4))
+# b = itertools.starmap(lambda x, y: x*y, zip(range(5), itertools.count(2, 4)))
+# # print(list(a),list(b))
+# printnl(list(a), list(b))
+
+
+'''
+if-else in 2nd comprehension is ternary conditional expression. W/o () will cause comprehension thinks we want
+conditional comprehension with not supporting 'else'. So the parantheses needed to make it understand this is
+ternary if-else, NOT conditional comprehension
+'''
+#===============================================================================
+# t1 = ((3,8),4)
+# s1 = set(item for item_tup in t1 
+#             for item in (item_tup if isinstance(item_tup, tuple) else (item_tup,)))
+# print(s1)
+#===============================================================================
+
+
+# def print10(*args):
+#     for i in range(len(args)):
+#         st = '{}\t'*10*(line+1)
+#         print(st.format(*args))
+# 
+# print10(*list(range(20)))
 
         
 '''interesting ways of if-else''' 
 #===============================================================================
+# g = int(input())
 # h = 0 if g < 0 else g
 # #####to lambda'
 # lambda g: 0 if g < 0 else g
 # lambda g: g * (g >= 0)
 # lambda g: (g >= 0) and g
 # lambda g: (g, 0)[g < 0]
+# print(h)
 #===============================================================================
 
 # d = {}
@@ -37,31 +191,45 @@ print10(*list(range(20)))
 # st = 'ABCaD'
 # print(any(s.islower() for s in st))
 
+#===============================================================================
 # from itertools import zip_longest, starmap
 # from operator import itemgetter
 # a = [1,2,3,4,5]
 # t = iter(a)
 # # b = list(zip(a[::2], a[1::2]))
+# # b = list(starmap(lambda x, y: (x,) if y is None else (x, y), zip_longest(t, t)))
 # # b = list(map(lambda x, y: (x,) if y is None else (x, y), *zip(*zip_longest(t, t))))
+# '''*x: unlimited params, so x is a tuples hold unlimited params. Each element from zip_longest is a tuple passes to *x
+# So, after each passing x= ((1, 2),), x= ((3, 4),) ...
+# '''
+# # b = list(map(lambda *x: x, zip_longest(t, t)))  #[((1, 2),), ((3, 4),), ((5, None),)]
+# '''look above case
+# '''
 # g = itemgetter(1)
-# b = list(map(lambda *x: x[0] if g(x[0]) is None else 55, zip_longest(t, t)))
-# print(b)
-# 
+# # b = list(map(lambda *x: 55 if g(x[0]) is None else x, zip_longest(t, t))) #[((1, 2),), ((3, 4),), 55]
+# # print(b)
+# # it = iter(a)
+# # print(*zip(*zip_longest(it, it)))
+# #   
 # t = iter(a)
-# print(list(map(g, zip_longest(t, t))))
+# # print(list(map(g, zip_longest(t, t))))
+# b = list(map(lambda x: itemgetter(0)(x) if g(x) is None else x, zip_longest(t, t)))
+# print(b)
+#===============================================================================
 
 #===============================================================================
+# 
 # from operator import sub
 # from itertools import repeat
 # # def 2sum(nums):
 # #     for i, num in enumerate(nums):
 # #         rev_num = -num
 # #         if rev_num == 
-#     
+#      
 # numbers = [1, 4, 5, -2, 7, 1, -2]
 # m_nums = list(map(sub, numbers, repeat(5/2)))
 # print(sorted(m_nums))    
-# 
+#  
 # # numbers = '1 7 2 0 -11 14 -3 -7'
 # # print([x(numbers.split(), key=int) for x in (max, min)])
 # # print([max(numbers.split(), key=int), 
@@ -85,8 +253,8 @@ https://stackoverflow.com/questions/50509017/how-is-int-from-bytes-calculated
 https://docs.python.org/3/library/stdtypes.html#additional-methods-on-integer-types
 '''
 '''Method 1: String to list binary'''     
-st = 'EXAMPLE'
 #===============================================================================
+# st = 'EXAMPLE'
 # b_st = ' '.join(format(ord(char), 'b') for char in st)
 # print(b_st)
 #===============================================================================
