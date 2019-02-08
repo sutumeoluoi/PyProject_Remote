@@ -1758,24 +1758,24 @@ Output:
 #===============================================================================
 # class Spam:
 #     numInstances = 0
-#     
+#      
 #     def __init__(self):
 #         Spam.numInstances = Spam.numInstances + 1
 #         self.counter = 99
-#     
+#      
 #     def printNumInstances():
 #         print("Number of instances created: %s" % Spam.numInstances)
-#     
+#      
 #     def printUnbound(self):
 #         print('unbound {}', self.counter)
-#         
+#          
 # class Selfless:
 #     def __init__(self, data):
 #         self.data = data
-#         
+#          
 #     def selfless(arg1, arg2): # A simple function in 3.X
 #         return arg1 + arg2
-#     
+#      
 #     def normal(self, arg1, arg2): # Instance expected when called
 #         return self.data + arg1 + arg2
 #===============================================================================
@@ -1797,11 +1797,14 @@ Output:
 ##        https://stackoverflow.com/questions/13905741/accessing-class-variables-from-a-list-comprehension-in-the-class-definition
 output: [12, 12, 12, 12, 12, 12]
 '''
-lds = []
-for x in range(6):  #x is global since for-loop having no scope.
-    lds.append(lambda: x + 2)   #No closure. Just look up in global scope to find x late binding it 
-x = 10  #adding this here cause output [12, 12, 12, 12, 12, 12] instead of [7, 7, 7, 7, 7, 7]
-print([ld() for ld in lds])
+#===============================================================================
+# lds = []
+# for x in range(6):  #x is global since for-loop having no scope.
+#     lds.append(lambda: x + 2)   #No closure. Just look up in global scope to find x late binding it 
+# x = 10  #adding this here cause output [12, 12, 12, 12, 12, 12] instead of [7, 7, 7, 7, 7, 7]
+# print(lds[0].__closure__)   #None
+# print([ld() for ld in lds])
+#===============================================================================
 
 '''
 ### closure and late binding
@@ -1809,11 +1812,13 @@ print([ld() for ld in lds])
 ### Lambda got closure on x with the latest value=5(late binding) and calculate to 7 on every lambda object
 NOTE: x is local to listComp which is enclosing scope of lambda, closure on x.
 '''
-lds = [lambda: x + 2 for x in range(6)] #x is local to listComp, NOT lambda
-x = 10  #NOT change to [12, 12, 12, 12, 12, 12]. Closure and late binding x
-print([ld() for ld in lds])
-print(lds[0].__closure__)   #closure value: (<cell at 0x00B54A50: int object at 0x1E28E3B0>,)
-print(lds)
+#===============================================================================
+# lds = [lambda: x + 2 for x in range(6)] #x is local to listComp, NOT lambda
+# x = 10  #NOT change to [12, 12, 12, 12, 12, 12]. Closure and late binding x
+# print([ld() for ld in lds])
+# print(lds[0].__closure__)   #closure value: (<cell at 0x00B54A50: int object at 0x1E28E3B0>,)
+# print(lds)
+#===============================================================================
 
 '''
 list comprehension leak 'x' into outside scope in python 2. However, Python 3 fixed it.
@@ -1827,15 +1832,20 @@ Ref: https://stackoverflow.com/questions/4198906/python-list-comprehension-rebin
 
 #===============================================================================
 # counter = 0  
+# mycount = 0
 # def count_misskey():
-#     global count
+#     global counter
 #     counter += 1
 #     any_key = 0
 #     def count_any():
 #         nonlocal any_key
+#         global mycount
+#         mycount += 2
 #         any_key += 1
 # #In main so def needs global to it to call. 
 # #In def and nested def calls it, nested def need nonlocal NOT global to call it
+# 
+# count_misskey()
 #===============================================================================
 
 '''    
