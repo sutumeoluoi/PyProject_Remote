@@ -14,16 +14,116 @@ def printnl(*args):
     print(*args, sep='\n')
 '''*************************************************'''
 
-# from collections import Counter
-mydict = {'a':[1,2,5], 'b': [1,2,10]}
-# counts = Counter(val for val in mydict.values())
-# print(counts)
+'''GOTCHA! default argument only evaluate once. So, watch-out when using mutable default value
+Expecting: [15], [16]
+Output: [15], [15, 16]
+Fix: alist=None and use this sentinel in function using if-else to assign correct value
+'''
+#===============================================================================
+# def mutable_default_arg(item, alist=[]):
+#     alist.append(item)
+#     return alist
+# print(mutable_default_arg(15))
+# print(mutable_default_arg(16))
+# # printnl(mutable_default_arg(15), mutable_default_arg(16))   #[15, 16], [15, 16]. Notice both output same!!!
+#===============================================================================
 
-print(val for val in mydict.values())
+'''
+Late binding(dynamic): refers to runtime binding
+Early binding(static):  refers to compile time binding
+'''    
+    
+'''
+List comprehensions leak the loop control variable in Python 2 but not in Python 3
+Generator Exp doesn't have this issue in Python 2.
+The Gist: Python 3, comprehension and GenExp have their own scopes.
+'''
+#===============================================================================
+# x = 'before'
+# a = [x for x in (1, 2, 3)]
+# print(x) # Py 2.X prints '3', Py 3.X print 'before'
+#===============================================================================
+    
+'''
+Python always passing parm as reference. listA, listB is reference to list [1, 2], [5, 7] and local in func
+Without return, they going out of scope after func. Mutating list through listA, listB inside function change
+the actual object outside.
+'''
+#===============================================================================
+# def list_swap(listA, listB):
+#     listA, listB = listB, listA 
+#     listA.append('A')
+#     listB.append('B') 
+#     return 0, 0
+#  
+# a = [1, 2]
+# b = [5, 7]
+# c, d = list_swap(a, b)
+# print(id(a), id(b), id(c), id(d))
+# printnl(a, b, c, d)    
+#===============================================================================
+    
+'''
+Explain error: Although += calls __iadd__, but...
+l.__iadd__(val) is a function call, that is, an expression.
+l += [1] is an assignment, that is, a statement.
+Argument passing to function are not allowed to be statements, only expressions!!!
+'''    
+#===============================================================================
+# l = [1, 2]
+# print(l.extend([1]))
+# print(l.__iadd__([1]))
+# # print(l += [1]) #ERROR!!
+#===============================================================================
+
+'''
+***Construct Dictionary***
+Note: mapping type is object implementing .keys() and __getitem__()
+A container object that supports arbitrary key lookups and implements the methods specified in the Mapping 
+or MutableMapping abstract base classes. Examples: dict, defaultdict, OrderedDict, Counter.
+'''
+#===============================================================================
+# '''dict(**kwarg)'''
+# d1 = dict(one=1, two=2, three=3)
+# '''dict(mapping, **kwarg)'''
+# d2 = dict({'one': 1, 'two': 2, 'three': 3}, four=4)
+# '''dict(iterable, **kwarg)'''
+# d3 = dict((('two', 2), ['one', 1], ('three', 3))) # list of tuples, list of lists, or mix as example
+# d4 = dict(zip(['one', 'two', 'three'], [1, 2, 3]), five=5)
+# # d3b = dict(('one', 'three', 'two')) #ERROR
+# 
+# printnl(d1, d2, d3, d4)
+#===============================================================================
 
     
 '''
-Error: x += ([45, 46]). UnboundLocalError: local variable 'x' referenced before assignment
+keys() return hashable and unique value, so keyview is set-like
+values() is NOT since its nature is likely getting duplicate values
+items(): itemview is set-like if (key, value) pairs are unique and hashable
+'''    
+# dishes = {'eggs': 2, 'sausage': 1, 'bacon': 1, 'spam': 500}
+# keys = dishes.keys()
+# values = dishes.values()
+# items = dishes.items()
+# printnl(keys, values, items)
+# 
+# keys = keys | {'beef'}  
+# items = items | {('beef', 10)}  
+# printnl(keys, values, items)
+
+#===============================================================================
+# from collections import Counter
+# from itertools import chain
+# mydict = {'a':[1,2,5], 'b': [1,2,10]}
+# printnl(mydict, mydict.keys(), mydict.values(), mydict.items())
+# counts = Counter(chain.from_iterable(val for val in mydict.values()))
+# print(counts) 
+# print([val[1] for val in mydict.items()])
+#===============================================================================
+
+    
+'''
+Error: x += [45, 46]. UnboundLocalError: local variable 'x' referenced before assignment
 Explanation:
 += gives an object the opportunity to alter the object in-place. 
 But this depends on the type of x, it is not a given that the object is altered in place.
@@ -1597,6 +1697,12 @@ but not defined there. It does not matter whether the function is anonymous or n
 variables that are defined outside of its body. closures only matter when you have nested functions.
 * A nested function that accesses values from outer local variables is also known as a closure
 '''
+'''
+There is NO closure involved in below 2 codes. The functions just searches in the global scope for i. 
+Check f.func_closure (Python 2) or f.__closure__ (Python 3) to see value = None
+Python (apparently) just doesn't bother capturing the enclosing scope because it doesn't need to. 
+Global scopes never go away. It doesn't capture enclosing scope(which is global), so it truly no closure
+'''
 #===============================================================================
 # funcs = []
 # for i in range(4):
@@ -1612,10 +1718,22 @@ variables that are defined outside of its body. closures only matter when you ha
 #     flist.append(func)
 # for f in flist:
 #     print(f(2))
-# # There is no closure involved in above 2 codes. The functions just searches in the global scope for i. 
-# # Check f.func_closure (Python 2) or f.__closure__ (Python 3) to see value = None
-# # Python (apparently) just doesn't bother capturing the enclosing scope because it doesn't need to. 
-# # Global scopes never go away. It doesn't capture enclosing scope(which is global), so it truly no closure
+#===============================================================================
+
+'''
+Closure on i in inner() function and late binding on i=2, so it returns 4 4 4
+Output:
+(<cell at 0x00B54A50: int object at 0x1E28E360>,)
+(<cell at 0x00B54A50: int object at 0x1E28E370>,)
+(<cell at 0x00B54A50: int object at 0x1E28E380>,)
+(<cell at 0x00B54A50: int object at 0x1E28E380>,)
+4
+(<cell at 0x00B54A50: int object at 0x1E28E380>,)
+4
+(<cell at 0x00B54A50: int object at 0x1E28E380>,)
+4
+'''
+#===============================================================================
 # flist = []
 # def outer():
 #     for i in range(3):
@@ -1626,7 +1744,6 @@ variables that are defined outside of its body. closures only matter when you ha
 # for f in flist:
 #     print(f.__closure__)
 #     print(f(2))
-# #Closure on i in inner() function. But, it's late-binding, so it returns 4 4 4
 #===============================================================================
 
 #===============================================================================
@@ -1663,7 +1780,7 @@ variables that are defined outside of its body. closures only matter when you ha
 #         return self.data + arg1 + arg2
 #===============================================================================
 
-'''*** lambda TRAP!!! ***
+'''*** lambda TRAP. This the same for reg function!!! No closure***
 ## Expecting output: [2, 3, 4, 5, 6 ,7]; BUT print-out: [7, 7, 7, 7, 7, 7].
 ## I.e, expecting lambda closure to hold each x after each iteration, assume x going out of scope after each iteration
 ## Reason: each iteration creates an <function <listcomp>.<lambda> at 0x000000000222EBF8> object binding var 'x' to it. 
@@ -1678,23 +1795,25 @@ variables that are defined outside of its body. closures only matter when you ha
 ##        http://math.andrej.com/2009/04/09/pythons-lambda-is-broken/
 ##        https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
 ##        https://stackoverflow.com/questions/13905741/accessing-class-variables-from-a-list-comprehension-in-the-class-definition
+output: [12, 12, 12, 12, 12, 12]
 '''
+lds = []
+for x in range(6):  #x is global since for-loop having no scope.
+    lds.append(lambda: x + 2)   #No closure. Just look up in global scope to find x late binding it 
+x = 10  #adding this here cause output [12, 12, 12, 12, 12, 12] instead of [7, 7, 7, 7, 7, 7]
+print([ld() for ld in lds])
 
-# lds = []
-# for x in range(6):
-#     lds.append(lambda: x + 2)
-# x = 10
-# print([ld() for ld in lds])
-
 '''
-### assign x = 0 after list comprehension NOT change return value of lambda. Lambda got closure on x with the lastes value = 5 and 
-### calculate to return 7 on every lambda object
+### closure and late binding
+### assign x = 10 after list comprehension NOT change return value of lambda. 
+### Lambda got closure on x with the latest value=5(late binding) and calculate to 7 on every lambda object
+NOTE: x is local to listComp which is enclosing scope of lambda, closure on x.
 '''
-# lds = [lambda: x + 2 for x in range(6)]
-# x = 10
-# print([ld() for ld in lds])
-# print(lds[0]())
-# print(lds)
+lds = [lambda: x + 2 for x in range(6)] #x is local to listComp, NOT lambda
+x = 10  #NOT change to [12, 12, 12, 12, 12, 12]. Closure and late binding x
+print([ld() for ld in lds])
+print(lds[0].__closure__)   #closure value: (<cell at 0x00B54A50: int object at 0x1E28E3B0>,)
+print(lds)
 
 '''
 list comprehension leak 'x' into outside scope in python 2. However, Python 3 fixed it.
