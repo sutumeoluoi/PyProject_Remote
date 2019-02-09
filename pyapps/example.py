@@ -8,11 +8,150 @@ from builtins import isinstance
 from typing import Iterable
 
 '''**** print each item in args list per line ****'''
-def printnl(*args):
+def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
 #     st = '{}\n'*(len(args))
 #     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
     print(*args, sep='\n')
 '''*************************************************'''
+
+'''
+Expressions only contain identifiers, literals and operators, where operators include arithmetic 
+and boolean operators, the function call operator () the subscription operator [] and similar, 
+and can be reduced to some kind of "value", which can be any Python object
+_ Statements represent an action or command e.g print statements, assignment statements
+_ Expression is a combination of variables, operations and values that yields a result value.
+Note: += calls __iadd__. In other words, += is the same as __iadd__. However, __iadd__ is expression 
+while += is statement. Function argument accepts expression, NOT statement, so print(a += b) errors out 
+'''
+a = [1, 2]
+b = [3, 4]
+print(a.__iadd__(b))
+#print(a += b) #Syntax Error
+    
+'''
+Closure cells refer to values needed by the function but are taken from the surrounding scope.
+
+When Python compiles a nested function, it notes any variables that it references but are only defined 
+in a parent function (not globals) in the code objects for both the nested function and the parent scope. 
+These are the co_freevars and co_cellvars attributes on the __code__ objects of these functions, respectively.
+
+Then, when you actually create the nested function (which happens when the parent function is executed), 
+those references are then used to attach a closure to the nested function.
+
+A function closure holds a tuple of cells, one each for each free variable (named in co_freevars); 
+cells are special references to local variables of a parent scope, that follow the values those local variables point to. 
+This is best illustrated with an example:
+
+def foo():
+    def bar():
+        print(spam)
+
+    spam = 'ham'
+    bar()
+    spam = 'eggs'
+    bar()
+    return bar
+
+b = foo()
+b()
+In the above example, the function bar has one closure cell, which points to spam in the function foo. 
+The cell follows the value of spam. More importantly, once foo() completes and bar is returned, 
+the cell continues to reference the value (the string eggs) even though the variable spam inside foo no longer exists.
+
+Thus, the above code outputs:
+
+>>> b=foo()
+ham
+eggs
+>>> b()
+eggs
+and b.__closure__[0].cell_contents is 'eggs'.
+
+Note that the closure is dereferenced when bar() is called; the closure doesn't capture the value here. 
+That makes a difference when you produce nested functions (with lambda expressions or def statements) that reference the loop variable:
+
+def foo():
+    bar = []
+    for spam in ('ham', 'eggs', 'salad'):
+        bar.append(lambda: spam)
+    return bar
+
+for bar in foo():
+    print bar()
+The above will print salad 3 times in a row, because all three lambda functions reference the spam variable, 
+not the value it was bound to when the function object was created. By the time the for loop finishes, 
+spam was bound to 'salad', so all three closures will resolve to that value.
+'''    
+
+'''
+try/except/else/finally
+the try statement must have either an except or a finally
+the try statement consists of two parts: excepts with an optional else, and/or the finally.
+'''
+#===============================================================================
+# try:
+#     statements # Run this main action first
+# except name1:
+#     statements # Run if name1 is raised during try block
+# except (name2, name3):
+#     statements # Run if any of these exceptions occur
+# except name4 as var:
+#     statements # Run if name4 is raised, assign instance raised to var
+# except:
+#     statements # Run for all other exceptions raised
+# else:
+#     statements # Run if no exception was raised during try block
+# finally:    #only in Python > 2.4. On <= 2.4, need to use try/finally.
+#     statement # Run no matter what. both on 'try' successful and exception.
+#===============================================================================
+
+'''
+try/finally
+_ If an exception does not occur while the try block is running, Python continues on to run the finally block, 
+and then continues execution past the try statement
+_ If an exception does occur during the try block's run, Python still comes back and runs the finally block, 
+but it then propagates the exception up to a previously entered try or the top-level default handler; 
+the program does not resume execution below the finally clause's try statement.
+'''
+#===============================================================================
+# try:
+#     statements # Run this action first
+# finally:
+#     statements # Always run this code on the way out
+#===============================================================================
+
+    
+    
+'''
+Closure example from Brett Slatkin - Efficient Python
+Note: group, i belongs to enclosing scope of helper(x), so when helper() uses them. There is closure on them.
+Important note!!!: free vars(vars belongs to parent scopy: group, i) may declared below or above helper() as long
+    as before helper() gets called due to late binding. Until i get declared in parent scopy, __closure__ will show
+    an empty closure cell such as <cell at 0x00B8F9D0: empty> instead of None 
+'''
+def sort_priority(values: 'objects to sort', group: 'sorting group')-> 'sorted by group':
+    def helper(x):
+        if x in group:  #closure group
+            n = i   #closure i
+            return (0, x)
+        return (1, x)
+    print(helper.__closure__)
+    print('co_freevars:', helper.__code__.co_freevars)
+    try:
+        print([clsr.cell_contents for clsr in helper.__closure__])
+    except Exception as e:
+        print('Error:', e)
+#     finally:
+#         print('clean up here')
+    i = 1
+    values.sort(key=helper)
+ 
+numbers = [8, 3, 1, 2, 5, 4, 7, 6]
+group = {5, 3, 2, 7}
+print('co_cellvar:', sort_priority.__code__.co_cellvars)
+sort_priority(numbers, group)
+print(numbers)    
+
 
 '''GOTCHA! default argument only evaluate once. So, watch-out when using mutable default value
 Expecting: [15], [16]
@@ -2220,23 +2359,21 @@ but help() is much better
 # print(s.translate(trans))
 #===============================================================================
 
-#===============================================================================
-# class Methods:
-#     def __init__(self):
-#         self.name = 'My Test Class'
-#         
-#     def imeth(self, x): # Normal instance method: passed a self
-#         print([self, x])
-#         
-#     def smeth(x): # Static: no instance passed
-#         print([x])
-#         
-#     def cmeth(cls, x): # Class: gets class, not instance
-#         print([cls, x])
-#         
-# #     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
-# #     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
-#===============================================================================
+class Methods:
+    def __init__(self):
+        self.name = 'My Test Class'
+         
+    def imeth(self, x): # Normal instance method: passed a self
+        print([self, x])
+         
+    def smeth(x): # Static: no instance passed
+        print([x])
+         
+    def cmeth(cls, x): # Class: gets class, not instance
+        print([cls, x])
+         
+#     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
+#     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
 
 '''
 implement defaultdict to add missing key and count total missing key.
