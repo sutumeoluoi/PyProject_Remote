@@ -2373,7 +2373,7 @@ class Methods:
         print([cls, x])
          
 #     smeth = staticmethod(smeth) # Make smeth a static method (or @: ahead)
-#     cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead
+    cmeth = classmethod(cmeth) # Make cmeth a class method (or @: ahead). This mades call through instance and class the same no need specify class obj
 
 '''
 implement defaultdict to add missing key and count total missing key.
