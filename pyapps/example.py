@@ -6,6 +6,7 @@ Created on Aug 2, 2018
 from operator import itemgetter
 from builtins import isinstance
 from typing import Iterable
+import pathlib, time
 
 '''**** print each item in args list per line ****'''
 def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
@@ -14,6 +15,36 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
     print(*args, sep='\n')
 '''*************************************************'''
 
+'''Co-routines'''
+p = pathlib.Path('.')
+pd = p.iterdir()
+
+def cr_listfile():
+    while True:
+        afiles = (yield)
+        print(afiles)
+        
+a_cr = cr_listfile()
+a_cr.send(None)
+while True:
+    try:
+        item = next(pd)
+        time.sleep(1)
+        a_cr.send(item)
+    except StopIteration as e:
+        print(e, 'no more')
+        break
+            
+    
+'''print one item at a time slowly'''
+#===============================================================================
+# p = pathlib.Path('.')
+# pd = p.iterdir()
+# for item in pd:
+#     print(item)
+#     time.sleep(1)
+#===============================================================================
+    
 '''
 Expressions only contain identifiers, literals and operators, where operators include arithmetic 
 and boolean operators, the function call operator () the subscription operator [] and similar, 
@@ -23,10 +54,12 @@ _ Expression is a combination of variables, operations and values that yields a 
 Note: += calls __iadd__. In other words, += is the same as __iadd__. However, __iadd__ is expression 
 while += is statement. Function argument accepts expression, NOT statement, so print(a += b) errors out 
 '''
-a = [1, 2]
-b = [3, 4]
-print(a.__iadd__(b))
-#print(a += b) #Syntax Error
+#===============================================================================
+# a = [1, 2]
+# b = [3, 4]
+# print(a.__iadd__(b))
+# #print(a += b) #Syntax Error
+#===============================================================================
     
 '''
 Closure cells refer to values needed by the function but are taken from the surrounding scope.
@@ -129,28 +162,30 @@ Important note!!!: free vars(vars belongs to parent scopy: group, i) may declare
     as before helper() gets called due to late binding. Until i get declared in parent scopy, __closure__ will show
     an empty closure cell such as <cell at 0x00B8F9D0: empty> instead of None 
 '''
-def sort_priority(values: 'objects to sort', group: 'sorting group')-> 'sorted by group':
-    def helper(x):
-        if x in group:  #closure group
-            n = i   #closure i
-            return (0, x)
-        return (1, x)
-    print(helper.__closure__)
-    print('co_freevars:', helper.__code__.co_freevars)
-    try:
-        print([clsr.cell_contents for clsr in helper.__closure__])
-    except Exception as e:
-        print('Error:', e)
-#     finally:
-#         print('clean up here')
-    i = 1
-    values.sort(key=helper)
- 
-numbers = [8, 3, 1, 2, 5, 4, 7, 6]
-group = {5, 3, 2, 7}
-print('co_cellvar:', sort_priority.__code__.co_cellvars)
-sort_priority(numbers, group)
-print(numbers)    
+#===============================================================================
+# def sort_priority(values: 'objects to sort', group: 'sorting group')-> 'sorted by group':
+#     def helper(x):
+#         if x in group:  #closure group
+#             n = i   #closure i
+#             return (0, x)
+#         return (1, x)
+#     print(helper.__closure__)
+#     print('co_freevars:', helper.__code__.co_freevars)
+#     try:
+#         print([clsr.cell_contents for clsr in helper.__closure__])
+#     except Exception as e:
+#         print('Error:', e)
+# #     finally:
+# #         print('clean up here')
+#     i = 1
+#     values.sort(key=helper)
+#  
+# numbers = [8, 3, 1, 2, 5, 4, 7, 6]
+# group = {5, 3, 2, 7}
+# print('co_cellvar:', sort_priority.__code__.co_cellvars)
+# sort_priority(numbers, group)
+# print(numbers)    
+#===============================================================================
 
 
 '''GOTCHA! default argument only evaluate once. So, watch-out when using mutable default value
