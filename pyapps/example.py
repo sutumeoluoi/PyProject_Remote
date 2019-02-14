@@ -14,26 +14,99 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
 #     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
     print(*args, sep='\n')
 '''*************************************************'''
+    
+    
+'''
+__getattr__(self, name): Called when the default attribute access fails w/ an AttributeError 
+(either __getattribute__() raises an AttributeError because name is not an instance attribute 
+or an attribute in the class tree for self; or __get__() of a name property raises AttributeError). 
+This method should either return the (computed) attribute value or raise an AttributeError exception.
+'''
+class GetAttr:
+    attr1 = 1
+    def __init__(self):
+        self.attr2 = 2
+    def __getattr__(self, attr): # On undefined attrs only
+        print('get: ' + attr) # Not on attr1: inherited from class
+        if attr == 'attr3': # Not on attr2: stored on instance
+            return 3
+        else:
+            raise AttributeError(attr)
+ 
+X = GetAttr()
+print(X.attr1)
+print(X.attr2)
+print(X.attr3)
+print(X.attr4)
+print('-'*20)
+
+'''
+ In order to avoid infinite recursion in __getattribute__ method, its implementation should always call 
+ the base class method with the same name to access any attributes it needs. 
+ For example: object.__getattribute__(self, name) or super().__getattribute__(item) and not self.__dict__[item]
+ Note: __getattribute__ should return the (computed) attribute value or raise an AttributeError exception
+'''
+'''
+__getattribute__(self, name): Called unconditionally to implement attribute accesses for instances of the class
+If the class also defines __getattr__(), the latter will not be called 
+unless __getattribute__() either calls it explicitly or raises an AttributeError. 
+It should return the (computed) attribute value or raise an AttributeError exception. 
+To avoid infinite recursion in this method, its implementation should always call the base class method with the same name to access any attributes it needs, 
+for example, object.__getattribute__(self, name).
+'''
+#===============================================================================
+# class GetAttribute: # (object) needed in 2.X only
+#     attr1 = 1
+#     def __init__(self):
+#         self.attr2 = 2
+#     def __getattribute__(self, attr): # On all attr fetches
+#         print('get: ' + attr) # Use superclass to avoid looping here
+#         if attr == 'attr3':
+#             return 3
+#         else:
+# #             return object.__getattribute__(self, attr)
+#             return super().__getattribute__(attr)   #super() return paraent obj, so no need self
+# #             return getattr(self, attr)  #same as call 'self.__dict__[attr]'.LOOPS! it recursively calls __getattribute__
+#     
+# X = GetAttribute()
+# print(X.attr1)
+# print(X.attr2)
+# print(X.attr3)
+# print(X.attr4)
+#===============================================================================
+
+'''
+__setattr__(self, name, value): Called when an attribute assignment is attempted. 
+This is called instead of the normal mechanism (i.e. store the value in the instance dictionary). 
+name is the attribute name, value is the value to be assigned to it.
+
+If __setattr__() wants to assign to an instance attribute, 
+it should call the base class method with the same name, for example, object.__setattr__(self, name, value)
+or direct assigment to mappingproxy __dict__:  self.__dict__[name] = value
+'''    
 
 '''Co-routines'''
-p = pathlib.Path('.')
-pd = p.iterdir()
-
-def cr_listfile():
-    while True:
-        afiles = (yield)
-        print(afiles)
-        
-a_cr = cr_listfile()
-a_cr.send(None)
-while True:
-    try:
-        item = next(pd)
-        time.sleep(1)
-        a_cr.send(item)
-    except StopIteration as e:
-        print(e, 'no more')
-        break
+#===============================================================================
+# p = pathlib.Path('.')
+# pd = p.iterdir()
+# 
+# def cr_listfile():
+#     '''co-routin print passed value'''
+#     while True:
+#         afiles = (yield)
+#         print(afiles)
+#         
+# a_cr = cr_listfile()
+# a_cr.send(None)
+# while True:
+#     try:
+#         item = next(pd)
+#         time.sleep(1)
+#         a_cr.send(item)
+#     except StopIteration as e:
+#         print(e, 'no more')
+#         break
+#===============================================================================
             
     
 '''print one item at a time slowly'''
@@ -177,7 +250,8 @@ Important note!!!: free vars(vars belongs to parent scopy: group, i) may declare
 #         print('Error:', e)
 # #     finally:
 # #         print('clean up here')
-#     i = 1
+#     i = 1197580
+
 #     values.sort(key=helper)
 #  
 # numbers = [8, 3, 1, 2, 5, 4, 7, 6]
