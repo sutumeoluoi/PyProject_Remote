@@ -14,7 +14,19 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
 #     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
     print(*args, sep='\n')
 '''*************************************************'''
-    
+
+def ret_sqr(num):
+    print(num**2)
+    yield 'inside'
+    print('end')
+
+a = ret_sqr(5)
+print(next(a))
+
+print('wait')
+next(a)
+ 
+
     
 '''
 __getattr__(self, name): Called when the default attribute access fails w/ an AttributeError 
@@ -22,23 +34,25 @@ __getattr__(self, name): Called when the default attribute access fails w/ an At
 or an attribute in the class tree for self; or __get__() of a name property raises AttributeError). 
 This method should either return the (computed) attribute value or raise an AttributeError exception.
 '''
-class GetAttr:
-    attr1 = 1
-    def __init__(self):
-        self.attr2 = 2
-    def __getattr__(self, attr): # On undefined attrs only
-        print('get: ' + attr) # Not on attr1: inherited from class
-        if attr == 'attr3': # Not on attr2: stored on instance
-            return 3
-        else:
-            raise AttributeError(attr)
- 
-X = GetAttr()
-print(X.attr1)
-print(X.attr2)
-print(X.attr3)
-print(X.attr4)
-print('-'*20)
+#===============================================================================
+# class GetAttr:
+#     attr1 = 1
+#     def __init__(self):
+#         self.attr2 = 2
+#     def __getattr__(self, attr): # On undefined attrs only
+#         print('get: ' + attr) # Not on attr1: inherited from class
+#         if attr == 'attr3': # Not on attr2: stored on instance
+#             return 3
+#         else:
+#             raise AttributeError(attr)
+#  
+# X = GetAttr()
+# print(X.attr1)
+# print(X.attr2)
+# print(X.attr3)
+# print(X.attr4)
+# print('-'*20)
+#===============================================================================
 
 '''
  In order to avoid infinite recursion in __getattribute__ method, its implementation should always call 
