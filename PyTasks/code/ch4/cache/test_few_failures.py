@@ -19,3 +19,20 @@ def test_a(x, y, expected):
     """Demo approx()."""
     sum_ = x + y
     assert sum_ == approx(expected)
+
+#Andy version using fixture parametrize - hal - 02/22/19
+def id_func(fx_value):
+#	x, y, z = fx_value
+	return '{}, {}, {}'.format(*fx_value)
+
+@pytest.fixture(params=testdata, ids=id_func)
+def sum_fixture_parm(request):
+	return request.param
+
+def test_fixture_parma(sum_fixture_parm):
+    x, y, expected = sum_fixture_parm
+#    print(sum_fixture_parm)
+    sum_ = x + y
+    assert sum_ == approx(expected)
+
+

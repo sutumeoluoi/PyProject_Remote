@@ -14,17 +14,36 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
 #     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
     print(*args, sep='\n')
 '''*************************************************'''
+    
+    
+import logging
+# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.debug('Start of program')
+def factorial(n):
+    logging.debug('Start of factorial(%s%%)' % (n))
+    total = 1
+    for i in range(n + 1):
+        total *= i
+        logging.debug('i is ' + str(i) + ', total is ' + str(total))
+    logging.warning('End of factorial(%s%%)' % (n))
+    return total
 
-def ret_sqr(num):
-    print(num**2)
-    yield 'inside'
-    print('end')
+print(factorial(5))
+logging.debug('End of program')    
 
-a = ret_sqr(5)
-print(next(a))
-
-print('wait')
-next(a)
+#===============================================================================
+# def ret_sqr(num):
+#     print(num**2)
+#     yield 'inside'
+#     print('end')
+# 
+# a = ret_sqr(5)
+# print(next(a))
+# 
+# print('wait')
+# next(a)
+#===============================================================================
  
 
     
