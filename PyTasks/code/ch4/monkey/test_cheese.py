@@ -1,11 +1,17 @@
 import copy
 import cheese
+import logging	#hal
 
+
+logging.basicConfig(level=logging.DEBUG, format='\n %(asctime)s - %(levelname)s - %(message)s')
 
 def test_def_prefs_full():
     cheese.write_default_cheese_preferences()
     expected = cheese._default_prefs
     actual = cheese.read_cheese_preferences()
+#    print(expected)
+    logging.debug('Expected: {}'.format(expected))
+    logging.debug('Actual: {}'.format(actual))
     assert expected == actual
 
 
