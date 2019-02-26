@@ -14,23 +14,65 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
 #     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
     print(*args, sep='\n')
 '''*************************************************'''
-    
-    
-import logging
-# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
-logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s - %(message)s')
-logging.debug('Start of program')
-def factorial(n):
-    logging.debug('Start of factorial(%s%%)' % (n))
-    total = 1
-    for i in range(n + 1):
-        total *= i
-        logging.debug('i is ' + str(i) + ', total is ' + str(total))
-    logging.warning('End of factorial(%s%%)' % (n))
-    return total
 
-print(factorial(5))
-logging.debug('End of program')    
+'''
+PROCESS CSV FILE -- Watch-out TRAP in csv_reader.line_num!!!
+_ csv save from powerbuilder has char-set: utf-16 little-endian. So regular file object open() failed. need codecs.open()
+_ Big-endian: bytes storing order with the MOST significant bit stored 1st(occupy smallest memory address) following
+in decreasing of significant to the least. Ex: Our daily decimal: 5623 (5: most, 3: least)  
+_ Little-endian: opposite of big-endian, the LEAST significant bit stored 1st(occupy smallest memory address)
+_ 'With' context manager doesn't create new scope. However, print(*csv_reader) outside 'with' will error
+    Reason: csv.reader() return genexp traversing on 'f:'. 'f:' is closed after 'with', so print() on genexp outside
+      'with' calling on 'f:' will failed. c
+    Fix: put print() inside 'with' or create a local var csv_list to for genexp traverse 'f:' inside 'with' 
+_ call csv.reader() again after exhausted csv_reader genexp doesn't work because at this point the 'f' file obj
+pointed to the end of file.
+    Solution: call open() again or just call f.seek(0) to bring file cursor to begin file
+NOTE: csv_reader.line_number return current line of csv reader obj. f.seek() reset cursor to beginning of csv file
+    and reader() will read csv contend again, so csv_list is the same after seek(), reader(), list().
+    However, csv_reader.line_num keeps increasing on. It never reset!!!!
+    Fix: create a new reader obj!!!
+_ csv.reader() object doesn't know the csv content, doesn't know current cursor position of file 'f' object,
+ so if cursor is in middle of the csv and new reader() got created, it will read from that position
+ and csv.line_num counts from 1.
+'''
+import csv, codecs
+with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
+    csv_reader = csv.reader(f)
+    csv_list = list(csv_reader)
+printnl(*csv_list)
+    
+    
+
+'''
+PROCESS CSV FILE - using Pathlib.Path open() directly
+'''
+import csv
+from pathlib import Path
+csv_filename = Path('./fixFI1210-1228.csv')
+with csv_filename.open(encoding='utf-16le') as f:
+    csv_reader = csv.reader(f)
+    csv_list = list(csv_reader)
+printnl(*csv_list)
+    
+    
+#===============================================================================
+# import logging
+# # logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s - %(message)s')
+# logging.debug('Start of program')
+# def factorial(n):
+#     logging.debug('Start of factorial(%s%%)' % (n))
+#     total = 1
+#     for i in range(n + 1):
+#         total *= i
+#         logging.debug('i is ' + str(i) + ', total is ' + str(total))
+#     logging.warning('End of factorial(%s%%)' % (n))
+#     return total
+# 
+# print(factorial(5))
+# logging.debug('End of program')    
+#===============================================================================
 
 #===============================================================================
 # def ret_sqr(num):
