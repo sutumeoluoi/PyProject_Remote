@@ -7,6 +7,7 @@ from operator import itemgetter
 from builtins import isinstance
 from typing import Iterable
 import pathlib, time
+from _csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 
 '''**** print each item in args list per line ****'''
 def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
@@ -15,9 +16,16 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
     print(*args, sep='\n')
 '''*************************************************'''
 
+
+
+import csv
+for row in csv.reader(['"one "| two | three '], delimiter='|', skipinitialspace=True, quoting=QUOTE_ALL):
+    print(row)
+    
 '''
 PROCESS CSV FILE -- Watch-out TRAP in csv_reader.line_num!!!
 _ csv save from powerbuilder has char-set: utf-16 little-endian. So regular file object open() failed. need codecs.open()
+_ Note: regular file open() also works, but need specify encoding='utf-16le'
 _ Big-endian: bytes storing order with the MOST significant bit stored 1st(occupy smallest memory address) following
 in decreasing of significant to the least. Ex: Our daily decimal: 5623 (5: most, 3: least)  
 _ Little-endian: opposite of big-endian, the LEAST significant bit stored 1st(occupy smallest memory address)
@@ -36,24 +44,36 @@ _ csv.reader() object doesn't know the csv content, doesn't know current cursor 
  so if cursor is in middle of the csv and new reader() got created, it will read from that position
  and csv.line_num counts from 1.
 '''
-import csv, codecs
-with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
-    csv_reader = csv.reader(f)
-    csv_list = list(csv_reader)
-printnl(*csv_list)
+#===============================================================================
+# import csv, codecs
+# from operator import itemgetter
+# from collections import OrderedDict
+# # with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
+# with open('fixFI1210-1228.csv', encoding='utf-16le') as f:
+#     csv_reader = csv.reader(f)
+# #     csv_reader = csv.DictReader(f)
+# #     csv_list = list(csv_reader)
+# #     adictval = itemgetter('fiid', 'totalqty', 'startbilldate', 'postdate')
+# #     printnl(*map(adictval, next(zip(csv_reader, csv_reader))))
+# #     printnl(*csv_reader)
+#     for adict in csv_reader:
+#         print(adict)
+#===============================================================================
     
     
 
 '''
 PROCESS CSV FILE - using Pathlib.Path open() directly
 '''
-import csv
-from pathlib import Path
-csv_filename = Path('./fixFI1210-1228.csv')
-with csv_filename.open(encoding='utf-16le') as f:
-    csv_reader = csv.reader(f)
-    csv_list = list(csv_reader)
-printnl(*csv_list)
+#===============================================================================
+# import csv
+# from pathlib import Path
+# csv_filename = Path('./fixFI1210-1228.csv')
+# with csv_filename.open(encoding='utf-16le') as f:
+#     csv_reader = csv.reader(f)
+#     csv_list = list(csv_reader)
+# printnl(*csv_list)
+#===============================================================================
     
     
 #===============================================================================
