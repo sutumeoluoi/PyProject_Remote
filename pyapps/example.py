@@ -16,11 +16,14 @@ def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
     print(*args, sep='\n')
 '''*************************************************'''
 
+from MyUtils import MyDate
 
+adate = MyDate()
+print(adate)
 
-import csv
-for row in csv.reader(['"one "| two | three '], delimiter='|', skipinitialspace=True, quoting=QUOTE_ALL):
-    print(row)
+# import csv
+# for row in csv.reader(['"one "| two | three '], delimiter='|', skipinitialspace=True, quoting=QUOTE_ALL):
+#     print(row)
     
 '''
 PROCESS CSV FILE -- Watch-out TRAP in csv_reader.line_num!!!
