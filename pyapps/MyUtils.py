@@ -3,19 +3,24 @@ from datetime import date, timedelta
 
 class MyDate(date):
     '''
-    A custom date class for my personal use. Inherit from date class
+    A custom date class for my personal use. Inherit from datetime.date class
     '''
-#     pass
     
-    def __new__(cls, curdate = date.today()):
-#         pass
-        return super().__new__(cls, curdate.year, curdate.month, curdate.day)
-        print(curdate)
-        
-    def __init__(self, curdate = date.today()):
-        super().__init__()
-        self.curdate = curdate
-        
+    def __new__(cls, year=0, month=0, day=0):
+        '''date is immutable, so NO modify after created. Initialization is in __new__, NOT in __init__'''
+        if (year, month, day) == (0, 0, 0):
+            adate = date.today()
+        else:
+            adate = date(year, month, day)
+        return super().__new__(cls, adate.year, adate.month, adate.day)
+       
+#     def __init__(self, year=0, month=0, day=0):
+#         if (year, month, date) == (0, 0, 0):
+#             adate = date.today()
+#         else:
+#             adate = date(year, month, day)
+#         super().__init__(adate.year, adate.month, adate.day)
+            
     def date_incr(self, startdate, incr):
         try:
             incr_date = startdate + timedelta(days=incr)
@@ -26,8 +31,7 @@ class MyDate(date):
     
 if __name__ == '__main__':
     adate = MyDate()
-#     cur_date = date.today()
-    print(adate.curdate)
-    incr_7 = adate.date_incr(adate.curdate, 7)
+    print(adate.today())
+    incr_7 = adate.date_incr(adate.today(), 7)
        
     print(incr_7)
