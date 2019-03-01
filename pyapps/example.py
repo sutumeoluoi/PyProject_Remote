@@ -9,17 +9,45 @@ from typing import Iterable
 import pathlib, time
 from _csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 
-'''**** print each item in args list per line ****'''
-def printnl(*args: 'unlimited arguments') -> 'separate each args with "\n"':
-#     st = '{}\n'*(len(args))
-#     print(st.format(*args), end='') #default print() end with '\n', specify end= to overwrite it
-    print(*args, sep='\n')
-'''*************************************************'''
+###own customized tools
+from MyUtils import printnl
 
-from MyUtils import MyDate
 
-adate = MyDate()
-print(adate)
+'''
+Attribute access: 
+3 ways to manipulate class attributes acess: @property, descriptor, modify __getattribute__
+Note: 
+    _ attribute access calls __getattribute__, ONLY attribute can't find anywhere __getattr__ will called
+    _ attribute write calls __setattr__. @property setter is a different way to alter attribute-write
+'''
+
+'''
+https://stackoverflow.com/questions/10401935/python-method-wrapper-type/19545928#19545928
+CPython there are two special type:
+_ <slot wrapper> Which (at least) wraps a C-implemented function. Behaves like an <unbound method> in CPython 2
+    (at least sometimes) or a <function> in CPython 3
+_ <method-wrapper> Which wraps a C-implemented function as an bound method. Instances of this type
+    have an __self__ attribute__ which is used as first argument when it is called
+datetime.date.__init__: <slot wrapper '__init__' of 'object' objects>. So, this init is unbound of object.__init__
+n_date = date.today()
+n_date.__init__: <method-wrapper '__init__' of datetime.date object at 0x00B36CC8>. So, it is 
+    bound of datetime.date.__init__ and self
+    
+If you have a <slot wrapper> you bind it to an object with __get__ to get an <method-wrapper>:
+# returns a <slot_wrapper> on both CPython 2 and 3
+sw = object.__getattribute__  
+
+# returns a <method-wrapper>
+bound_method = sw.__get__(object()) 
+
+# In this case raises AttributeError since no "some_attribute" exists.
+bound_method("some_attribute")  
+You can call __get__ on any function-like object in Python to get an <bound method> or <method-wrapper>. 
+Note __get__ on both of these types will simply return self.    
+'''
+# from MyUtils import MyDate
+# adate = MyDate()
+# print(adate)
 
 # import csv
 # for row in csv.reader(['"one "| two | three '], delimiter='|', skipinitialspace=True, quoting=QUOTE_ALL):
@@ -47,21 +75,19 @@ _ csv.reader() object doesn't know the csv content, doesn't know current cursor 
  so if cursor is in middle of the csv and new reader() got created, it will read from that position
  and csv.line_num counts from 1.
 '''
-#===============================================================================
-# import csv, codecs
-# from operator import itemgetter
-# from collections import OrderedDict
-# # with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
-# with open('fixFI1210-1228.csv', encoding='utf-16le') as f:
-#     csv_reader = csv.reader(f)
-# #     csv_reader = csv.DictReader(f)
-# #     csv_list = list(csv_reader)
-# #     adictval = itemgetter('fiid', 'totalqty', 'startbilldate', 'postdate')
-# #     printnl(*map(adictval, next(zip(csv_reader, csv_reader))))
-# #     printnl(*csv_reader)
+import csv, codecs
+from operator import itemgetter
+from collections import OrderedDict
+# with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
+with open('fixFI1210-1228.csv', encoding='utf-16le') as f:
+    csv_reader = csv.reader(f)
+#     csv_reader = csv.DictReader(f)
+#     csv_list = list(csv_reader)
+#     adictval = itemgetter('fiid', 'totalqty', 'startbilldate', 'postdate')
+#     printnl(*map(adictval, next(zip(csv_reader, csv_reader))))
+    printnl(*csv_reader)
 #     for adict in csv_reader:
 #         print(adict)
-#===============================================================================
     
     
 
@@ -2225,7 +2251,8 @@ Is there a way to introspect a function so that it shows me information on the a
 and the return value? dir() doesn't seem to do what I want. 
 >>
 import inspect 
-print(inspect.getargspec(the_function)) 
+#print(inspect.getargspec(the_function)) #deprecated in Python 3.0. Use getfullargspec() instead. 
+print(inspect.getfullargspec(the_function)) #base on inspect.signature() returns signature object
 but help() is much better
 '''
 
