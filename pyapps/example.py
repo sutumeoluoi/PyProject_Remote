@@ -7,11 +7,16 @@ from operator import itemgetter
 from builtins import isinstance
 from typing import Iterable
 import pathlib, time
-from _csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
+from csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 
 ###own customized tools
 from MyUtils import printnl
 
+'''
+obj.attr does not search for attr starting with obj. The search actually starts at obj.__class__, 
+and only if there is no property named attr in the class, Python looks in the obj instance itself. This rule
+applies not only to properties but to a whole category of descriptors, the overriding descriptors
+'''
 
 '''
 Attribute access: 
@@ -19,6 +24,12 @@ Attribute access:
 Note: 
     _ attribute access calls __getattribute__, ONLY attribute can't find anywhere __getattr__ will called
     _ attribute write calls __setattr__. @property setter is a different way to alter attribute-write
+Note: using MyDate.__dict__[wkday_name] = ... will allow assignment and destroy property
+Caution @property: assign to n_date.wkday_name works. it creates instance's attr 'wkday_name' and exist parallel
+    to @property wkday_name. But call n_date.wkday_name still return value of @property wkday_name. i.e., @property
+    isn't shadowed by instance attr. However, assign through class as MyDate.wkday_name = ... will destroy @property
+    and the instance attr wkday_name will hide the latest MyDate.wkday_name non_@property value.
+    (Read pg 609 - Fluent Python)
 '''
 
 '''

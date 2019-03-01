@@ -35,6 +35,11 @@ datetime.date.__init__: <slot wrapper '__init__' of 'object' objects>. So, this 
 n_date = date.today()
 n_date.__init__: <method-wrapper '__init__' of datetime.date object at 0x00B36CC8>. So, it is 
     bound of datetime.date.__init__ and self
+Caution @property: assign to n_date.wkday_name works. it creates instance's attr 'wkday_name' and exist parallel
+    to @property wkday_name. But call n_date.wkday_name still return value of @property wkday_name. i.e., @property
+    isn't shadowed by instance attr. However, assign through class as MyDate.wkday_name = ... will destroy @property
+    and the instance attr wkday_name will hide the latest MyDate.wkday_name non_@property value.
+    (Read pg 609 - Fluent Python)
 '''
 class MyDate(date):
     '''
@@ -78,10 +83,8 @@ class MyDate(date):
     '''       
     def __init__(self, *args):
         self._wkday_name = self._wkday[self.weekday()]
-        sp = super()
-        print(sp.__thisclass__, sp.__self__, sp.__self_class__)
-#         super().__init__(*args)
-#         date.__init__(date, *args)
+        
+        super().__init__()  #date.__init__ is object.__init__ so no arg
             
     def date_incr(self, startdate, incr):
         try:
@@ -100,6 +103,7 @@ class MyDate(date):
         return self._wkday_name
     
     '''or using __setattr__ as a different way to alter attribute write'''
+    '''Note: assigning MyDate.__dict__[wkday_name] = ... will allow assignment and destroy property'''
     @wkday_name.setter
     def wkday_name(self, value):
         raise AttributeError('wkday_name is read-only')
