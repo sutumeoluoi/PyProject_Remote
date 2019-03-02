@@ -12,6 +12,67 @@ from csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 ###own customized tools
 from MyUtils import printnl
 
+
+'''
+__new__ is staticmethod, so NO require self or cls instance as first arg, so no auto-bound cls on instance. However, it was design to ask for a
+    n instance of class(cls) which created by type() in 1st argument . Thus, super() return instance, but call from it still need passing instance 
+    such as 'cls'. Other instance method will auto-bound when using super()
+__init__ is instance method. So, super().__init__() is auto-bound 'self' in it like other instance method
+'''
+class A:
+    def __new__(cls, *args, **kwargs):
+        print('A.__new__')
+        o = super().__new__(cls, *args, **kwargs)
+        #print 'type A:', type(o)
+        return o
+
+class B:
+    def __new__(cls, *args, **kwargs):
+        print('B.__new__')
+        o = super().__new__(cls, *args, **kwargs)
+        #print 'type B:', type(o)
+        return o
+
+class C(A,B):
+    def __new__(cls, *args, **kwargs):
+        print('C.__new__')
+        print('===========')
+        o = super().__new__(cls, *args, **kwargs)
+#         o1 = A.__new__(a) #fail - exception while calling super.new in A
+#         o2 = B.__new__(foo, bar)
+        print('===========')
+        #print 'type C:', type(o)
+        return o
+
+c=C()
+
+'''
+***Peculiar Note!!!: date.__init__ is actually object.__init__(self) no argurment, so something peculiar here
+1. date.__init__('huh', 'why', 5, 7, 9, 8) or date.__init__(*args) - NO ERROR
+2. as long as 'self' in 1st arg such as date.__init__(self, 'huh', 'why', 5, 7, 9, 8) or date.__init__(self, *args) - always ERROR
+3. super().__init__('huh') or super().__init__(*args): as long as having at least 1 arg - always ERROR
+4. date.__init__(self) - NO ERROR
+5. super().__init__() - NO ERROR
+Explanation: 
+_ 4 and 5 is same: 4 calls from class so need self, 5 calls from instance so NO need self.
+_ 1 no error because without self date.__init__ turn into normal function. So, 'huh' pass to self and args[0] to self. Since object.__init__ does nothing,
+    so although value passing to self is not an instant, it doesn't error.
+_ 2 and 3 need explanation
+'''       
+#===============================================================================
+# def __init__(self, *args):
+#     self._wkday_name = self._wkday[self.weekday()]
+#     print('MyDate init: ', *args)
+#     
+# #         super(MyDate, self).__init__(self, *args)  #date.__init__ is object.__init__ so no arg
+#     date.__init__(self, 'huh', 'why', 5, 7, 9, 8) 
+#===============================================================================
+
+
+'''
+bind __init__ manually self and *args: A.__init__.__get__(self)(*args)
+'''
+
 '''
 obj.attr does not search for attr starting with obj. The search actually starts at obj.__class__, 
 and only if there is no property named attr in the class, Python looks in the obj instance itself. This rule
@@ -86,19 +147,21 @@ _ csv.reader() object doesn't know the csv content, doesn't know current cursor 
  so if cursor is in middle of the csv and new reader() got created, it will read from that position
  and csv.line_num counts from 1.
 '''
-import csv, codecs
-from operator import itemgetter
-from collections import OrderedDict
-# with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
-with open('fixFI1210-1228.csv', encoding='utf-16le') as f:
-    csv_reader = csv.reader(f)
-#     csv_reader = csv.DictReader(f)
-#     csv_list = list(csv_reader)
-#     adictval = itemgetter('fiid', 'totalqty', 'startbilldate', 'postdate')
-#     printnl(*map(adictval, next(zip(csv_reader, csv_reader))))
-    printnl(*csv_reader)
-#     for adict in csv_reader:
-#         print(adict)
+#===============================================================================
+# import csv, codecs
+# from operator import itemgetter
+# from collections import OrderedDict
+# # with codecs.open('fixFI1210-1228.csv','rb','utf-16le') as f:
+# with open('fixFI1210-1228.csv', encoding='utf-16le') as f:
+#     csv_reader = csv.reader(f)
+# #     csv_reader = csv.DictReader(f)
+# #     csv_list = list(csv_reader)
+# #     adictval = itemgetter('fiid', 'totalqty', 'startbilldate', 'postdate')
+# #     printnl(*map(adictval, next(zip(csv_reader, csv_reader))))
+#     printnl(*csv_reader)
+# #     for adict in csv_reader:
+# #         print(adict)
+#===============================================================================
     
     
 
