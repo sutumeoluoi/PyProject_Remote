@@ -9,40 +9,46 @@ Created on Aug 24, 2018
 
 from threading import Thread
 import pyodbc
+from MyUtils import printnl
 
 
 class SqlRetrieve:
     '''
     Connect to database and retrieve corresponding sql 
     
-    :parm1: connString
-    :parm2: sql
+    Attributes:
+        sql_str: sql string to retrieve
+        conn: Pyodbc connection to connect to db
+        cur: db cursor
     '''
+    
+    _conn_str = 'DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD='
 
-    def __init__(self, conn, a_sql_str):
+    def __init__(self, a_sql_str):
         '''
         Constructor
         '''
         self.sql_str = a_sql_str
-        self.conn = pyodbc.connect(conn)
+        self.conn = pyodbc.connect(self._conn_str)
         self.cur = self.conn.cursor()
+        self.col = None
         
     def connect_retrieve_db(self, a_sql_str = None):
         #         if cursor.tables(table='pdlist').fetchone():
         if a_sql_str is not None:
             self.sql_str = a_sql_str
+            
         try:            
             self.cur.execute(self.sql_str)
         except Exception as e:
             print(e)
             return 
               
-        columns = [column[0] for column in self.cur.description]#get column name and column size   
+        self.col = [column[0] for column in self.cur.description]#get column name and column size   
         result_q = self.cur.fetchall()
-            
 #         self.conn.close()    
             
-        return columns, result_q    #cursor.description still exist after return. feature of pyodbc
+        return result_q    #cursor.description still exist after return. feature of pyodbc
 #         return self.cur
 
 #     def dec_dbaccess(self, func):
@@ -79,3 +85,16 @@ class SqlRetrieveThreading(SqlRetrieve, Thread):
         
 #     def run(self):
 #         return self.connect_retrieve_db(a_sql_str)
+
+if __name__ == '__main__':
+    sql_str = '''
+        select * from invbillinfo_mp
+        where
+            invoicedate >= '2019-02-01'
+            and reason = 56
+            and recordtype in (7, 207)
+            and plu = 497837
+        '''
+    sqlR = SqlRetrieve(sql_str)
+    result = sqlR.connect_retrieve_db()
+    printnl(sqlR.col, *result)

@@ -93,13 +93,11 @@ basic_dbout()   #class BasicDBOut is callable, but its instance basic_dbout NOT 
 short_plu = basic_dbout.user_entry.get()
 date_str = str(basic_dbout.user_date_pick.get_date())
 
-conn_str = 'DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD='
-
-sql_str = """select *
-                    from pdlist125
-                    where
-                        shortplu = {}
-                        and startdate <= '{}' and enddate >= '{}'""".format(short_plu, date_str, date_str)
+# sql_str = """select *
+#                     from pdlist125
+#                     where
+#                         shortplu = {}
+#                         and startdate <= '{}' and enddate >= '{}'""".format(short_plu, date_str, date_str)
 
 #     sql_str = """
 #                 select monthstartdate, vendor, sum(vendorrebateamount)
@@ -115,8 +113,17 @@ sql_str = """select *
 #                 and invbillinfo_ca.invoicedate between '2018-9-01' and '2018-9-10'
 #                 group by itm.vennumprim
 #             """
+
+sql_str = '''
+    select * from invbillinfo_mp
+    where
+        invoicedate >= '2019-02-01'
+        and reason = 56
+        and recordtype in (7, 207)
+        and plu = 497837
+    '''
                             
-pdlist_table = SqlRetrieve(conn_str, sql_str)  
+pdlist_table = SqlRetrieve(sql_str)  
 basic_dbout.db_access = pdlist_table    #assign db object to gui for callback button function
 #     pdlist_table = SqlRetrieveThreading(conn_str, sql_str)  
 # pdlist_table.connect_retrieve_db()   

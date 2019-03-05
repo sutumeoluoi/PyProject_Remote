@@ -45,8 +45,8 @@ class MyDate(date):
     '''
     A custom date class for my personal use. Inherit from datetime.date class
     
-    Properties:
-        wkday_name: 'Monday', 'Tuesday',....
+    Attributes:
+        wkday_name: name of weekday: 'Monday', 'Tuesday',...
     '''
     _wkday = [
         'Monday',   #date.weekday(): 0 is Monday 
@@ -55,7 +55,7 @@ class MyDate(date):
         'Thursday',
         'Friday',
         'Saturday',
-        'Sunday'
+        'Sunday',
         ]     
       
     '''
@@ -119,19 +119,30 @@ class MyDate(date):
 #         super(MyDate, self).__init__(self, *args)  #date.__init__ is object.__init__ so no arg
         date.__init__('huh', 'why', 5, 7, 9, 8) 
             
-    def __add__(self, value):    
+    def __add__(self, value):
+        '''overwrite add() of parent class''' 
 #         a_value = timedelta(days=value)
         super_add = super().__add__(value)
 #         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
         return type(self)(super_add.year, super_add.month, super_add.day)
     
-    def __radd__(self, value):    
+    def __radd__(self, value): 
+        '''overwrite radd() of parent class'''   
 #         a_value = timedelta(days=value)
         super_add = super().__radd__(value)
 #         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
         return type(self)(super_add.year, super_add.month, super_add.day)
     
     def __getitem__(self, ix):
+        '''Return value through index
+        
+        Args:
+            ix: index number to access value. Only 2 items.
+        Returns:
+            string date or weekday name depends on ix.
+        Raises:
+            IndexError: if ix reach outside of 2 items.
+        '''        
         try:
             aItem = (str(self), self.wkday_name)[ix]
         except IndexError as e:
@@ -140,9 +151,17 @@ class MyDate(date):
             return aItem        
     
     def __len__(self):
+        '''return number of items to use with index access'''
         return 2
         
     def date_adj(self, startdate, adj):
+        '''add arbitrary days. Adding negative number equivalent to subtract
+        
+        Args:
+            adj: number of day to add
+        Returns:
+            date corresponding to added date
+        '''
         try:
             a_date = startdate + timedelta(days=adj)
         except Exception as e:
@@ -150,7 +169,16 @@ class MyDate(date):
         else:
             return a_date
     
-    def wkday2date(self, dayname):
+    def find_wkday(self, dayname):
+        '''Return date from weekday name. Minimum 2-char name require
+        
+        Args:
+            dayname: name of weekday. At least 2 chars length
+        Returns:
+            date within the week corresponding to 'self'
+        Raises:
+            ValueError: if dayname is not valid name of weekday
+        '''
         dayname = dayname.title().strip()
         
         if len(dayname) < 2:
@@ -160,8 +188,7 @@ class MyDate(date):
         for i, item in enumerate(self._wkday):
             if item.startswith(dayname):
                 i = i if i < 6 else -1
-                delta = i - self.weekday()
-                                
+                delta = i - self.weekday()                                
                 break
         else:
             raise ValueError('It is not valid weekday name')    
@@ -174,13 +201,14 @@ class MyDate(date):
     '''
     @property
     def wkday_name(self):   #getter
-        '''wk_name is Monday - Sunday'''
+        '''property getter. wk_name is Monday - Sunday'''
         return self._wkday_name
     
     '''or using __setattr__ as a different way to alter attribute write'''
     '''Note: assigning MyDate.__dict__[wkday_name] = ... will allow assignment and destroy property'''
     @wkday_name.setter
     def wkday_name(self, value):
+        '''property setter'''
         raise AttributeError('wkday_name is read-only')
 #         self._wkday_name = value
 
@@ -213,7 +241,7 @@ if __name__ == '__main__':
 #     print(MyDate.__mro__)
         
 #     print(incr_7[0], incr_7[-1], len(incr_7))
-    print(adate.wkday2date('Tue'), adate.wkday2date('su'))
+    print(adate.find_wkday('Tue'), adate.find_wkday('su'))
 #     adate.delegate()
 #     me = MyInfo()
 #     printnl(MyInfo.__init__, me.__init__)
