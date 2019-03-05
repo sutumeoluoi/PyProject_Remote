@@ -62,22 +62,34 @@ class MyDate(date):
     __new__ is staticmethod, so NO require self or cls instance as first arg, so no auto-bound cls on instance. However, it was design to ask for a
         n instance of class(cls) which created by type() in 1st argument . Thus, super() return instance, but call from it still need passing instance 
         such as 'cls'. Other instance method will auto-bound when using super()
+    Note: call today_date = super().today() in this __new__causes recursive loop.
+    Explanation: super().today() is super(MyDate, cls). cls is object of MyDate(NOT instance of MyDate) create by type()
+                super() found today() in datetime.date and call it. This today() calls fromtimestamp()
+                and return cls(...) as below snips from datetime.py implementation of date class.
+                The issue is the final cls is not date class. We are still in scope of MyDate due to inheritant,
+                so the final cls is still MyDate class object. I.e, final cls(...) equivalent MyDate(...).
+                Thus, it calls this __new__ again and cause cursive loop.
+    Fix: call directly date.today() guarantee the final cls(...) in fromtimestamp is date(...), so it is fine.
+    @classmethod
+    def fromtimestamp(cls, t):        
+        return cls(y, m, d)
+
+    @classmethod
+    def today(cls):        
+        t = _time.time()
+        return cls.fromtimestamp(t)
     '''
     def __new__(cls, year=0, month=0, day=0, name='andy'):
         '''date is immutable, so NO modify after created. Initialization is in __new__, NOT in __init__'''         
 #         today_date = super().today()    #WARNING: cause recursive loop
+#         print(super(), super().today)
         today_date = date.today()
-#         print(super())
         ayear = year if year else today_date.year
         amonth = month or today_date.month
         aday = (day, today_date.day)[day == 0]
     
         return super(MyDate, cls).__new__(cls, ayear, amonth, aday) #__new__ is staticmethod, so NO auto-bound cls on instance
     
-    def __add__(self, value):
-        super_add = super().__add__(value)
-#         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
-        return type(self)(super_add.year, super_add.month, super_add.day)
 
     '''
     Extreme warning here!!!:
@@ -107,13 +119,36 @@ class MyDate(date):
 #         super(MyDate, self).__init__(self, *args)  #date.__init__ is object.__init__ so no arg
         date.__init__('huh', 'why', 5, 7, 9, 8) 
             
-    def date_incr(self, startdate, incr):
+    def __add__(self, value):    
+#         a_value = timedelta(days=value)
+        super_add = super().__add__(value)
+#         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
+        return type(self)(super_add.year, super_add.month, super_add.day)
+    
+    def __radd__(self, value):    
+#         a_value = timedelta(days=value)
+        super_add = super().__radd__(value)
+#         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
+        return type(self)(super_add.year, super_add.month, super_add.day)
+    
+    def __getitem__(self, ix):
         try:
-            incr_date = startdate + timedelta(days=incr)
+            aItem = (str(self), self.wkday_name)[ix]
+        except IndexError as e:
+            raise IndexError("Index is out of bound. There is only 2 items")
+        else:
+            return aItem        
+    
+    def __len__(self):
+        return 2
+        
+    def date_adj(self, startdate, adj):
+        try:
+            a_date = startdate + timedelta(days=adj)
         except Exception as e:
             print(e)
         else:
-            return incr_date
+            return a_date
     
     def wkday2date(self, dayname):
         dayname = dayname.title().strip()
@@ -124,7 +159,9 @@ class MyDate(date):
 #         if any(item.startswith(dayname) item from _wkday):
         for i, item in enumerate(self._wkday):
             if item.startswith(dayname):
-                delta = i - self.weekday()                
+                i = i if i < 6 else -1
+                delta = i - self.weekday()
+                                
                 break
         else:
             raise ValueError('It is not valid weekday name')    
@@ -168,13 +205,15 @@ class MyDate(date):
     #===========================================================================
         
 if __name__ == '__main__':
-    adate = MyDate()
+    adate = MyDate(2019, 3, 10)
+    orgdate = date.today()
     print(adate, adate.wkday_name)
-    incr_7 = adate.date_incr(adate, -1)
+    print(adate.date_adj(adate, -3)[1])
+#     print(adate + 3)
 #     print(MyDate.__mro__)
         
-    print(incr_7, incr_7.wkday_name)
-    print(adate.wkday2date('Tue'), adate.wkday2date('mo'))
+#     print(incr_7[0], incr_7[-1], len(incr_7))
+    print(adate.wkday2date('Tue'), adate.wkday2date('su'))
 #     adate.delegate()
 #     me = MyInfo()
 #     printnl(MyInfo.__init__, me.__init__)

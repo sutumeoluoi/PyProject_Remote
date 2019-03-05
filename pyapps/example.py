@@ -13,38 +13,63 @@ from csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 from MyUtils import printnl
 
 
+'''lambda late binding trap'''
+# funcs = [lambda:x**2 for x in range(5)]    #output: [16, 16, 16, 16, 16]
+#Fix:
+funcs = [lambda x=x: x**2 for x in range(5)]
+print([func() for func in funcs])
+
+
+'''
+Assert MRO order
+>>> pprint(LoggingOD.__mro__)
+(<class '__main__.LoggingOD'>,
+ <class '__main__.LoggingDict'>,
+ <class 'collections.OrderedDict'>,
+ <class 'dict'>,
+ <class 'object'>)
+
+To assert above order:
+position = LoggingOD.__mro__.index
+assert position(LoggingDict) < position(OrderedDict)
+assert position(OrderedDict) < position(dict)
+'''
+
+
 '''
 __new__ is staticmethod, so NO require self or cls instance as first arg, so no auto-bound cls on instance. However, it was design to ask for a
     n instance of class(cls) which created by type() in 1st argument . Thus, super() return instance, but call from it still need passing instance 
     such as 'cls'. Other instance method will auto-bound when using super()
 __init__ is instance method. So, super().__init__() is auto-bound 'self' in it like other instance method
 '''
-class A:
-    def __new__(cls, *args, **kwargs):
-        print('A.__new__')
-        o = super().__new__(cls, *args, **kwargs)
-        #print 'type A:', type(o)
-        return o
-
-class B:
-    def __new__(cls, *args, **kwargs):
-        print('B.__new__')
-        o = super().__new__(cls, *args, **kwargs)
-        #print 'type B:', type(o)
-        return o
-
-class C(A,B):
-    def __new__(cls, *args, **kwargs):
-        print('C.__new__')
-        print('===========')
-        o = super().__new__(cls, *args, **kwargs)
-#         o1 = A.__new__(a) #fail - exception while calling super.new in A
-#         o2 = B.__new__(foo, bar)
-        print('===========')
-        #print 'type C:', type(o)
-        return o
-
-c=C()
+#===============================================================================
+# class A:
+#     def __new__(cls, *args, **kwargs):
+#         print('A.__new__')
+#         o = super().__new__(cls, *args, **kwargs)
+#         #print 'type A:', type(o)
+#         return o
+# 
+# class B:
+#     def __new__(cls, *args, **kwargs):
+#         print('B.__new__')
+#         o = super().__new__(cls, *args, **kwargs)
+#         #print 'type B:', type(o)
+#         return o
+# 
+# class C(A,B):
+#     def __new__(cls, *args, **kwargs):
+#         print('C.__new__')
+#         print('===========')
+#         o = super().__new__(cls, *args, **kwargs)
+# #         o1 = A.__new__(a) #fail - exception while calling super.new in A
+# #         o2 = B.__new__(foo, bar)
+#         print('===========')
+#         #print 'type C:', type(o)
+#         return o
+# 
+# c=C()
+#===============================================================================
 
 '''
 ***Peculiar Note!!!: date.__init__ is actually object.__init__(self) no argurment, so something peculiar here
