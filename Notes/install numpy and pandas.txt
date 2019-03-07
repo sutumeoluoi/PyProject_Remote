@@ -35,3 +35,8 @@ C:\Workspace>pip3.4 install C:/myvenv/numpy-1.15.4-cp34-none-win32.whl
 /////pandas
 
 C:\Workspace>pip3.4 install pandas==0.21.0
+
+
+/////MatPlotLib
+
+C:\Workspace>pip3.4 install matplotlib==2.2.4
