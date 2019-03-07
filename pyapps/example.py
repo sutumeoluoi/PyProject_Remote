@@ -12,12 +12,16 @@ from csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 ###own customized tools
 from MyUtils import printnl
 
+import numpy as np, pandas as pd
+printnl(np.__version__, pd.__version__)
 
 '''lambda late binding trap'''
-# funcs = [lambda:x**2 for x in range(5)]    #output: [16, 16, 16, 16, 16]
-#Fix:
-funcs = [lambda x=x: x**2 for x in range(5)]
-print([func() for func in funcs])
+#===============================================================================
+# # funcs = [lambda:x**2 for x in range(5)]    #output: [16, 16, 16, 16, 16]
+# #Fix:
+# funcs = [lambda x=x: x**2 for x in range(5)]
+# print([func() for func in funcs])
+#===============================================================================
 
 
 '''

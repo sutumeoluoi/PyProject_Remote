@@ -1,0 +1,37 @@
+*** Install in virtualenv ***
+/////numpy 1st
+Version 1.15.4 is the last support python 3.4. Larger version drop python 3.4
+copy numpy-1.15.4-cp34-none-win32.whl to C:\myvenv\
+
+1. afterload myvenv
+
+(myvenv) C:\myvenv\>pip3.4 install C:/myvenv/numpy-1.15.4-cp34-none-win32.whl
+
+2. test install succesfully
+
+python
+import numpy
+numpy.__version__
+
+
+/////pandas 2nd
+Version 0.21.0 support python 3.4. Larger version drop python 3.4
+
+1. afterload myvenv
+
+(myvenv) C:\myvenv\>pip3.4 install pandas==0.21.0
+
+2. test install succesfully
+
+python
+import pandas
+pandas.__version__
+
+*** Install regular env ***
+/////numpy
+
+C:\Workspace>pip3.4 install C:/myvenv/numpy-1.15.4-cp34-none-win32.whl
+
+/////pandas
+
+C:\Workspace>pip3.4 install pandas==0.21.0

@@ -86,6 +86,8 @@ class SqlRetrieveThreading(SqlRetrieve, Thread):
 #     def run(self):
 #         return self.connect_retrieve_db(a_sql_str)
 
+
+
 if __name__ == '__main__':
     sql_str = '''
         select * from invbillinfo_mp
