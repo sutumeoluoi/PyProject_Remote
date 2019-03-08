@@ -56,3 +56,10 @@ git reset --hard origin/master
 9. Move master which behind and same tree of 'dce38ab' to dce38ab
 git checkout master
 git reset --hard  dce38ab
+
+10. merge 2 files same name diff cases: pyapps and PyApps (pyapps is actual folder having all files in win computer)
+Make sure stay on 'master' branch:
+git mv pyapps PyApps.tomove
+git commit -am 'some msg' 
+git mv PyApps.tomove PyApps
+git commit -am 'final msg'
