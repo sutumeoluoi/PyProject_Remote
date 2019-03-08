@@ -1,0 +1,13 @@
+barry 1 0
+bob 0 1
+
+bob 0 0
+bob 0 1
+james 0 0
+james 0 0
+harry 0 0
+harry 0 0
+john 0 0
+john 0 0
+freddy 0 0
+freddy 0 0
