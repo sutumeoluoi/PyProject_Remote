@@ -1,0 +1,17 @@
+{
+    "slicing": [
+        "manchego",
+        "sharp cheddar"
+    ],
+    "salads": [
+        "crumbled feta"
+    ],
+    "spreadable": [
+        "Saint Andre",
+        "camembert",
+        "bucheron",
+        "goat",
+        "humbolt fog",
+        "cambozola"
+    ]
+}

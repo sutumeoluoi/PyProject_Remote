@@ -1,0 +1,11 @@
+{
+    "slicing": [
+        "provolone"
+    ],
+    "salads": [
+        "pepper jack"
+    ],
+    "spreadable": [
+        "brie"
+    ]
+}

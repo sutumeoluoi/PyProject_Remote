@@ -52,3 +52,7 @@ git merge origin/master
 git fetch --all
 git reset --hard origin/master
 #git pull origin master (optional)
+
+9. Move master which behind and same tree of 'dce38ab' to dce38ab
+git checkout master
+git reset --hard  dce38ab
