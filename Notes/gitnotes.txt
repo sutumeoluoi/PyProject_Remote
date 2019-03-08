@@ -61,7 +61,7 @@ git reset --hard  dce38ab
 Make sure stay on 'master' branch:
 git mv pyapps PyApps.tomove
 git commit -am 'some msg' 
-git push (push to remote on github)
+##git push (push to remote on github)(can skip this step. Do only once at the end)
 git mv PyApps.tomove PyApps
 git commit -am 'final msg'
 git push (push to remote on github)
