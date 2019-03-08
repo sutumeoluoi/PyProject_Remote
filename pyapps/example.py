@@ -3,17 +3,93 @@ Created on Aug 2, 2018
 
 @author: hal
 '''
+#encoding: utf-8
+
 from operator import itemgetter
 from builtins import isinstance
 from typing import Iterable
 import pathlib, time
 from csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
+from collections import OrderedDict
 
 ###own customized tools
 from MyUtils import printnl
 
-import numpy as np, pandas as pd
-printnl(np.__version__, pd.__version__)
+
+
+'''
+Warning: Default string in Python 3 is Unicode, so no need u'...', just '...' is enough!!!
+encode(), decode(), b'\xe0\xa4\xa8 my name \xa4\xbe...', u'my name'
+u'my name': is unicode string. In python 3, all string is unicode so no need letter 'u'
+b'\xe0\xa4\xa8 my name \xa4\xbe...': bytes sequence represents some data. Some data may be text, binary objects...
+    In case of text, those hex represent chars outside ASCII readable chars. for those within readable range, 
+    it shows similar regular string but with letter b infront such as b'my name'. This b'my name' is not a string
+    it datatype is 'bytes', it shows same as string because its sequence chars are ASCII readable chars.
+encode(): encoding a string into bytes type such as b'...' representing that string using default encoding = 'utf-8'
+decode(): decoding bytes type(bytes sequence) into a string using default  encoding = 'utf-8'
+
+As example below. x is bytes represent unicode string in non-English charset. Write to file open with utf-8 and open it using text editor support utf-8. 
+Note: need to config the editor font support of  this non-English charset. Or run these codes 
+in jupyter notebook using browser will show correct output as: न्यायाधीश भट्टराई विरुद्धको उजुरी तामेलीमा
+Ipython or python in windows aren't able to show these string correctly.
+If *.py save as cp1252(Windows-1252), print(y) will error due to charmap different.
+Fix: save *.py as Unicode-8. 
+'''
+#===============================================================================
+# # x = u'my name'
+# # xe = x.encode()
+# # ye = xe.decode()
+# # printnl(type(x), type(xe), type(ye), xe, ye)
+# 
+# x = b'\n\xe0\xa4\xa8\xe0\xa5\x8d\xe0\xa4\xaf\xe0\xa4\xbe\xe0\xa4\xaf\xe0\xa4\xbe\xe0\xa4\xa7\xe0\xa5\x80\xe0\xa4\xb6 \xe0\xa4\xad\xe0\xa4\x9f\xe0\xa5\x8d\xe0\xa4\x9f\xe0\xa4\xb0\xe0\xa4\xbe\xe0\xa4\x88 \xe0\xa4\xb5\xe0\xa4\xbf\xe0\xa4\xb0\xe0\xa5\x81\xe0\xa4\xa6\xe0\xa5\x8d\xe0\xa4\xa7\xe0\xa4\x95\xe0\xa5\x8b \xe0\xa4\x89\xe0\xa4\x9c\xe0\xa5\x81\xe0\xa4\xb0\xe0\xa5\x80 \xe0\xa4\xa4\xe0\xa4\xbe\xe0\xa4\xae\xe0\xa5\x87\xe0\xa4\xb2\xe0\xa5\x80\xe0\xa4\xae\xe0\xa4\xbe\n'
+# y = x.decode('utf-8')
+# print(y)
+# # 
+# # with open('t.txt', 'w', encoding='utf-8') as f:
+# #     f.write(y)
+#===============================================================================
+
+
+'''
+Strip u'...' having hex values, only keep readable charset
+Using encode() using 'ascii' and 'ignore' option to convert to b'...' (bytes represent) and decode back to utf-8 or ascii
+If string already in bytes b'...', use decode() directly
+without 'ignore', it will errors as below
+'''
+# print(u'\u200cHealth & Fitness'.encode('ascii')) #UnicodeEncodeError: 'ascii' codec can't encode character '\u200c' in position 0: ordinal not in range(128)
+print(u'\u200cHealth & Fitness'.encode('ascii', 'ignore').decode('ascii'))
+print(u'\u200cHealth & Fitness'.encode().decode()) 
+print(b'\xe0\xa4\xa8 my name \xe0\xa4\xaf ...'.decode('ascii','ignore')) 
+
+####Using dict/OrderedDict
+# amount = 579
+# # denom_list = [100, 50, 20, 10, 5, 1]
+# denom_dict = OrderedDict.fromkeys([100, 50, 20, 10, 5, 1], 0)
+# # denom_dict = dict.fromkeys(denom_list, 0)
+# 
+# for denom in denom_dict:    
+#     quot, rem = divmod(amount, denom)
+#     amount = rem
+#     denom_dict[denom] = quot
+# 
+# for k, v in denom_dict.items():
+#     if v > 0:
+#         if v > 1:
+#             print(v, '$' + str(k) + '.00s')
+#         else:
+#             print(v, '$' + str(k) + '.00')
+
+
+#===============================================================================
+# import numpy as np, pandas as pd
+# printnl(np.__version__, pd.__version__)
+#===============================================================================
+
+'''Find location of file contend implementation of module'''
+#===============================================================================
+# import datetime
+# print(datetime.__file__)
+#===============================================================================
 
 '''lambda late binding trap'''
 #===============================================================================
