@@ -46,16 +46,21 @@ class MyDate(date):
     A custom date class for my personal use. Inherit from datetime.date class
     
     Attributes:
-        wkday_name: name of weekday: 'Monday', 'Tuesday',...
+        year = 0: year YYYY
+        month = 0: month MM
+        day = 0: day DD
+        wkday_name: 'Monday', 'Tuesday',...
+    
+    Defaults: MyDate() create using today date
     '''
     _wkday = [
-        'Monday',   #date.weekday(): 0 is Monday 
+        'Sunday',   #fry_weekday: Sunday = 0
+        'Monday',   
         'Tuesday',
         'Wednesday',
         'Thursday',
         'Friday',
         'Saturday',
-        'Sunday',
         ]     
       
     '''
@@ -79,7 +84,7 @@ class MyDate(date):
         t = _time.time()
         return cls.fromtimestamp(t)
     '''
-    def __new__(cls, year=0, month=0, day=0, name='andy'):
+    def __new__(cls, year=0, month=0, day=0):
         '''date is immutable, so NO modify after created. Initialization is in __new__, NOT in __init__'''         
 #         today_date = super().today()    #WARNING: cause recursive loop
 #         print(super(), super().today)
@@ -113,7 +118,7 @@ class MyDate(date):
     _ 2 and 3 need explanation
     '''       
     def __init__(self, *args):
-        self._wkday_name = self._wkday[self.weekday()]
+        self._wkday_name = self._wkday[self.frys_weekday()]
 #         print('MyDate init: ', *args)
         
 #         super(MyDate, self).__init__(self, *args)  #date.__init__ is object.__init__ so no arg
@@ -153,6 +158,19 @@ class MyDate(date):
     def __len__(self):
         '''return number of items to use with index access'''
         return 2
+    
+    def __repr__(self):
+        '''Overwrite the represent of in instance call'''
+        return  '{}({}, {}, {}, {})'.format(self.__class__.__name__,
+                                            self.year,
+                                            self.month,
+                                            self.day, 
+                                            self.wkday_name,
+                                            )
+        
+    def frys_weekday(self):
+        '''frys: Sun(0) - Sat(6)'''
+        return self.toordinal() % 7
         
     def date_adj(self, startdate, adj):
         '''add arbitrary days. Adding negative number equivalent to subtract
@@ -188,7 +206,7 @@ class MyDate(date):
         for i, item in enumerate(self._wkday):
             if item.startswith(dayname):
                 i = i if i < 6 else -1
-                delta = i - self.weekday()                                
+                delta = i - self.frys_weekday()                                
                 break
         else:
             raise ValueError('It is not valid weekday name')    
@@ -231,18 +249,69 @@ class MyDate(date):
     # def _action(self):
     #     print('test delegation inheritant')
     #===========================================================================
+class Foo:
+    __slots__ = ('_bar',)
+    
+    def __new__(cls):    
+        self = super().__new__(cls)
+        self._bar = 'barz'
+        return self
+        
+    @property
+    def bar(self):
+        return self._bar
+
+
+
+#===================================================================
+class ndate:   
+    __slots__ = '_year', '_month', '_day'
+
+    def __new__(cls, year, month=None, day=None):
+        self = object.__new__(cls)
+        self._year = year
+        self._month = month
+        self._day = day
+        return self
+
+    @property
+    def year(self):
+        """year (1-9999)"""
+        return self._year
+
+    @property
+    def month(self):
+       """month (1-12)"""
+       return self._month
+
+    @property
+    def day(self):
+        """day (1-31)"""
+        return self._day    
+#===================================================================    
         
 if __name__ == '__main__':
-    adate = MyDate(2019, 3, 10)
-    orgdate = date.today()
-    print(adate, adate.wkday_name)
-    print(adate.date_adj(adate, -3)[1])
-#     print(adate + 3)
-#     print(MyDate.__mro__)
-        
-#     print(incr_7[0], incr_7[-1], len(incr_7))
-    print(adate.find_wkday('Tue'), adate.find_wkday('su'))
-#     adate.delegate()
-#     me = MyInfo()
-#     printnl(MyInfo.__init__, me.__init__)
+#===============================================================================
+#     adate = MyDate(2019, 3, 3)
+#     orgdate = date.today()
+#     print(adate, adate.wkday_name)
+#     repr(adate)
+#     print(adate.date_adj(adate, -3)[0])
+# #     print(adate + 3)
+# #     print(MyDate.__mro__)
+# 
+#     print(adate.find_wkday('Tue'), adate.find_wkday('su'))
+# #     adate.delegate()
+# #     me = MyInfo()
+# #     printnl(MyInfo.__init__, me.__init__)
+#===============================================================================
+    f = Foo()
+    print(f._bar)
+    printnl(vars(Foo))
+    
+    nd = ndate(2019, 3, 10)
+    print(nd._year)
+    print(vars(ndate))
+    import _datetime
+    print(_datetime.date)
     

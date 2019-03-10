@@ -1,6 +1,10 @@
+0. update pip to latest (using 18.0 or 19.1 is the last one support python 3.4)
+
+pip3.4 install --upgrade pip
+
 1. Install ipython and jupyter
 
-pip3.4 install ipython	//if install jupyter, jupyter will install ipython by itself
+pip3.4 install ipython==6.5.0	(greater version doesn't support python 3.4)//if install jupyter, jupyter will install ipython by itself
 pip3.4 install jupyter
 
 2. uninstall latest pyzmq and tornado

@@ -15,7 +15,25 @@ from collections import OrderedDict
 ###own customized tools
 from MyUtils import printnl
 
+'''
+__name__ vs __qualname__
+_ module such as PyApps.MyUtils doesn't have __qualname__, only __name__ and showing full path name
+_ class, inner class, function, method such ass PyApps.MyUtils.MyDate have both __qualname__ and __name__
+    On top level class or function __qualname__ and __name__ show the same simple name.
+    On inner class or method __qualname__ show full path name starting from classname, __name__ show simple name
+Ex:
+In [16]: PyApps.MyUtils.__name__    #module
+Out[16]: 'PyApps.MyUtils'
 
+In [17]: PyApps.MyUtils.MyDate.__name__    #top level class
+Out[17]: 'MyDate'
+
+In [18]: PyApps.MyUtils.MyDate.__qualname__    #top level class
+Out[18]: 'MyDate'
+
+In [19]: PyApps.MyUtils.MyDate.today.__qualname__    #method
+Out[19]: 'MyDate.today'
+'''
 
 '''
 Warning: Default string in Python 3 is Unicode, so no need u'...', just '...' is enough!!!

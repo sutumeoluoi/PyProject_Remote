@@ -40,3 +40,9 @@ C:\Workspace>pip3.4 install pandas==0.21.0
 /////MatPlotLib
 
 C:\Workspace>pip3.4 install matplotlib==2.2.4
+
+////Scipy (seabon require scipy. Up to 1.2.1 still support python 3.4)
+
+C:\Workspace>pip3.4 install scipy
+
+///seaborn(need numpy >= 1.9.3), scipy >= 0.14.0, matplotlib >= 1.4.3, pandas >= 0.15.2)
