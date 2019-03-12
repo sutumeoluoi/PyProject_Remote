@@ -4,9 +4,11 @@ Process Tran2 records from csv file
 
 import csv
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from io import StringIO, SEEK_SET
 import pyodbc 
+import matplotlib.pyplot as plt
 
 from MyUtils import printnl
 
@@ -49,7 +51,7 @@ pd.set_option('max_colwidth', -1)
 
 #===============================================================================
 # csv_filename = Path('C:\Documents and Settings\hal\Desktop\Py CSV\Tran2-20190304-check-5.csv')
-#   
+#    
 # with csv_filename.open(encoding='utf-8') as f:
 #     csv_r = csv.reader(f)
 #     for item in csv_r:
@@ -57,6 +59,8 @@ pd.set_option('max_colwidth', -1)
 #===============================================================================
 
 # df = pd.read_csv('C:\Documents and Settings\hal\Desktop\Py CSV\Tran2-20190304-check-5.csv')
+df = pd.read_csv(r'C:\Documents and Settings\hal\Desktop\Py CSV\nm-0101-0311.csv', encoding='utf-16le')
+
 # printnl(df.index, df.columns)
 # printnl(df['invoice'])    #return Series (no column label/name)
 # printnl(df[['vendor_code', 'invoice', 'division']].loc[:3]) ##return DataFrame of 3 columns
@@ -69,17 +73,47 @@ pd.set_option('max_colwidth', -1)
 # invoice = df['invoice']
 # print(invoice)
 
-sql_str = '''
-    select * from invbillinfo_mp
-    where
-        invoicedate >= '2019-02-01'
-        and reason = 56
-        and recordtype in (7, 207)
-        and plu = 497837
-    '''
-    
-conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
+# sql_str = '''
+#     select 
+#         reason,
+#         recid_notused,
+#         division,
+#         invoicedate,
+#         invoicenumber,
+#         invoiceline,
+#         plu,
+#         qty, 
+#         price,
+#         itmcost,
+#         newcost,
+#         discount
+#     from invbillinfo_mp
+#     where
+#         invoicedate >= '2019-02-01'
+#         and reason = 56
+#         and recordtype in (7, 207)
+#         and plu = 497837
+#     '''
+#     
+# conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
+# df = pd.read_sql(sql_str, conn, )
+# df = df.set_index('InvoiceNumber')
+# print(df[:])
+ 
 
-df = pd.read_sql(sql_str, conn)
-print(df[:])
+# x = np.linspace(0, 10, 100, endpoint=True)
+# plt.plot(np.exp(x), 'r+')
+# df.sort(['currentdate', 'div', 'deptnum'])
+# ds = df.loc[(df['deptnum']==1) & (df['div']==3),'totalsell']
+# # print(ds)
+# ds9 = df.loc[(df['deptnum']==1) & (df['div']==9),'totalsell']
+# ds12 = df.loc[(df['deptnum']==1) & (df['div']==9),'totalsell']
+# plt.plot(ds, 'g-', ds9, 'b-', ds12, 'r-')
 
+# ts = pd.Series(np.random.randn(1000),
+#                index=pd.date_range('1/1/2000', periods=1000))
+# pd.DataFrame(np.random.randn(1000, 4),
+#              index=ts.index, columns=list('ABCD'))
+# df = df.cumsum()
+df.plot()
+plt.show()

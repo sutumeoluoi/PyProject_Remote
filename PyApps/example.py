@@ -15,6 +15,27 @@ from collections import OrderedDict
 ###own customized tools
 from MyUtils import printnl
 
+'''find index first True value(i.e on consecutive True, pick 1st one)'''
+t = [True, False, False, False, False, True, True, True, False, False,
+     True, True, True, True, False, False, False, False, False,
+     False, False, True, True, True, False, True]
+
+# t = [False, False, False, False, True, True, True, False, False,
+#      True, True, True, True, False, False, False, False, False,
+#      False, False, True, True, True, False]
+
+# on_list = []
+# previous = False
+# for i, item in enumerate(t):
+#     if item and not previous:
+#         on_list.append(i)
+#     previous = item
+
+on_list = [i for i, x in enumerate(t) if x and not (i and t[i-1])]
+print(on_list)
+    
+    
+    
 '''
 __name__ vs __qualname__
 _ module such as PyApps.MyUtils doesn't have __qualname__, only __name__ and showing full path name
@@ -75,9 +96,9 @@ If string already in bytes b'...', use decode() directly
 without 'ignore', it will errors as below
 '''
 # print(u'\u200cHealth & Fitness'.encode('ascii')) #UnicodeEncodeError: 'ascii' codec can't encode character '\u200c' in position 0: ordinal not in range(128)
-print(u'\u200cHealth & Fitness'.encode('ascii', 'ignore').decode('ascii'))
-print(u'\u200cHealth & Fitness'.encode().decode()) 
-print(b'\xe0\xa4\xa8 my name \xe0\xa4\xaf ...'.decode('ascii','ignore')) 
+# print(u'\u200cHealth & Fitness'.encode('ascii', 'ignore').decode('ascii'))
+# print(u'\u200cHealth & Fitness'.encode().decode()) 
+# print(b'\xe0\xa4\xa8 my name \xe0\xa4\xaf ...'.decode('ascii','ignore')) 
 
 ####Using dict/OrderedDict
 # amount = 579

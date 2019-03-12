@@ -126,15 +126,15 @@ class MyDate(date):
             
     def __add__(self, value):
         '''overwrite add() of parent class''' 
-#         a_value = timedelta(days=value)
-        super_add = super().__add__(value)
+        a_value = timedelta(days=value)
+        super_add = super().__add__(a_value)
 #         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
         return type(self)(super_add.year, super_add.month, super_add.day)
     
     def __radd__(self, value): 
         '''overwrite radd() of parent class'''   
-#         a_value = timedelta(days=value)
-        super_add = super().__radd__(value)
+        a_value = timedelta(days=value)
+        super_add = super().__radd__(a_value)
 #         return self.__class__(super_add.year, super_add.month, super_add.day) # OR using type()
         return type(self)(super_add.year, super_add.month, super_add.day)
     
@@ -167,12 +167,16 @@ class MyDate(date):
                                             self.day, 
                                             self.wkday_name,
                                             )
+    
+    def __str__(self):
+        '''Overwrite print output'''
+        return '{}, {}'.format(super().__str__(), self.wkday_name)
         
     def frys_weekday(self):
         '''frys: Sun(0) - Sat(6)'''
         return self.toordinal() % 7
         
-    def date_adj(self, startdate, adj):
+    def date_adj(self, adj):
         '''add arbitrary days. Adding negative number equivalent to subtract
         
         Args:
@@ -181,7 +185,10 @@ class MyDate(date):
             date corresponding to added date
         '''
         try:
-            a_date = startdate + timedelta(days=adj)
+            if isinstance(self, MyDate):
+                a_date = self + adj
+            else:
+                a_date = self + timedelta(days=adj)
         except Exception as e:
             print(e)
         else:
@@ -261,57 +268,31 @@ class Foo:
     def bar(self):
         return self._bar
 
-
-
-#===================================================================
-class ndate:   
-    __slots__ = '_year', '_month', '_day'
-
-    def __new__(cls, year, month=None, day=None):
-        self = object.__new__(cls)
-        self._year = year
-        self._month = month
-        self._day = day
-        return self
-
-    @property
-    def year(self):
-        """year (1-9999)"""
-        return self._year
-
-    @property
-    def month(self):
-       """month (1-12)"""
-       return self._month
-
-    @property
-    def day(self):
-        """day (1-31)"""
-        return self._day    
-#===================================================================    
         
 if __name__ == '__main__':
-#===============================================================================
-#     adate = MyDate(2019, 3, 3)
-#     orgdate = date.today()
+    adate = MyDate(2019, 3, 3)
+    orgdate = date.today()
 #     print(adate, adate.wkday_name)
-#     repr(adate)
+    print(repr(adate))
+    print(repr(orgdate))
+#     adate_n = adate.date_adj(2)
+#     orgdate_n = MyDate.date_adj(orgdate, 2)
+#     print(repr(adate_n))
+#     print(repr(orgdate_n))
+    print(repr(4 + adate))
+    print(adate + 4)    
 #     print(adate.date_adj(adate, -3)[0])
-# #     print(adate + 3)
-# #     print(MyDate.__mro__)
-# 
+#     print(adate + 3)
+#     print(MyDate.__mro__)
+ 
 #     print(adate.find_wkday('Tue'), adate.find_wkday('su'))
-# #     adate.delegate()
-# #     me = MyInfo()
-# #     printnl(MyInfo.__init__, me.__init__)
-#===============================================================================
-    f = Foo()
-    print(f._bar)
-    printnl(vars(Foo))
-    
-    nd = ndate(2019, 3, 10)
-    print(nd._year)
-    print(vars(ndate))
-    import _datetime
-    print(_datetime.date)
+#     adate.delegate()
+#     me = MyInfo()
+#     printnl(MyInfo.__init__, me.__init__)
+
+    #===========================================================================
+    # f = Foo()
+    # print(f._bar)
+    # printnl(vars(Foo))
+    #===========================================================================
     
