@@ -860,10 +860,18 @@ ternary if-else, NOT conditional comprehension
 # print10(*list(range(20)))
 
         
-'''interesting ways of if-else''' 
+'''
+Interesting ways of if-else
+common idiom using logical operators: [expression] and [on_true] or [on_false]
+This only work when [on_true] MUST always evaluate to True. Let's analyse boolean operation here:
+_ [expression] evaluate to True, then 'and' [on_true] => overall True, next operator is 'or' so stop and return value at stop. It's [on_true] value
+_ [expression] evaluate to False, next ops 'and' => overall False, so skip to 'or'. It is the last in the expression, so just return it. it's [on_false] value
+the 1st one shows that [on_true] MUST always True. Otherwise, 1st one will continue to evaluate and return [on_false] while we want it return [on_true] 
+''' 
 #===============================================================================
 # g = int(input())
 # h = 0 if g < 0 else g
+### equivalent: h = (g < 0 and 0 or g)[0] ????
 # #####to lambda'
 # lambda g: 0 if g < 0 else g
 # lambda g: g * (g >= 0)
