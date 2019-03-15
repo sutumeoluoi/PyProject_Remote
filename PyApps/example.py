@@ -15,24 +15,33 @@ from collections import OrderedDict
 ###own customized tools
 from MyUtils import printnl
 
+lst = list(range(5))
+t, t1 = iter(lst), iter(lst)
+next(t1)
+for a, b in zip(t, t1):
+    print(a, b) 
+    
+
 '''find index first True value(i.e on consecutive True, pick 1st one)'''
-t = [True, False, False, False, False, True, True, True, False, False,
-     True, True, True, True, False, False, False, False, False,
-     False, False, True, True, True, False, True]
-
-# t = [False, False, False, False, True, True, True, False, False,
+#===============================================================================
+# t = [True, False, False, False, False, True, True, True, False, False,
 #      True, True, True, True, False, False, False, False, False,
-#      False, False, True, True, True, False]
-
-# on_list = []
-# previous = False
-# for i, item in enumerate(t):
-#     if item and not previous:
-#         on_list.append(i)
-#     previous = item
-
-on_list = [i for i, x in enumerate(t) if x and not (i and t[i-1])]
-print(on_list)
+#      False, False, True, True, True, False, True]
+# 
+# # t = [False, False, False, False, True, True, True, False, False,
+# #      True, True, True, True, False, False, False, False, False,
+# #      False, False, True, True, True, False]
+# 
+# # on_list = []
+# # previous = False
+# # for i, item in enumerate(t):
+# #     if item and not previous:
+# #         on_list.append(i)
+# #     previous = item
+# 
+# on_list = [i for i, x in enumerate(t) if x and not (i and t[i-1])]
+# print(on_list)
+#===============================================================================
     
     
     
@@ -1134,21 +1143,37 @@ Note: using iter() and next() on list2 is best approach in this case
 typically using all the original letters exactly once
 Ex: ("binary", "brainy"), ("rail safety", "fairy tales")
 ''' 
-# def is_anagram(s1, s2):   
-#     return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
-#  
-# words = ("hi", "hello", "bye", "helol", "abc", "cab", 
-#                 "bac", "silenced", "licensed", "decli nes")
-#  
-# anagram = set()
+def is_anagram(s1, s2):   
+    return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
+  
+words = ("hi", "hello", "bye", "Helol", "abc", "cab", 
+                "bac", "silenced", "licensed", "decli nes", 'hElol', 'Moon starter', 'Astronomer ')
+  
+anagram = set()
+for i, w1 in enumerate(words):
+    for w2 in words[i+1:len(words)]:
+        if is_anagram(w1, w2):
+            anagram.update({w1, w2})    #better than anagram.add(...) since need call twice on w1 and w2
+            break
+
+#### Without 'key=sorted': ['Helol', 'abc', 'bac', 'cab', 'decli nes', 'hElol', 'hello', 'licensed', 'silenced']
+#### With    'key=sorted': ['decli nes', 'hElol', 'Helol', 'abc', 'cab', 'bac', 'licensed', 'silenced', 'hello']
+#### Explain: _ Without 'key=...', create a sorted word list comparing words alphabetic-order against each other
+####          _ With 'key=...', sort each word alphabetically internally; then sort these sorted-words to create a sorted word list
+print(sorted(anagram, key=sorted))
+
+''' anagram using collections.Counter '''
+#===============================================================================
+# from collections import Counter
+# anagram_Ct = set()
 # for i, w1 in enumerate(words):
 #     for w2 in words[i+1:len(words)]:
-#         if is_anagram(w1, w2):
-#             anagram.add(w1)
-#             anagram.add(w2)
+#         if Counter(w1.replace(' ', '').lower()) == Counter(w2.replace(' ', '').lower()):
+#             anagram_Ct.update({w1, w2})
 #             break
-#          
-# print(sorted(anagram, key=sorted))
+# print(sorted(anagram, key=sorted))        
+#===============================================================================
+
            
 
 ''' Another implementation of anagram:
@@ -1157,29 +1182,30 @@ _ For each word build it's histogram and add it to the list that corresponds to 
 _ Output list of dictionary values.
 Note: Counter is dict, so python <= 3.5 Counter(word).items() return not guarantee same order. 
     Using tuple(Counter(word).items()) as key of dict cause 2 different keys although same counter.
+Note 2: even on Python 3.6+, dict only guarantee insertion order. 'silenced' and 'licensed' are anagrams, but diff insertion orders.
+        Thus, Counter.fromkeys('silenced') == Counter.fromkeys('licensed'), but their .items() are NOT. 
 Fix: sorted() to list and convert to tuple 
-Ex: different order althought same counter.
+Ex: different order although same counter.
 (('c', 1), ('e', 2), ('s', 1), ('d', 1), ('i', 1), ('l', 1), ('n', 1))    #silenced
 (('e', 2), ('c', 1), ('d', 1), ('l', 1), ('i', 1), ('n', 1), ('s', 1))    #licensed
 (('e', 2), ('n', 1), ('d', 1), ('l', 1), ('i', 1), ('c', 1), ('s', 1))    #declines
 '''
-#===============================================================================
-# from collections import Counter, defaultdict
-# def anagram(words):
-#     anagrams = defaultdict(list)
-#     for word in words:
-#         #histogram = tuple(Counter(word).items()) #
-#         histogram = tuple(sorted(Counter(word).items())) # need sorted counter to list then convert to tuple
-#         anagrams[histogram].append(word)
-# #         print(histogram)
-# #     printnl(anagrams)
+from collections import Counter, defaultdict
+def anagram(words):
+    anagrams = defaultdict(list)
+    for word in words:
+        #histogram = tuple(Counter(word).items()) #doesn't work at all. see note above!!
+        histogram = tuple(sorted(Counter(word.replace(' ', '').lower()).items())) # need sorted counter to list then convert to tuple
+        anagrams[histogram].append(word)
+#         print(histogram)
+#     printnl(anagrams)
 #     return list(anagrams.values())
-#  
-# keywords = ("hi", "hello", "bye", "helol", "abc", "cab", 
-#                 "bac", "silenced", "licensed", "declines")
-#  
-# print(anagram(keywords))
-#===============================================================================
+    return [item for item in anagrams.values() if len(item) > 1]
+  
+keywords = ("hi", "hello", "bye", "Helol", "abc", "cab", 
+                "bac", "silenced", "licensed", "decli nes", 'hElol', 'Moon starter', 'Astronomer ')
+  
+printnl(*anagram(keywords))
 
 # for num in range(1000, 1, -1):
 #     print('{}\t{}'.format(num, num if not num % 97 else '' ))
