@@ -53,6 +53,7 @@ class MyDate(date):
     
     Defaults: MyDate() create using today date
     '''
+    __version__ = '1.0.0'
     _wkday = [
         'Sunday',   #fry_weekday: Sunday = 0
         'Monday',   

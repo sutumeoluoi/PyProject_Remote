@@ -59,7 +59,7 @@ pd.set_option('max_colwidth', -1)
 #===============================================================================
 
 # df = pd.read_csv('C:\Documents and Settings\hal\Desktop\Py CSV\Tran2-20190304-check-5.csv')
-df = pd.read_csv(r'C:\Documents and Settings\hal\Desktop\Py CSV\nm-0101-0311.csv', encoding='utf-16le')
+# df = pd.read_csv(r'C:\Documents and Settings\hal\Desktop\Py CSV\nm-0101-0311.csv', encoding='utf-16le')
 
 # printnl(df.index, df.columns)
 # printnl(df['invoice'])    #return Series (no column label/name)
@@ -73,32 +73,32 @@ df = pd.read_csv(r'C:\Documents and Settings\hal\Desktop\Py CSV\nm-0101-0311.csv
 # invoice = df['invoice']
 # print(invoice)
 
-# sql_str = '''
-#     select 
-#         reason,
-#         recid_notused,
-#         division,
-#         invoicedate,
-#         invoicenumber,
-#         invoiceline,
-#         plu,
-#         qty, 
-#         price,
-#         itmcost,
-#         newcost,
-#         discount
-#     from invbillinfo_mp
-#     where
-#         invoicedate >= '2019-02-01'
-#         and reason = 56
-#         and recordtype in (7, 207)
-#         and plu = 497837
-#     '''
-#     
-# conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
-# df = pd.read_sql(sql_str, conn, )
-# df = df.set_index('InvoiceNumber')
-# print(df[:])
+sql_str = '''
+    select 
+        reason,
+        recid_notused,
+        division,
+        invoicedate,
+        invoicenumber,
+        invoiceline,
+        plu,
+        qty, 
+        price,
+        itmcost,
+        newcost,
+        discount
+    from invbillinfo_mp
+    where
+        invoicedate >= '2019-02-01'
+        and reason = 56
+        and recordtype in (7, 207)
+        and plu = 497837
+    '''
+     
+conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
+df = pd.read_sql(sql_str, conn, )
+df = df.set_index('InvoiceNumber')
+print(df[:])
  
 
 # x = np.linspace(0, 10, 100, endpoint=True)
@@ -115,5 +115,5 @@ df = pd.read_csv(r'C:\Documents and Settings\hal\Desktop\Py CSV\nm-0101-0311.csv
 # pd.DataFrame(np.random.randn(1000, 4),
 #              index=ts.index, columns=list('ABCD'))
 # df = df.cumsum()
-df.plot()
-plt.show()
+# df.plot()
+# plt.show()

@@ -15,11 +15,73 @@ from collections import OrderedDict
 ###own customized tools
 from MyUtils import printnl
 
-lst = list(range(5))
-t, t1 = iter(lst), iter(lst)
-next(t1)
-for a, b in zip(t, t1):
-    print(a, b) 
+
+
+'''an instance method is a descriptor. f.blah is actually: Foo.blah.__get__(f, type(f))
+To look up an explicit attribute name:
+1. From an instance I, search the instance, its class, and its superclasses, as follows:
+    a. Search the __dict__ of all classes on the __mro__ found at I’s __class__ (That's Foo.blah.__get__(f, type(f)))
+    b. If a data descriptor was found in step a, call it and exit
+    c. Else, return a value in the __dict__ of the instance I
+    d. Else, call a nondata descriptor or return a value found in step a
+2. From a class C, search the class, its superclasses, and its metaclasses tree, as follows:
+    a. Search the __dict__ of all metaclasses on the __mro__ found at C’s __class__
+    b. If a data descriptor was found in step a, call it and exit
+    c. Else, call a descriptor or return a value in the __dict__ of a class on C’s own __mro__
+    d. Else, call a nondata descriptor or return a value found in step a
+3. In both rule 1 and 2, built-in operations essentially use just step a sources    
+Note: this applies to normal, explicit attribute fetch only. The implicit lookup of method names for built-ins doesn’t follow these rules, 
+and essentially uses just step a sources in both cases
+
+'''
+
+
+'''
+Access method of description
+Note: if handle instance=None in __get__ to return self such as implement of @property belows:
+def __get__(self, obj, objtype=None):
+    if obj is None:
+        return self
+    if self.fget is None:
+        raise AttributeError, "unreadable attribute"
+    return self.fget(obj)
+Explain above code:
+obj is the instance of the class accessing the descriptor. When you access the attribute from a class instance, 
+obj is that instance, when you access it from a class object, then obj is None.  
+https://stackoverflow.com/questions/13476023/accessing-descriptor-instance  
+
+then, call using classname of description: print(self.aa.describe()) will work
+'''
+class MyDescriptor: 
+    def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
+        return self._val
+    
+    def __set__(self, instance, val):
+        self._val = val
+    
+    def describe(self):
+        return 'inside describe'
+ 
+class MyClass:
+    aa = MyDescriptor()
+    
+    def __init__(self):
+        self.aa = 42
+
+    def dump(self):
+       pass
+#          print(self.aa.describe())    using __get__ of descriptor, so error
+        
+    def dump2(self):
+        print('Inside dump2()')
+        print(type(self).__dict__['aa'].describe())
+        print(MyClass.aa.describe())    #again using __get__ of descriptor, so error. unless implement 'if instance is None: return self'
+ 
+foo = MyClass()
+foo.dump2()        
+foo.dump()
     
 
 '''find index first True value(i.e on consecutive True, pick 1st one)'''
@@ -1143,24 +1205,26 @@ Note: using iter() and next() on list2 is best approach in this case
 typically using all the original letters exactly once
 Ex: ("binary", "brainy"), ("rail safety", "fairy tales")
 ''' 
-def is_anagram(s1, s2):   
-    return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
-  
-words = ("hi", "hello", "bye", "Helol", "abc", "cab", 
-                "bac", "silenced", "licensed", "decli nes", 'hElol', 'Moon starter', 'Astronomer ')
-  
-anagram = set()
-for i, w1 in enumerate(words):
-    for w2 in words[i+1:len(words)]:
-        if is_anagram(w1, w2):
-            anagram.update({w1, w2})    #better than anagram.add(...) since need call twice on w1 and w2
-            break
-
-#### Without 'key=sorted': ['Helol', 'abc', 'bac', 'cab', 'decli nes', 'hElol', 'hello', 'licensed', 'silenced']
-#### With    'key=sorted': ['decli nes', 'hElol', 'Helol', 'abc', 'cab', 'bac', 'licensed', 'silenced', 'hello']
-#### Explain: _ Without 'key=...', create a sorted word list comparing words alphabetic-order against each other
-####          _ With 'key=...', sort each word alphabetically internally; then sort these sorted-words to create a sorted word list
-print(sorted(anagram, key=sorted))
+#===============================================================================
+# def is_anagram(s1, s2):   
+#     return sorted(s1.replace(' ', '').lower()) == sorted(s2.replace(' ', '').lower())  
+#   
+# words = ("hi", "hello", "bye", "Helol", "abc", "cab", 
+#                 "bac", "silenced", "licensed", "decli nes", 'hElol', 'Moon starter', 'Astronomer ')
+#   
+# anagram = set()
+# for i, w1 in enumerate(words):
+#     for w2 in words[i+1:len(words)]:
+#         if is_anagram(w1, w2):
+#             anagram.update({w1, w2})    #better than anagram.add(...) since need call twice on w1 and w2
+#             break
+# 
+# #### Without 'key=sorted': ['Helol', 'abc', 'bac', 'cab', 'decli nes', 'hElol', 'hello', 'licensed', 'silenced']
+# #### With    'key=sorted': ['decli nes', 'hElol', 'Helol', 'abc', 'cab', 'bac', 'licensed', 'silenced', 'hello']
+# #### Explain: _ Without 'key=...', create a sorted word list comparing words alphabetic-order against each other
+# ####          _ With 'key=...', sort each word alphabetically internally; then sort these sorted-words to create a sorted word list
+# print(sorted(anagram, key=sorted))
+#===============================================================================
 
 ''' anagram using collections.Counter '''
 #===============================================================================
@@ -1190,22 +1254,24 @@ Ex: different order although same counter.
 (('e', 2), ('c', 1), ('d', 1), ('l', 1), ('i', 1), ('n', 1), ('s', 1))    #licensed
 (('e', 2), ('n', 1), ('d', 1), ('l', 1), ('i', 1), ('c', 1), ('s', 1))    #declines
 '''
-from collections import Counter, defaultdict
-def anagram(words):
-    anagrams = defaultdict(list)
-    for word in words:
-        #histogram = tuple(Counter(word).items()) #doesn't work at all. see note above!!
-        histogram = tuple(sorted(Counter(word.replace(' ', '').lower()).items())) # need sorted counter to list then convert to tuple
-        anagrams[histogram].append(word)
-#         print(histogram)
-#     printnl(anagrams)
-#     return list(anagrams.values())
-    return [item for item in anagrams.values() if len(item) > 1]
-  
-keywords = ("hi", "hello", "bye", "Helol", "abc", "cab", 
-                "bac", "silenced", "licensed", "decli nes", 'hElol', 'Moon starter', 'Astronomer ')
-  
-printnl(*anagram(keywords))
+#===============================================================================
+# from collections import Counter, defaultdict
+# def anagram(words):
+#     anagrams = defaultdict(list)
+#     for word in words:
+#         #histogram = tuple(Counter(word).items()) #doesn't work at all. see note above!!
+#         histogram = tuple(sorted(Counter(word.replace(' ', '').lower()).items())) # need sorted counter to list then convert to tuple
+#         anagrams[histogram].append(word)
+# #         print(histogram)
+# #     printnl(anagrams)
+# #     return list(anagrams.values())
+#     return [item for item in anagrams.values() if len(item) > 1]
+#   
+# keywords = ("hi", "hello", "bye", "Helol", "abc", "cab", 
+#                 "bac", "silenced", "licensed", "decli nes", 'hElol', 'Moon starter', 'Astronomer ')
+#   
+# printnl(*anagram(keywords))
+#===============================================================================
 
 # for num in range(1000, 1, -1):
 #     print('{}\t{}'.format(num, num if not num % 97 else '' ))
