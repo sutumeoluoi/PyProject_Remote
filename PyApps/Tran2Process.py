@@ -73,32 +73,33 @@ pd.set_option('max_colwidth', -1)
 # invoice = df['invoice']
 # print(invoice)
 
-sql_str = '''
-    select 
-        reason,
-        recid_notused,
-        division,
-        invoicedate,
-        invoicenumber,
-        invoiceline,
-        plu,
-        qty, 
-        price,
-        itmcost,
-        newcost,
-        discount
-    from invbillinfo_mp
-    where
-        invoicedate >= '2019-02-01'
-        and reason = 56
-        and recordtype in (7, 207)
-        and plu = 497837
-    '''
-     
-conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
-df = pd.read_sql(sql_str, conn, )
-df = df.set_index('InvoiceNumber')
-print(df[:])
+# sql_str = '''
+#     select 
+#         reason,
+#         recid_notused,
+#         division,
+#         invoicedate,
+#         invoicenumber,
+#         invoiceline,
+#         plu,
+#         qty, 
+#         price,
+#         itmcost,
+#         newcost,
+#         discount
+#     from invbillinfo_mp
+#     where
+#         invoicedate >= '2019-02-01'
+#         and reason = 56
+#         and recordtype in (7, 207)
+#         and plu = 497837
+#     '''
+#      
+# conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
+# df = pd.read_sql(sql_str, conn, )
+# # df = df.set_index('InvoiceNumber', 'Division')
+# df = df.set_index('RecID_NotUsed')
+# print(df[:])
  
 
 # x = np.linspace(0, 10, 100, endpoint=True)
