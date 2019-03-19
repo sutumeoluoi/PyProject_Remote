@@ -11,11 +11,138 @@ from typing import Iterable
 import pathlib, time
 from csv import QUOTE_NONE, QUOTE_ALL, QUOTE_MINIMAL
 from collections import OrderedDict
+import types
 
 ###own customized tools
 from MyUtils import printnl
 
+'''
+An attribute would refer to any name following a dot. So to get an attribute of a class instance, 
+__getattribute__ is summoned unconditionally when you try to access that attribute (through dot reference).
+However, magic methods doesn't invoke __getattribute__ unless call it explicitly
+'''
+class A:
+    def __init__(self):
+        print('Hello!')
 
+    def foo(self):
+        print('Foo!')
+    
+    @classmethod
+    def foo_cls(cls):
+        print('Foo cls!')
+
+    def __getattribute__(self, name):
+#         raise AttributeError()
+        print('__**getattribute')
+
+a = A() # Works, prints "Hello!"
+# a.foo() # throws AttributeError as expected
+A.foo(a)
+A.foo_cls() #it bound method on cls and still NOT using __getattribute__, so NO throw AttributeError
+print(A.foo_cls)    #<bound method type.foo_cls of <class '__main__.A'>>
+a.__getattribute__('andy') # AttributeError. because call explicitly
+# a.__dict__ # AttributeError. because call explicitly
+
+
+# from operator import itemgetter
+# d = {"ARDR":["BTC_ARDR", 2],"LTC":["BTC_LTC",1],"BCHABC":["BTC_BCHABC",3]}
+# get_idx1 = itemgetter(1)
+# # print(get_idx1("ARDR"))
+# idx1 = sorted(d, key=lambda x: get_idx1(d[x]))
+# print(idx1)
+
+'''
+Introspect/Introspection
+Vars(..), dir(..), help((..), type(..), id(..)
+import inspect
+    getfullargspec, getsource, getmembers(same as dir with added tuples (key, description) of each member 
+    while dir only show keys)
+'''
+
+'''
+@classmethod (method with cls) calling through class or instance return bound method of class
+regular method (method with self) calling through class return regular function
+In [518]: Foo2.baz
+Out[518]: <bound method type.baz of <class '__main__.Foo2'>>
+In [517]: foo2.baz
+Out[517]: <bound method type.baz of <class '__main__.Foo2'>>
+In [516]: Foo2.baz_meth
+Out[516]: <function __main__.Foo2.baz_meth(self)>
+In [519]: foo2.baz_meth
+Out[519]: <bound method Foo2.baz_meth of <__main__.Foo2 object at 0x06997F30>>
+
+'''
+#===============================================================================
+# class Foo2:
+#     @classmethod
+#     def baz(cls):
+#         print('classmethod baz: {}'.format(cls))
+#      
+#     def baz_meth(self):
+#         print('regular method  baz_meth{}'.format(self))        
+#  
+# foo2 = Foo2()
+#  
+# method2 = Foo2.baz  #
+# method2_via_an_instance = foo2.baz
+# method2_manual = types.MethodType(method2.__func__, Foo2)  
+# _ = (method2(), method2_via_an_instance(), method2_manual())     
+# print(_)
+#===============================================================================
+
+'''
+class to create function
+Purpose of MethodType is overwrite instance level methods (so that self can be available in overwritten method).
+(need import types)
+'''
+#===============================================================================
+# class Function(object):
+#     #...
+#     def __get__(self, obj, objtype=None):
+#         "Simulate func_descr_get() in Objects/funcobject.c"
+#         if obj is None:
+#             return self
+#         return types.MethodType(self, obj)
+#     #...
+#===============================================================================
+
+'''
+assign pre-defined function to an instance attribute is still make it regular function, NOT class method.
+This just attach a function to an object, it has no relation with the object itself
+a.func = func
+In [456]: a.func
+Out[456]: <function __main__.func(x)>
+https://stackoverflow.com/questions/37455426/advantages-of-using-methodtype-in-python
+'''
+#===============================================================================
+# def func(x):
+#    print(x)
+# class A:
+#    pass
+# a = A()
+# a.func = func #still is a regular function, NOT method
+#===============================================================================
+
+'''
+Note; This only bound to single instance 'a'. Creating new b = A() won't have these bound method.
+To create truly class method, Monkey patching class as A.func = func. Now b = A() will have bound method func
+...
+Using __get__ or types.MethodType(..) will create bound method object. func(x) has one parm 'x', so when bound
+to 'a', it is 'self' and print(x) == print(self), so a.f1() => <__main__.A object at 0x069E9F10>
+In [483]: a.f1 = func.__get__(a)
+In [484]: a.f1
+Out[484]: <bound method A.func of <__main__.A object at 0x069E9F10>>
+In [485]: a.f1()
+<__main__.A object at 0x069E9F10>
+'''    
+#===============================================================================
+# import types
+# # a.f2 = types.MethodType(func, a)
+# ###or
+# a.f1 = a.func.__get__(a)
+# a.f1()
+#===============================================================================
 
 '''an instance method is a descriptor. f.blah is actually: Foo.blah.__get__(f, type(f))
 To look up an explicit attribute name:
@@ -38,7 +165,7 @@ and essentially uses just step a sources in both cases
 
 '''
 Access method of description
-Note: if handle instance=None in __get__ to return self such as implement of @property belows:
+Note: Handle instance=None in __get__ to return self such as implement of @property belows:
 def __get__(self, obj, objtype=None):
     if obj is None:
         return self
@@ -50,7 +177,9 @@ obj is the instance of the class accessing the descriptor. When you access the a
 obj is that instance, when you access it from a class object, then obj is None.  
 https://stackoverflow.com/questions/13476023/accessing-descriptor-instance  
 
-then, call using classname of description: print(self.aa.describe()) will work
+then, call using classname of description: print(MyClass.aa.describe()) will work.
+However, print(self.aa.describe()) still ERROR because instance is self, so __get__ returns self._val
+=> self.aa.describe() turns into self._val.describe() with _val is integer => error
 '''
 class MyDescriptor: 
     def __get__(self, instance, owner=None):
@@ -77,11 +206,13 @@ class MyClass:
     def dump2(self):
         print('Inside dump2()')
         print(type(self).__dict__['aa'].describe())
-        print(MyClass.aa.describe())    #again using __get__ of descriptor, so error. unless implement 'if instance is None: return self'
+        print(MyClass.aa.describe())    #implement 'if instance is None...' in __get__, so it also works. Otherwise, error
  
 foo = MyClass()
 foo.dump2()        
 foo.dump()
+print(MyClass.aa)   #call through class, instance pass to __get__ is None. So this return descriptor obj like @property
+
     
 
 '''find index first True value(i.e on consecutive True, pick 1st one)'''
