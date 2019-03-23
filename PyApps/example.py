@@ -14,35 +14,37 @@ from collections import OrderedDict
 import types
 
 ###own customized tools
-from MyUtils import printnl
+from PyApps.MyUtils import printnl
 
 '''
 An attribute would refer to any name following a dot. So to get an attribute of a class instance, 
 __getattribute__ is summoned unconditionally when you try to access that attribute (through dot reference).
 However, magic methods doesn't invoke __getattribute__ unless call it explicitly
 '''
-class A:
-    def __init__(self):
-        print('Hello!')
-
-    def foo(self):
-        print('Foo!')
-    
-    @classmethod
-    def foo_cls(cls):
-        print('Foo cls!')
-
-    def __getattribute__(self, name):
-#         raise AttributeError()
-        print('__**getattribute')
-
-a = A() # Works, prints "Hello!"
-# a.foo() # throws AttributeError as expected
-A.foo(a)
-A.foo_cls() #it bound method on cls and still NOT using __getattribute__, so NO throw AttributeError
-print(A.foo_cls)    #<bound method type.foo_cls of <class '__main__.A'>>
-a.__getattribute__('andy') # AttributeError. because call explicitly
-# a.__dict__ # AttributeError. because call explicitly
+#===============================================================================
+# class A:
+#     def __init__(self):
+#         print('Hello!')
+# 
+#     def foo(self):
+#         print('Foo!')
+#     
+#     @classmethod
+#     def foo_cls(cls):
+#         print('Foo cls!')
+# 
+#     def __getattribute__(self, name):
+# #         raise AttributeError()
+#         print('__**getattribute')
+# 
+# a = A() # Works, prints "Hello!"
+# # a.foo() # throws AttributeError as expected
+# A.foo(a)
+# A.foo_cls() #it bound method on cls and still NOT using __getattribute__, so NO throw AttributeError
+# print(A.foo_cls)    #<bound method type.foo_cls of <class '__main__.A'>>
+# a.__getattribute__('andy') # AttributeError. because call explicitly
+# # a.__dict__ # AttributeError. because call explicitly
+#===============================================================================
 
 
 # from operator import itemgetter
@@ -95,6 +97,18 @@ Out[519]: <bound method Foo2.baz_meth of <__main__.Foo2 object at 0x06997F30>>
 class to create function
 Purpose of MethodType is overwrite instance level methods (so that self can be available in overwritten method).
 (need import types)
+# Access through the class dictionary does not invoke __get__.
+# It just returns the underlying function object. (Note f is method of class D)
+>>> D.__dict__['f']
+<function D.f at 0x00C45070>
+# Dotted access from a class calls __get__() which just returns
+# the underlying function unchanged.
+>>> D.f
+<function D.f at 0x00C45070>
+# Dotted access from an instance calls __get__() which returns the
+# function wrapped in a bound method object
+>>> d.f
+<bound method D.f of <__main__.D object at 0x00B18C90>>
 '''
 #===============================================================================
 # class Function(object):
@@ -144,24 +158,40 @@ In [485]: a.f1()
 # a.f1()
 #===============================================================================
 
+'''
+Call as below is the direct access to __dict__ of class and instance. It is the final call 
+after following through all steps in look up orders. whatever return is the value/obj of the attribute 'x' we look for. : 
+C.__dict__['x'] looks into class C dictionary
+c.__dict__['x] looks into dictionary intance c of class C. 
+Ex:
+In [497]: PyApps.example.Super.__dict__['toast']    #PyApps.example.Super is class and toast is function so it return as below
+Out[497]: <function PyApps.example.Super.toast(self)>
+'''
 '''an instance method is a descriptor. f.blah is actually: Foo.blah.__get__(f, type(f))
 To look up an explicit attribute name:
+(call object.__getattribute__ which transforms c.x into type(c).__dict__['x'].__get__(c, type(c))
+I.e. the lookup order happen/implement inside object.__getattribute__. 
+Overwrite __getattribute__ disable these lookup order)
 1. From an instance I, search the instance, its class, and its superclasses, as follows:
     a. Search the __dict__ of all classes on the __mro__ found at I’s __class__ (That's Foo.blah.__get__(f, type(f)))
     b. If a data descriptor was found in step a, call it and exit
     c. Else, return a value in the __dict__ of the instance I
     d. Else, call a nondata descriptor or return a value found in step a
+    
+(call type.__getattribute__() which transforms C.x into C.__dict__['x'].__get__(None, C)
+I.e. the lookup order happen/implement inside type.__getattribute__. 
+Overwrite __getattribute__ disable these lookup order) 
 2. From a class C, search the class, its superclasses, and its metaclasses tree, as follows:
     a. Search the __dict__ of all metaclasses on the __mro__ found at C’s __class__
     b. If a data descriptor was found in step a, call it and exit
     c. Else, call a descriptor or return a value in the __dict__ of a class on C’s own __mro__
     d. Else, call a nondata descriptor or return a value found in step a
+    
 3. In both rule 1 and 2, built-in operations essentially use just step a sources    
 Note: this applies to normal, explicit attribute fetch only. The implicit lookup of method names for built-ins doesn’t follow these rules, 
 and essentially uses just step a sources in both cases
 '''
 '''example from Fluent Python demonstrate look up order above'''
-
 def cls_name(obj_or_cls):
     cls = type(obj_or_cls)
     if cls is type:
@@ -176,6 +206,7 @@ def display(obj):
         return repr(obj)
     else:
         return '<{} object>'.format(cls_name(obj))
+    
 def print_args(name, *args):
     pseudo_args = ', '.join(display(x) for x in args)
     print('-> {}.__{}__({})'.format(cls_name(args[0]), name, pseudo_args))
@@ -206,6 +237,28 @@ class Managed:
     def spam(self):
         print('-> Managed.spam({})'.format(display(self)))
 
+class MetaOne(type):
+    def __new__(meta, classname, supers, classdict): # Redefine type method
+        print('In MetaOne.new:', classname)
+        return type.__new__(meta, classname, supers, classdict)
+    
+#     def toast(self):
+#         return 'toast'
+    toast = NonOverriding()
+        
+class Super(metaclass=MetaOne): # Metaclass inherited by subs too
+#     toast = 'sub toast'
+    toast_ods = Overriding()
+    def toast(self):
+#         return 'sub toast func'
+        return self
+    
+#     def spam(self): # MetaOne run twice for two classes
+#         return 'spam'
+#         
+# class Sub(Super): # Superclass: inheritance versus instance
+#     def eggs(self): # Classes inherit from superclasses
+#         return 'eggs' # But                
 
 '''
 Access method of description
