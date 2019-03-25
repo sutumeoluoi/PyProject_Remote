@@ -244,7 +244,7 @@ class MetaOne(type):
     
 #     def toast(self):
 #         return 'toast'
-    toast = NonOverriding()
+    toast = Overriding()
         
 class Super(metaclass=MetaOne): # Metaclass inherited by subs too
 #     toast = 'sub toast'
@@ -256,9 +256,10 @@ class Super(metaclass=MetaOne): # Metaclass inherited by subs too
 #     def spam(self): # MetaOne run twice for two classes
 #         return 'spam'
 #         
-# class Sub(Super): # Superclass: inheritance versus instance
-#     def eggs(self): # Classes inherit from superclasses
-#         return 'eggs' # But                
+class Sub(Super): # Superclass: inheritance versus instance
+    toast = 1
+    def eggs(self): # Classes inherit from superclasses
+        return 'eggs' # But                
 
 '''
 Access method of description
