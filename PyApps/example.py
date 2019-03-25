@@ -214,10 +214,12 @@ def print_args(name, *args):
 class Overriding:
     """a.k.a. data descriptor or enforced descriptor"""
     def __get__(self, instance, owner):
-        print_args('get', self, instance, owner)
+#         print_args('get', self, instance, owner)
+        print('-> {}.__{}__({})'.format(self, instance, owner))
 
     def __set__(self, instance, value):
-        print_args('set', self, instance, value)
+#         print_args('set', self, instance, value)
+        print('-> {}.__{}__({})'.format(self, instance, owner))
 
 class OverridingNoGet:
     """an overriding descriptor without ``__get__``"""
@@ -238,20 +240,21 @@ class Managed:
         print('-> Managed.spam({})'.format(display(self)))
 
 class MetaOne(type):
-    def __new__(meta, classname, supers, classdict): # Redefine type method
-        print('In MetaOne.new:', classname)
-        return type.__new__(meta, classname, supers, classdict)
+#     def __new__(meta, classname, supers, classdict): # Redefine type method
+#         print('In MetaOne.new:', classname)
+#         return type.__new__(meta, classname, supers, classdict)
+    pass
     
 #     def toast(self):
 #         return 'toast'
-    toast = Overriding()
+#     toast = Overriding()
         
-class Super(metaclass=MetaOne): # Metaclass inherited by subs too
+class Super(type, metaclass=MetaOne): # Metaclass inherited by subs too
 #     toast = 'sub toast'
-    toast_ods = Overriding()
-    def toast(self):
-#         return 'sub toast func'
-        return self
+    toast = Overriding()
+#     def toast(self):
+# #         return 'sub toast func'
+#         return self
     
 #     def spam(self): # MetaOne run twice for two classes
 #         return 'spam'
@@ -279,37 +282,37 @@ then, call using classname of description: print(MyClass.aa.describe()) will wor
 However, print(self.aa.describe()) still ERROR because instance is self, so __get__ returns self._val
 => self.aa.describe() turns into self._val.describe() with _val is integer => error
 '''
-class MyDescriptor: 
-    def __get__(self, instance, owner=None):
-        if instance is None:
-            return self
-        return self._val
-    
-    def __set__(self, instance, val):
-        self._val = val
-    
-    def describe(self):
-        return 'inside describe'
- 
-class MyClass:
-    aa = MyDescriptor()
-    
-    def __init__(self):
-        self.aa = 42
-
-    def dump(self):
-       pass
-#          print(self.aa.describe())    using __get__ of descriptor, so error
-        
-    def dump2(self):
-        print('Inside dump2()')
-        print(type(self).__dict__['aa'].describe())
-        print(MyClass.aa.describe())    #implement 'if instance is None...' in __get__, so it also works. Otherwise, error
- 
-foo = MyClass()
-foo.dump2()        
-foo.dump()
-print(MyClass.aa)   #call through class, instance pass to __get__ is None. So this return descriptor obj like @property
+# class MyDescriptor: 
+#     def __get__(self, instance, owner=None):
+#         if instance is None:
+#             return self
+#         return self._val
+#     
+#     def __set__(self, instance, val):
+#         self._val = val
+#     
+#     def describe(self):
+#         return 'inside describe'
+#  
+# class MyClass:
+#     aa = MyDescriptor()
+#     
+#     def __init__(self):
+#         self.aa = 42
+# 
+#     def dump(self):
+#        pass
+# #          print(self.aa.describe())    using __get__ of descriptor, so error
+#         
+#     def dump2(self):
+#         print('Inside dump2()')
+#         print(type(self).__dict__['aa'].describe())
+#         print(MyClass.aa.describe())    #implement 'if instance is None...' in __get__, so it also works. Otherwise, error
+#  
+# foo = MyClass()
+# foo.dump2()        
+# foo.dump()
+# print(MyClass.aa)   #call through class, instance pass to __get__ is None. So this return descriptor obj like @property
 
     
 
