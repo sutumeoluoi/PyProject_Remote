@@ -215,11 +215,11 @@ class Overriding:
     """a.k.a. data descriptor or enforced descriptor"""
     def __get__(self, instance, owner):
 #         print_args('get', self, instance, owner)
-        print('-> {}.__{}__({})'.format(self, instance, owner))
+        print('__get__({}, {}, {})'.format(self, instance, owner))
 
     def __set__(self, instance, value):
 #         print_args('set', self, instance, value)
-        print('-> {}.__{}__({})'.format(self, instance, owner))
+        print('__set__({}, {}, {})'.format(self, instance, owner))
 
 class OverridingNoGet:
     """an overriding descriptor without ``__get__``"""
@@ -243,15 +243,16 @@ class MetaOne(type):
 #     def __new__(meta, classname, supers, classdict): # Redefine type method
 #         print('In MetaOne.new:', classname)
 #         return type.__new__(meta, classname, supers, classdict)
-    pass
+#     pass
     
 #     def toast(self):
 #         return 'toast'
-#     toast = Overriding()
+    toast = Overriding()
         
 class Super(type, metaclass=MetaOne): # Metaclass inherited by subs too
 #     toast = 'sub toast'
-    toast = Overriding()
+    toast_ods = Overriding()
+#     toast = Overriding()
 #     def toast(self):
 # #         return 'sub toast func'
 #         return self
