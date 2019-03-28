@@ -73,33 +73,35 @@ pd.set_option('max_colwidth', -1)
 # invoice = df['invoice']
 # print(invoice)
 
-sql_str = '''
-    select 
-        reason,
-        recid_notused,
-        division,
-        invoicedate,
-        invoicenumber,
-        invoiceline,
-        plu,
-        qty, 
-        price,
-        itmcost,
-        newcost,
-        discount
-    from invbillinfo_mp
-    where
-        invoicedate >= '2019-02-01'
-        and reason = 56
-        and recordtype in (7, 207)
-        and plu = 497837
-    '''
-      
-conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
-df = pd.read_sql(sql_str, conn, )
-# df = df.set_index('InvoiceNumber', 'Division')
-df = df.set_index('RecID_NotUsed')
-print(df[:])
+#===============================================================================
+# sql_str = '''
+#     select 
+#         reason,
+#         recid_notused,
+#         division,
+#         invoicedate,
+#         invoicenumber,
+#         invoiceline,
+#         plu,
+#         qty, 
+#         price,
+#         itmcost,
+#         newcost,
+#         discount
+#     from invbillinfo_mp
+#     where
+#         invoicedate >= '2019-02-01'
+#         and reason = 56
+#         and recordtype in (7, 207)
+#         and plu = 497837
+#     '''
+#       
+# conn = pyodbc.connect('DRIVER={Pervasive ODBC Client Interface};SERVERNAME=MASTER101;DBQ=MMV8;UID=;PWD=')
+# df = pd.read_sql(sql_str, conn, )
+# # df = df.set_index('InvoiceNumber', 'Division')
+# df = df.set_index('RecID_NotUsed')
+# print(df[:])
+#===============================================================================
  
 
 # x = np.linspace(0, 10, 100, endpoint=True)
@@ -118,3 +120,22 @@ print(df[:])
 # df = df.cumsum()
 # df.plot()
 # plt.show()
+
+'''https://stackoverflow.com/questions/55382525/how-to-find-the-minimum-value-of-a-list-element-which-is-based-on-unique-value-o'''
+t = '''
+SKU;price;availability;Title;Supplier
+SUV500;21,50 €;1;27-03-2019 14:46;supplier1
+MZ-76E;5,50 €;1;27-03-2019 14:46;supplier1
+SUV500;49,95 €;0;27-03-2019 14:46;supplier2
+MZ-76E;71,25 €;0;27-03-2019 14:46;supplier2
+SUV500;32,60 €;1;27-03-2019 14:46;supplier3
+'''
+# print(t)
+stio_min = StringIO(t)
+df = pd.read_csv(stio_min, delimiter=';', encoding='utf-8')
+df['f_price'] = df['price'].str.extract(r'([+-]?\d+\,\d+)', expand=False).str.replace(',', '.').astype(float)
+idx_min = df.groupby('SKU', as_index=False)['f_price'].idxmin().tolist()
+df_final = df.loc[idx_min].drop('f_price', 1)
+print(df)
+t_out = df_final.to_csv(sep=';', index=False)
+print(t_out)
