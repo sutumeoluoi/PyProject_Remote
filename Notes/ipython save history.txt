@@ -1,0 +1,4 @@
+%history -g -f filename
+
+/////save to jupyter notebook file
+%notebook -e myhistory.ipynb
