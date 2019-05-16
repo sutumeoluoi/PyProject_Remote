@@ -105,11 +105,86 @@ var2 = np.repeat(ds.var2.values, len(var1)/len(ds))
 ds1 = pd.DataFrame({'var1': var1, 'var2': var2})
 print(ds1)
 
-'''General unnesting function'''
+'''
+Special case (two columns type object same list size on same row) unnesting function
+pd.DataFrame({'A':[1,2],'B':[[1,2, 3],[3,4]],'C':[[1,2, 5],[3,4]]})
+NOTE: it only work on first col specify in 'explode' has longest list
+  ex: eplode = ['B','C'] 
+
+Out[592]: #Work
+   A       B       C
+0  1  [1, 2, 3]  [1, 2, 5]
+1  2  [3, 4]  [3, 4]
+
+Out[592]: #Work!!
+   A       B       C
+0  1  [1, 2, 3]  [1, 2]     #longest
+1  2  [3, 4]  [3, 4]
+
+Out[592]: #Doesn't work!!
+   A       B       C
+0  1  [1, 2]  [1, 2]
+1  2  [3, 4]  [3, 4, 5]    #longest
+
+'''
 def unnesting(df, explode):
-    idx = df.index.repeat(df[explode[0]].str.len())
+    idx = df.index.repeat(df[explode[0]].str.len().astype('int32'))
     df1 = pd.concat([
         pd.DataFrame({x: np.concatenate(df[x].values)}) for x in explode], axis=1)
     df1.index = idx
     return df1.join(df.drop(explode, 1), how='left')
 
+'''Andy unnest version'''
+def explode(df, col_names):
+    
+    list_len = df[col_names[0]].str.len().astype('int32')
+#    d1 = pd.DataFrame({col: np.concatenate(df[col].values) 
+#                    for col in col_names})
+#    d2 = pd.DataFrame({x: np.repeat(df[x].values, list_len) 
+#                            for x in df.columns.difference(col_names)})                    
+#    df_exp = pd.concat([d1, d2], axis=1)    
+#    df_exp.index = idx
+
+    idx = df.index.repeat(list_len)
+    d1 = {col: np.concatenate(df[col].values) 
+            for col in col_names}
+    d2 = {x: np.repeat(df[x].values, list_len) 
+            for x in df.columns.difference(col_names)}
+    d1.update(d2)        
+    
+    df_exp = pd.DataFrame(d1, index=idx)
+        
+    return df_exp
+
+'''Andy unnest all'''
+'''
+   A          B             C
+0  1  [1, 2, 3]        [1, 2]
+1  2     [3, 4]  [3, 4, 5, 6]
+
+To:
+   A  B  C
+0  1  1  1
+0  1  1  2
+0  1  2  1
+0  1  2  2
+0  1  3  1
+0  1  3  2
+1  2  3  3
+1  2  3  4
+1  2  3  5
+1  2  3  6
+1  2  4  3
+1  2  4  4
+1  2  4  5
+1  2  4  6
+'''
+def explode_all(df, col_names):
+    
+    for col in col_names:
+        df = explode(df, [col])
+    
+    return df 
+
+def explode_recur(df, col_names):
+    
