@@ -201,11 +201,96 @@ def explode_all(df, col_names):
     df_exp = pd.DataFrame(d, index=idx)
     return df_exp 
 
-# def explode_recur(df, col_names):
+#===============================================================================
+# def explode_all_short(df, col_names): ###DOESN'T WORK!!!
+#     d = {}    
+#     col_len = np.prod([df[col].str.len() for col in col_names], axis=0).astype('int32')
+#     idx = df.index.repeat(col_len)
+#     
+#     d1 = {col: np.repeat(np.concatenate(df[col].values).astype('int32'), col_len // df[col].str.len().astype('int32')) for col in col_names}
+#     d.update(d1)
+#     d2 = {x: np.repeat(df[x], col_len) for x in df.columns.difference(col_names)}
+#     d.update(d2)
+# 
+#     df_exp = pd.DataFrame(d)
+#     return df_exp 
+#===============================================================================
 
 ###testing
 df = pd.DataFrame({'A':[1,2],'B':[[1,2, 3],[3,4]],'C':[[1,2, 5],[3,4]]})
 print(df)
 print(explode_all(df, ['B', 'C']))
+
+'''Technique to create chunk IDs of consecutive value
+Explain: df.value.diff().ne(0) gives a condition True whenever there is a value change. Cumsum gives a non descending 
+sequence of groupids where each id denotes a consecutive chunk with same values.
+Output:
+    id  num  num_groupid
+0    1    2            1
+1    1    2            1
+2    1    3            2
+3    1    2            3
+4    1    2            3
+5    1    2            3
+6    1    3            4
+7    1    3            4
+8    1    3            4
+9    1    3            4
+10   2    1            5
+11   2    4            6
+12   2    1            7
+13   2    1            7
+14   2    1            7
+15   2    4            8
+16   2    4            8
+17   2    1            9
+18   2    1            9
+19   2    1            9
+20   2    1            9
+21   2    1            9
+'''
+#===============================================================================
+# data={'id':[1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2],
+#       'num':[2,2,3,2,2,2,3,3,3,3,1,4,1,1,1,4,4,1,1,1,1,1]}
+# df=pd.DataFrame.from_dict(data)
+# df['num_groupid'] = df.num.diff().ne(0).cumsum()
+#===============================================================================
+
+
+'''Apply that technique on problem:
+identify at the id level (df.groupby['id']) when the value shows the same number consecutively for 3 or more times.
+Explain: df.num.diff().ne(0).cumsum() create chunk groupid for `value` as explain above. Next, groupby `id` and this groupid.
+    Next, `transform` with `count/size` to assign value to each element of group. Ge(3), astype(int) to convert to bool mask of 1/0
+    
+desired output:
+    id  value  flag
+0    1      2     0
+1    1      2     0
+2    1      3     0
+3    1      2     1
+4    1      2     1
+5    1      2     1
+6    1      3     1
+7    1      3     1
+8    1      3     1
+9    1      3     1
+10   2      1     0
+11   2      4     0
+12   2      1     1
+13   2      1     1
+14   2      1     1
+15   2      4     0
+16   2      4     0
+17   2      1     1
+18   2      1     1
+19   2      1     1
+20   2      1     1
+21   2      1     1
+'''
+data={'id':[1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2],
+      'num':[2,2,3,2,2,2,3,3,3,3,1,4,1,1,1,4,4,1,1,1,1,1]}
+df=pd.DataFrame.from_dict(data)
+df['flag'] = df.num.groupby([df.id, df.num.diff().ne(0).cumsum()]).transform('count').ge(3).astype(int)
+
 
     
