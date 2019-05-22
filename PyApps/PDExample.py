@@ -292,5 +292,53 @@ data={'id':[1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2],
 df=pd.DataFrame.from_dict(data)
 df['flag'] = df.num.groupby([df.id, df.num.diff().ne(0).cumsum()]).transform('count').ge(3).astype(int)
 
+'''
+Pivot examples:
+from:
+   EMPLOYEE_ID COLORS
+0       111111   BLUE
+1       222222  GREEN
+2       333333    RED
+3       333333  GREEN
+
+to:
+k           COLOR_1 COLOR_2
+EMPLOYEE_ID
+111111         BLUE    None
+222222        GREEN    None
+333333          RED   GREEN
+'''
+'''Method 1: set_index, unstack'''
+df_new = df.assign(k=(df.groupby('EMPLOYEE_ID').cumcount()+1).astype(str)).set_index(['EMPLOYEE_ID', 'k']).unstack(fill_value='').reset_index()
+df_new.columns = df_new.columns.map('_'.join)
+
+'''Method 2: pivot_table()'''
+df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)    #without astype to str, columns join failed since it needs str
+df_new = df.pivot_table(index=['EMPLOYEE_ID'], columns=['k'], aggfunc='first', fill_value='')
+###OR
+df_new = df.pivot_table(index=['EMPLOYEE_ID'], columns=['k'], values=['COLORS'], aggfunc='first',  fill_value='')
+df_new.columns = df_new.columns.map('_'.join)
+
+'''Method 3: pivot'''
+df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+df_new = df.pivot(index='EMPLOYEE_ID', columns='k', values='COLORS').add_prefix('COLORS_') #NO additional columns index added.
+###OR
+###In this form, it is exactly same `pivot`. However, fill_value parm help replace None with ''
+df.pivot_table(index='EMPLOYEE_ID', columns='k', values='COLORS', aggfunc='first', fill_value='').add_prefix('COLORS_')
+
+'''Method 3a: pivot NO add_prefix'''
+df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+df_new = df.pivot(index='EMPLOYEE_ID', columns='k') #not specify `values` will add a level making MultiIndex, so need index map
+df_new.columns = df_new.columns.map('_'.join)
+
+'''Method 4: groupby, first, unstack. Insteresting
+Note: This method unstack from series so final df has single index, while Method 1 unstack from df, so final df has multiindex columns
+!!!'''
+df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+df_new = df.groupby(['EMPLOYEE_ID', 'k'])['COLORS'].first().unstack(fill_value='').add_prefix('COLORS_')
+
+
+
+
 
     
