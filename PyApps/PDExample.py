@@ -337,6 +337,41 @@ Note: This method unstack from series so final df has single index, while Method
 df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
 df_new = df.groupby(['EMPLOYEE_ID', 'k'])['COLORS'].first().unstack(fill_value='').add_prefix('COLORS_')
 
+#===============================================================================
+# '''Method 5: crosstab'''
+# df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+# df_new = pd.crosstab(index=df.EMPLOYEE_ID, columns=df.k, values=df.COLORS, aggfunc='first').fillna('').add_prefix('COLORS_')
+#===============================================================================
+
+'''One Hot Encode
+https://stackoverflow.com/questions/56298815/how-do-i-perform-one-hot-encoding-on-lists-in-a-pandas-column
+from:
+df = pd.DataFrame(
+ {'messageLabels': [['Good', 'Other', 'Bad'],['Bad','Terrible']]}
+)
+
+To:
+        messageLabels   Bad   Good  Other  Terrible
+0  [Good, Other, Bad]  True   True   True     False
+1     [Bad, Terrible]  True  False  False      True
+'''
+'''Method 1'''
+df.join(df.messageLabels.str.join('|').str.get_dummies().astype(bool))
+
+'''Method 2'''
+df.join(pd.DataFrame([dict.fromkeys(x, True) for x in df.messageLabels]).fillna(False))
+
+'''Method 3'''
+tmp = pd.DataFrame(df['messageLabels'].tolist())
+df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astype(bool))
+
+'''Method 4'''
+df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astype(bool))
+
+'''Method 5'''
+pd.get_dummies(df.messageLabels.apply(lambda x: pd.Series(1, x)) == 1)
+
+
 
 
 
