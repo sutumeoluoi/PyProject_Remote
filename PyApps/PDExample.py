@@ -372,6 +372,31 @@ df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astyp
 pd.get_dummies(df.messageLabels.apply(lambda x: pd.Series(1, x)) == 1)
 
 
+'''Delete top group of same values
+Ex:
+ContextID   BacksGas_Flow_sccm  StepID  Time_Elapsed    lof
+7308924 1.3671875   25  138.33800000000002              -1
+7291161 1.3671875   25  138.767                         -1
+7298661 1.3671875   25  121.09500000000001              -1
+7313179 1.46484375  25  135.76500000000001               1
+7315654 1.5625  25  137.93                               1
+7315653 1.5625  25  137.716                              1
+7315321 1.5625  25  137.721                              -1
+7315320 1.5625  25  137.57600000000002                   -1
+'''
+'''Method 1:
+Classic solution: create groupID per same value row and ignore groupID# 1'''
+df[df.lof.ne(df.lof.shift()).cumsum() > 1]
+
+'''Method 2: 
+Specific for this case because of -1 and 1. Eq(1) False on -1, cumsum() create groupID# 0 of top -1, the rest is groupID# NOT 0'''
+df[df.lof.eq(1).cumsum().ne(0)] #instead of ne(0), may use gt(0). because cumsum on series True/False increase from 0
+
+'''Method 3: shorter!!!
+Specific for this case. Cummax() return all -1 for top group, it turn to 1 for the rest'''
+df[df.lof.cummax().eq(1)]
+
+
 
 
 
