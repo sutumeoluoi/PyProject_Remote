@@ -129,34 +129,36 @@ Out[592]: #Doesn't work!!
 1  2  [3, 4]  [3, 4, 5]    #longest
 
 '''
-def unnesting(df, explode):
-    idx = df.index.repeat(df[explode[0]].str.len().astype('int32'))
-    df1 = pd.concat([
-        pd.DataFrame({x: np.concatenate(df[x].values)}) for x in explode], axis=1)
-    df1.index = idx
-    return df1.join(df.drop(explode, 1), how='left')
-
-'''Andy unnest version'''
-def explode(df, col_names):
-    
-    list_len = df[col_names[0]].str.len().astype('int32')
-#    d1 = pd.DataFrame({col: np.concatenate(df[col].values) 
-#                    for col in col_names})
-#    d2 = pd.DataFrame({x: np.repeat(df[x].values, list_len) 
-#                            for x in df.columns.difference(col_names)})                    
-#    df_exp = pd.concat([d1, d2], axis=1)    
-#    df_exp.index = idx
-
-    idx = df.index.repeat(list_len)
-    d1 = {col: np.concatenate(df[col].values) 
-            for col in col_names}
-    d2 = {x: np.repeat(df[x].values, list_len) 
-            for x in df.columns.difference(col_names)}
-    d1.update(d2)        
-    
-    df_exp = pd.DataFrame(d1, index=idx)
-        
-    return df_exp
+#===============================================================================
+# def unnesting(df, explode):
+#     idx = df.index.repeat(df[explode[0]].str.len().astype('int32'))
+#     df1 = pd.concat([
+#         pd.DataFrame({x: np.concatenate(df[x].values)}) for x in explode], axis=1)
+#     df1.index = idx
+#     return df1.join(df.drop(explode, 1), how='left')
+# 
+# '''Andy unnest version'''
+# def explode(df, col_names):
+#     
+#     list_len = df[col_names[0]].str.len().astype('int32')
+# #    d1 = pd.DataFrame({col: np.concatenate(df[col].values) 
+# #                    for col in col_names})
+# #    d2 = pd.DataFrame({x: np.repeat(df[x].values, list_len) 
+# #                            for x in df.columns.difference(col_names)})                    
+# #    df_exp = pd.concat([d1, d2], axis=1)    
+# #    df_exp.index = idx
+# 
+#     idx = df.index.repeat(list_len)
+#     d1 = {col: np.concatenate(df[col].values) 
+#             for col in col_names}
+#     d2 = {x: np.repeat(df[x].values, list_len) 
+#             for x in df.columns.difference(col_names)}
+#     d1.update(d2)        
+#     
+#     df_exp = pd.DataFrame(d1, index=idx)
+#         
+#     return df_exp
+#===============================================================================
 
 '''Andy unnest all'''
 '''
@@ -181,45 +183,203 @@ To:
 1  2  4  5
 1  2  4  6
 '''
-def explode_all(df, col_names):
-    d = df.to_dict('list')
-    idx = df.index
-    
-    for i, col in enumerate(col_names):
-        dfcols_idx = df.columns.difference([col])
-        col_len = list(map(len, d[col]))
-        idx = idx.repeat(col_len)
-        d1 = {col: np.concatenate(d[col]).tolist()} 
-            
-        d2 = {x: np.repeat(d[x], col_len).tolist() for x in dfcols_idx}
-        
-        d.update(d1)
-        d.update(d2)
-                
-#     for col in col_names:
-#         df = explode(df, [col])
-    df_exp = pd.DataFrame(d, index=idx)
-    return df_exp 
-
 #===============================================================================
-# def explode_all_short(df, col_names): ###DOESN'T WORK!!!
-#     d = {}    
-#     col_len = np.prod([df[col].str.len() for col in col_names], axis=0).astype('int32')
-#     idx = df.index.repeat(col_len)
+# def explode_all(df, col_names):
+#     d = df.to_dict('list')
+#     idx = df.index
 #     
-#     d1 = {col: np.repeat(np.concatenate(df[col].values).astype('int32'), col_len // df[col].str.len().astype('int32')) for col in col_names}
-#     d.update(d1)
-#     d2 = {x: np.repeat(df[x], col_len) for x in df.columns.difference(col_names)}
-#     d.update(d2)
-# 
-#     df_exp = pd.DataFrame(d)
+#     for i, col in enumerate(col_names):
+#         dfcols_idx = df.columns.difference([col])
+#         col_len = list(map(len, d[col]))
+#         idx = idx.repeat(col_len)
+#         d1 = {col: np.concatenate(d[col]).tolist()} 
+#             
+#         d2 = {x: np.repeat(d[x], col_len).tolist() for x in dfcols_idx}
+#         
+#         d.update(d1)
+#         d.update(d2)
+#                 
+# #     for col in col_names:
+# #         df = explode(df, [col])
+#     df_exp = pd.DataFrame(d, index=idx)
 #     return df_exp 
 #===============================================================================
 
 ###testing
-df = pd.DataFrame({'A':[1,2],'B':[[1,2, 3],[3,4]],'C':[[1,2, 5],[3,4]]})
-print(df)
-print(explode_all(df, ['B', 'C']))
+#===============================================================================
+# df = pd.DataFrame({'A':[1,2],'B':[[1,2, 3],[3,4]],'C':[[1,2, 5],[3,4]]})
+# print(df)
+# print(explode_all(df, ['B', 'C']))
+#===============================================================================
+
+
+'''Same constrain as unnesting()'''
+def explode_more(df, col_names):
+    data = np.concatenate(df[col_names].values.tolist(), axis=1).T
+#     data = np.column_stack(df[col_names].values.tolist()).T #column_stack on 2d is like hstack
+#     data = np.hstack(df[col_names].values.tolist()).T   
+    list_len = df[col_names[0]].str.len()
+    new_idx = df.index.repeat(list_len)
+    
+    return df.drop(col_names, 1).join(pd.DataFrame(data, index=new_idx, columns=col_names))
+
+'''np.concatenate, vstack, hstack, dstack
+np.concatenate: go to specified axis/level picking all items of each array of that axis/level and join the same of each array. Going up one level and do it again.
+vstack: doing the same as np.concatenate specified axis=0 
+hstack: doing the same as np.concatenate specified axis=1
+dstack: doing the same as np.concatenate specified axis=2
+
+In [1904]: t1
+Out[1904]:
+[[[[1, 2, 3], [1, 0, 2], [1, 0, 2]],
+  [[1, 2, 3], [2, 4, 5], [2, 4, 5]],
+  [[1, 2, 3], [2, 2, 7], [2, 2, 7]],
+  [[1, 2, 3], [2, 3, 3], [2, 3, 3]],
+  [[1, 2, 3], [4, 1, 2], [4, 1, 2]],
+  [[1, 2, 3], [4, 7, 3], [4, 7, 3]]],
+ [[[1, 2, 3], [1, 0, 2], [1, 0, 2]],
+  [[1, 2, 3], [2, 4, 5], [2, 4, 5]],
+  [[1, 2, 3], [2, 2, 7], [2, 2, 7]],
+  [[1, 2, 3], [2, 3, 3], [2, 3, 3]],
+  [[1, 2, 3], [4, 1, 2], [4, 1, 2]],
+  [[1, 2, 3], [4, 7, 3], [4, 7, 3]]]]
+  
+Below is True for 2d arrays up. On 1d arrays, they are diff: 
+np.concatenate(t1, axis=0) ==  np.vstack(t1)
+np.concatenate(t1, axis=1) ==  np.hstack(t1) 
+np.concatenate(t1, axis=2) ==  np.dstack(t1)
+
+On 1d arrays:
+array([[1, 0, 3],
+       [1, 1, 2]])
+
+np.concatenate(a, axis=0) ==  np.hstack(a)       
+  
+'''
+  
+np.concatenate(t1, axis=0)
+'''
+array([[[1, 2, 3],
+        [1, 0, 2],
+        [1, 0, 2]],
+
+       [[1, 2, 3],
+        [2, 4, 5],
+        [2, 4, 5]],
+
+       [[1, 2, 3],
+        [2, 2, 7],
+        [2, 2, 7]],
+
+       [[1, 2, 3],
+        [2, 3, 3],
+        [2, 3, 3]],
+
+       [[1, 2, 3],
+        [4, 1, 2],
+        [4, 1, 2]],
+
+       [[1, 2, 3],
+        [4, 7, 3],
+        [4, 7, 3]],
+
+       [[1, 2, 3],
+        [1, 0, 2],
+        [1, 0, 2]],
+
+       [[1, 2, 3],
+        [2, 4, 5],
+        [2, 4, 5]],
+
+       [[1, 2, 3],
+        [2, 2, 7],
+        [2, 2, 7]],
+
+       [[1, 2, 3],
+        [2, 3, 3],
+        [2, 3, 3]],
+
+       [[1, 2, 3],
+        [4, 1, 2],
+        [4, 1, 2]],
+
+       [[1, 2, 3],
+        [4, 7, 3],
+        [4, 7, 3]]])
+'''
+        
+np.concatenate(t1, axis=1)
+'''
+array([[[1, 2, 3],
+        [1, 0, 2],
+        [1, 0, 2],
+        [1, 2, 3],
+        [1, 0, 2],
+        [1, 0, 2]],
+
+       [[1, 2, 3],
+        [2, 4, 5],
+        [2, 4, 5],
+        [1, 2, 3],
+        [2, 4, 5],
+        [2, 4, 5]],
+
+       [[1, 2, 3],
+        [2, 2, 7],
+        [2, 2, 7],
+        [1, 2, 3],
+        [2, 2, 7],
+        [2, 2, 7]],
+
+       [[1, 2, 3],
+        [2, 3, 3],
+        [2, 3, 3],
+        [1, 2, 3],
+        [2, 3, 3],
+        [2, 3, 3]],
+
+       [[1, 2, 3],
+        [4, 1, 2],
+        [4, 1, 2],
+        [1, 2, 3],
+        [4, 1, 2],
+        [4, 1, 2]],
+
+       [[1, 2, 3],
+        [4, 7, 3],
+        [4, 7, 3],
+        [1, 2, 3],
+        [4, 7, 3],
+        [4, 7, 3]]])
+'''
+        
+np.concatenate(t1, axis=2)
+'''
+array([[[1, 2, 3, 1, 2, 3],
+        [1, 0, 2, 1, 0, 2],
+        [1, 0, 2, 1, 0, 2]],
+
+       [[1, 2, 3, 1, 2, 3],
+        [2, 4, 5, 2, 4, 5],
+        [2, 4, 5, 2, 4, 5]],
+
+       [[1, 2, 3, 1, 2, 3],
+        [2, 2, 7, 2, 2, 7],
+        [2, 2, 7, 2, 2, 7]],
+
+       [[1, 2, 3, 1, 2, 3],
+        [2, 3, 3, 2, 3, 3],
+        [2, 3, 3, 2, 3, 3]],
+
+       [[1, 2, 3, 1, 2, 3],
+        [4, 1, 2, 4, 1, 2],
+        [4, 1, 2, 4, 1, 2]],
+
+       [[1, 2, 3, 1, 2, 3],
+        [4, 7, 3, 4, 7, 3],
+        [4, 7, 3, 4, 7, 3]]])
+'''
+
 
 '''Technique to create chunk IDs of consecutive value
 Explain: df.value.diff().ne(0) gives a condition True whenever there is a value change. Cumsum gives a non descending 
@@ -287,10 +447,12 @@ desired output:
 20   2      1     1
 21   2      1     1
 '''
-data={'id':[1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2],
-      'num':[2,2,3,2,2,2,3,3,3,3,1,4,1,1,1,4,4,1,1,1,1,1]}
-df=pd.DataFrame.from_dict(data)
-df['flag'] = df.num.groupby([df.id, df.num.diff().ne(0).cumsum()]).transform('count').ge(3).astype(int)
+#===============================================================================
+# data={'id':[1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2],
+#       'num':[2,2,3,2,2,2,3,3,3,3,1,4,1,1,1,4,4,1,1,1,1,1]}
+# df=pd.DataFrame.from_dict(data)
+# df['flag'] = df.num.groupby([df.id, df.num.diff().ne(0).cumsum()]).transform('count').ge(3).astype(int)
+#===============================================================================
 
 '''
 Pivot examples:
@@ -308,34 +470,36 @@ EMPLOYEE_ID
 222222        GREEN    None
 333333          RED   GREEN
 '''
-'''Method 1: set_index, unstack'''
-df_new = df.assign(k=(df.groupby('EMPLOYEE_ID').cumcount()+1).astype(str)).set_index(['EMPLOYEE_ID', 'k']).unstack(fill_value='').reset_index()
-df_new.columns = df_new.columns.map('_'.join)
-
-'''Method 2: pivot_table()'''
-df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)    #without astype to str, columns join failed since it needs str
-df_new = df.pivot_table(index=['EMPLOYEE_ID'], columns=['k'], aggfunc='first', fill_value='')
-###OR
-df_new = df.pivot_table(index=['EMPLOYEE_ID'], columns=['k'], values=['COLORS'], aggfunc='first',  fill_value='')
-df_new.columns = df_new.columns.map('_'.join)
-
-'''Method 3: pivot'''
-df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
-df_new = df.pivot(index='EMPLOYEE_ID', columns='k', values='COLORS').add_prefix('COLORS_') #NO additional columns index added.
-###OR
-###In this form, it is exactly same `pivot`. However, fill_value parm help replace None with ''
-df.pivot_table(index='EMPLOYEE_ID', columns='k', values='COLORS', aggfunc='first', fill_value='').add_prefix('COLORS_')
-
-'''Method 3a: pivot NO add_prefix'''
-df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
-df_new = df.pivot(index='EMPLOYEE_ID', columns='k') #not specify `values` will add a level making MultiIndex, so need index map
-df_new.columns = df_new.columns.map('_'.join)
-
-'''Method 4: groupby, first, unstack. Insteresting
-Note: This method unstack from series so final df has single index, while Method 1 unstack from df, so final df has multiindex columns
-!!!'''
-df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
-df_new = df.groupby(['EMPLOYEE_ID', 'k'])['COLORS'].first().unstack(fill_value='').add_prefix('COLORS_')
+#===============================================================================
+# '''Method 1: set_index, unstack'''
+# df_new = df.assign(k=(df.groupby('EMPLOYEE_ID').cumcount()+1).astype(str)).set_index(['EMPLOYEE_ID', 'k']).unstack(fill_value='').reset_index()
+# df_new.columns = df_new.columns.map('_'.join)
+# 
+# '''Method 2: pivot_table()'''
+# df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)    #without astype to str, columns join failed since it needs str
+# df_new = df.pivot_table(index=['EMPLOYEE_ID'], columns=['k'], aggfunc='first', fill_value='')
+# ###OR
+# df_new = df.pivot_table(index=['EMPLOYEE_ID'], columns=['k'], values=['COLORS'], aggfunc='first',  fill_value='')
+# df_new.columns = df_new.columns.map('_'.join)
+# 
+# '''Method 3: pivot'''
+# df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+# df_new = df.pivot(index='EMPLOYEE_ID', columns='k', values='COLORS').add_prefix('COLORS_') #NO additional columns index added.
+# ###OR
+# ###In this form, it is exactly same `pivot`. However, fill_value parm help replace None with ''
+# df.pivot_table(index='EMPLOYEE_ID', columns='k', values='COLORS', aggfunc='first', fill_value='').add_prefix('COLORS_')
+# 
+# '''Method 3a: pivot NO add_prefix'''
+# df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+# df_new = df.pivot(index='EMPLOYEE_ID', columns='k') #not specify `values` will add a level making MultiIndex, so need index map
+# df_new.columns = df_new.columns.map('_'.join)
+# 
+# '''Method 4: groupby, first, unstack. Insteresting
+# Note: This method unstack from series so final df has single index, while Method 1 unstack from df, so final df has multiindex columns
+# !!!'''
+# df['k'] = (df.groupby('EMPLOYEE_ID').cumcount() + 1).astype(str)
+# df_new = df.groupby(['EMPLOYEE_ID', 'k'])['COLORS'].first().unstack(fill_value='').add_prefix('COLORS_')
+#===============================================================================
 
 #===============================================================================
 # '''Method 5: crosstab'''
@@ -355,21 +519,23 @@ To:
 0  [Good, Other, Bad]  True   True   True     False
 1     [Bad, Terrible]  True  False  False      True
 '''
-'''Method 1'''
-df.join(df.messageLabels.str.join('|').str.get_dummies().astype(bool))
-
-'''Method 2'''
-df.join(pd.DataFrame([dict.fromkeys(x, True) for x in df.messageLabels]).fillna(False))
-
-'''Method 3'''
-tmp = pd.DataFrame(df['messageLabels'].tolist())
-df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astype(bool))
-
-'''Method 4'''
-df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astype(bool))
-
-'''Method 5'''
-pd.get_dummies(df.messageLabels.apply(lambda x: pd.Series(1, x)) == 1)
+#===============================================================================
+# '''Method 1'''
+# df.join(df.messageLabels.str.join('|').str.get_dummies().astype(bool))
+# 
+# '''Method 2'''
+# df.join(pd.DataFrame([dict.fromkeys(x, True) for x in df.messageLabels]).fillna(False))
+# 
+# '''Method 3'''
+# tmp = pd.DataFrame(df['messageLabels'].tolist())
+# df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astype(bool))
+# 
+# '''Method 4'''
+# df.join(pd.get_dummies(tmp, prefix='', prefix_sep='').max(level=0, axis=1).astype(bool))
+# 
+# '''Method 5'''
+# pd.get_dummies(df.messageLabels.apply(lambda x: pd.Series(1, x)) == 1)
+#===============================================================================
 
 
 '''Delete top group of same values
@@ -384,21 +550,70 @@ ContextID   BacksGas_Flow_sccm  StepID  Time_Elapsed    lof
 7315321 1.5625  25  137.721                              -1
 7315320 1.5625  25  137.57600000000002                   -1
 '''
-'''Method 1:
-Classic solution: create groupID per same value row and ignore groupID# 1'''
-df[df.lof.ne(df.lof.shift()).cumsum() > 1]
-
-'''Method 2: 
-Specific for this case because of -1 and 1. Eq(1) False on -1, cumsum() create groupID# 0 of top -1, the rest is groupID# NOT 0'''
-df[df.lof.eq(1).cumsum().ne(0)] #instead of ne(0), may use gt(0). because cumsum on series True/False increase from 0
-
-'''Method 3: shorter!!!
-Specific for this case. Cummax() return all -1 for top group, it turn to 1 for the rest'''
-df[df.lof.cummax().eq(1)]
-
-
-
-
+#===============================================================================
+# '''Method 1:
+# Classic solution: create groupID per same value row and ignore groupID# 1'''
+# df[df.lof.ne(df.lof.shift()).cumsum() > 1]
+# 
+# '''Method 2: 
+# Specific for this case because of -1 and 1. Eq(1) False on -1, cumsum() create groupID# 0 of top -1, the rest is groupID# NOT 0'''
+# df[df.lof.eq(1).cumsum().ne(0)] #instead of ne(0), may use gt(0). because cumsum on series True/False increase from 0
+# 
+# '''Method 3: shorter!!!
+# Specific for this case. Cummax() return all -1 for top group, it turn to 1 for the rest'''
+# df[df.lof.cummax().eq(1)]
+#===============================================================================
 
 
+'''Vectorized matrix Euclidean distance in numpy
+A = np.array([[1, 2],
+     [2, 1]])
+
+B = np.array([[1, 1],
+     [2, 2],
+     [1, 3],
+     [1, 4]])
+
+To:
+Out[93]:
+array([[1.        , 1.        , 1.        , 2.        ],
+       [1.        , 1.        , 2.23606798, 3.16227766]])
+'''
+'''SO version:'''
+# def euclidean_distmtx(X, Y):
+#     f = -2 * np.dot(X, Y.T)
+#     xsq = np.power(X, 2).sum(axis=1).reshape((-1, 1))
+#     ysq = np.power(Y, 2).sum(axis=1)
+#     return np.sqrt(xsq + f + ysq)
+
+'''Andy's Euclidean version
+a[:,None] is insert new axis after axis=0, so new axis=1 created  and current 1 push to axis=2
+So, A[:,None] is 2x1x2 same as A[:,None,:]. B is 4x2, in this equation broadcast to 2x4x2
+So, no need B[None,...] to create 1x4x2 which also broadcast to 2x4x2
+'''
+def euc_dist(a, b):
+#     ab_d = a[:,None,:] - b[None,...]    #same as below    
+    ab_d_sum = np.power(a[:,None] - b, 2).sum(axis=-1)     
     
+    return np.sqrt(ab_d_sum)
+
+def manhattan_dist(a, b):
+    return np.abs(a[:,None] - b).sum(-1)
+
+'''A[:,0] (x2), B[:,0](x4) is values of x-axis of points in A and B. A[:,0,None] (2x1) broadcast with B[:,0] create (2x4)'''
+def manhattan_dist_fast(a, b):
+    return np.abs(A[:,0,None] - B[:,0]) + np.abs(A[:,1,None] - B[:,1])
+
+def chebyshev_dist(a, b):
+    pass
+
+A = np.array([[1, 2],
+     [2, 1]])
+
+B = np.array([[1, 1],
+     [2, 2],
+     [1, 3],
+     [1, 4]])
+
+print(euc_dist(A,B))
+print(manhattan_dist(A,B))    
