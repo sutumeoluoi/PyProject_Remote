@@ -29,3 +29,9 @@ can stay on any directory to call activate. the current directory will be virtua
 
 ////install pytest in venv
 (venv) C:\workspace> pip3.4 install pytest
+
+
+
+
+////Python 3.7 other way using built-in venv
+https://docs.python.org/3/tutorial/venv.html
