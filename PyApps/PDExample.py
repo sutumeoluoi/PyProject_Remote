@@ -223,6 +223,31 @@ def explode_more(df, col_names):
     
     return df.drop(col_names, 1).join(pd.DataFrame(data, index=new_idx, columns=col_names))
 
+'''vstack, hstack, stack
+In [589]: a = np.array([[0, 3],
+     ...:        [1, 4],
+     ...:        [2, 5]])
+     ...:
+
+In [590]: b = np.array([[ 6,  9],
+     ...:        [ 7, 10],
+     ...:        [ 8, 11]])
+
+a.shape => (3, 2)
+b.shape => (3, 2)     
+     
+vstack: double element of axis=0: np.vstack([a,b]).shape =>  (6, 2) (already 2d, so doesn't create new dim, just double it)
+hstack: double element of axis=1: np.hstack([a,b]).shape =>  (3, 4)
+stack: axis=0: create new axis 0 = 2: np.stack([a,b], axis=0).shape => (2, 3, 2)
+stack: axis=1: create new axis 1 = 2: np.stack([a,b], axis=1).shape => (3, 2, 2)
+stack: axis=2: create new axis 2 = 2: np.stack([a,b], axis=2).shape => (3, 2, 2)
+Note: 
+_ stack create 1 more dimension so stack on 2ds creating 3d and max axis allowed is 2. Stack 3ds creating 4d 
+      and max axis allow is 3 so on and so forth
+_ vstack and hstack DON'T create dimension if array dimension >= 2, just double size on specified axis.
+  If array = 1d, vstack create new dimension on axis 0 while hstack DOESN'T      
+'''
+
 '''np.concatenate, vstack, hstack, dstack
 np.concatenate: go to specified axis/level picking all items of each array of that axis/level and join the same of each array. Going up one level and do it again.
 vstack: doing the same as np.concatenate specified axis=0 
@@ -617,3 +642,29 @@ B = np.array([[1, 1],
 
 print(euc_dist(A,B))
 print(manhattan_dist(A,B))    
+
+
+'''Numpy one-hot encoding
+n = array([[1, 1, 2],
+       [1, 2, 3]])
+       
+Out:
+array([[[0., 1., 0., 0.],
+        [0., 1., 0., 0.],
+        [0., 0., 1., 0.]],
+
+       [[0., 1., 0., 0.],
+        [0., 0., 1., 0.],
+        [0., 0., 0., 1.]]])
+'''
+'''Method 1: np.eye and fancy index'''
+np.eye(4)[n]
+
+'''Method 2: np.arange and broadcasting'''
+(np.arange(4) == n[...,None]).astype(int)
+
+'''Method 3: np.zeros and fancy index assignment'''
+a = np.zeros((2, 3, 4))
+a[np.arange(2)[:,None], np.arange(3)[None,:], n] = 1
+
+
